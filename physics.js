@@ -65,4 +65,4 @@ function update() {
 }
 
 // Export functions for use in other modules
-export { initPhysics, addParticle, update, triggerExplosion };
+export { world, initPhysics, addParticle, update, triggerExplosion };
