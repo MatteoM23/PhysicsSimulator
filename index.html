@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Physics Simulation</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Removed the script tag for Matter.js since it will be imported via modules -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.14.2/matter.min.js"></script>
 </head>
 <body>
     <div id="uiContainer">
@@ -16,12 +16,8 @@
             <button id="timeDilationBtn">Time Dilation</button>
         </div>
     </div>
-    <!-- Use defer to ensure scripts are executed after the HTML document has been parsed -->
-        <script type="module" src="index.js"></script>
-        <script type="module" src="materials.js"></script>
-        <script type="module" src="utils.js"></script>
-        <script type="module" src="physics.js"></script>
-
-    <!-- Removed individual script tags for physics.js, materials.js, and utils.js assuming they are imported or required within index.js -->
+    <!-- Ensure scripts are executed as modules after the HTML document has been parsed -->
+    <script type="module" src="index.js"></script>
+    <!-- Removed script tags for materials.js, utils.js, and physics.js since these should be imported within index.js or other modules as needed -->
 </body>
 </html>
