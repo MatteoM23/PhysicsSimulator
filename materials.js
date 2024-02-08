@@ -1,14 +1,14 @@
-// Ensure Matter.js is accessible. If using modules, import Matter.js as needed.
-const { Bodies, World } = Matter;
+import { Bodies, World } from 'matter-js';
 
 const materialProperties = {
+    // Existing material definitions...
     sand: {
         label: 'sand',
         render: { fillStyle: '#f4e04d' },
         density: 0.002,
         friction: 0.5,
         restitution: 0.3,
-        size: 5 // Particle size in pixels
+        size: 5
     },
     water: {
         label: 'water',
@@ -16,7 +16,7 @@ const materialProperties = {
         density: 0.001,
         friction: 0.0,
         restitution: 0.1,
-        size: 6 // Slightly larger to mimic fluid cohesion
+        size: 6
     },
     oil: {
         label: 'oil',
@@ -25,7 +25,7 @@ const materialProperties = {
         friction: 0.05,
         restitution: 0.05,
         size: 6,
-        flammable: true // Custom property to indicate interaction with lava
+        flammable: true
     },
     rock: {
         label: 'rock',
@@ -33,7 +33,7 @@ const materialProperties = {
         density: 0.004,
         friction: 0.6,
         restitution: 0.1,
-        size: 8 // Larger size for rocks
+        size: 8
     },
     lava: {
         label: 'lava',
@@ -41,24 +41,38 @@ const materialProperties = {
         density: 0.003,
         friction: 0.2,
         restitution: 0.4,
-        size: 7, // Mimic slightly fluid-like but still viscous
-        temperature: 1200 // Custom property for interaction logic
+        size: 7,
+        temperature: 1200
+    },
+    antimatter: {
+        label: 'antimatter',
+        render: { fillStyle: '#8e44ad' },
+        density: 0.001, // Unique property to make it interact differently
+        friction: 0.0,
+        restitution: 1.0,
+        size: 10, // Distinguishable size
+        // Custom property to trigger unique interactions
+        isAntimatter: true
     }
 };
 
 function createMaterial(x, y, materialType, world) {
     const properties = materialProperties[materialType];
-    const body = Bodies.circle(x, y, properties.size / 2, Object.assign({}, properties, {
+    const body = Bodies.circle(x, y, properties.size / 2, {
         label: materialType,
         render: properties.render,
         density: properties.density,
         friction: properties.friction,
         restitution: properties.restitution,
-        plugin: { materialType: materialType } // For identifying material during collisions
-    }));
+        plugin: { materialType: materialType } // Use for collision detection
+    });
+
+    if (materialType === 'antimatter') {
+        body.plugin.isAntimatter = true; // Mark antimatter for special collision handling
+    }
 
     World.add(world, body);
-    return body; // Return the body in case further manipulation is needed
+    return body;
 }
 
 export { createMaterial, materialProperties };
