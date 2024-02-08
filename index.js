@@ -4,17 +4,18 @@ import { createMaterial, materialProperties } from './materials.js';
 import { screenToWorld } from './utils.js';
 import { handleInteractions } from './interactions.js';
 
-document.addEventListener('DOMContentLoaded', function() {
-    const engine = Engine.create();
-    const render = Render.create({
+import Matter from 'https://cdn.skypack.dev/matter-js';
+
+document.addEventListener('DOMContentLoaded', () => {
+    const engine = Matter.Engine.create();
+    const render = Matter.Render.create({
         element: document.body,
         engine: engine,
         options: {
             width: window.innerWidth,
             height: window.innerHeight,
-            wireframes: false,
-            background: 'transparent'
-        },
+            wireframes: false
+        }
     });
 
     // Add ground to prevent particles from falling indefinitely
