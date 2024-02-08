@@ -1,57 +1,55 @@
-// Assuming you're importing Matter.js functionality as needed
+// Import necessary functions from your physics script
 import { initPhysics, addParticle, createGravityInversionField, createTimeDilationField } from './physics.js';
 
-// Create a new p5 instance by passing a sketch function
+// Define the current material with a default value
+let currentMaterial = 'sand';
+
+// Initialize a new p5 instance
 new p5((sketch) => {
-    let currentMaterial = 'sand'; // Default material
-
+    // p5.js setup function
     sketch.setup = () => {
+        // Create a canvas that fills the window
         sketch.createCanvas(sketch.windowWidth, sketch.windowHeight);
-        initPhysics(); // Initialize your physics engine here
-        setupUI(); // Set up your UI here, this function needs to be defined to interact with the DOM
+
+        // Initialize the physics engine
+        initPhysics();
+
+        // Set up the UI for material selection
+        setupUI();
     };
 
+    // p5.js draw function
     sketch.draw = () => {
-        sketch.background(51); // Set the background color of the canvas
+        // Set the background color of the canvas
+        sketch.background(51);
     };
 
+    // Function to handle mouse pressed events
     sketch.mousePressed = () => {
         // Check if the mouse press is within the canvas and not on the UI
         if (sketch.mouseY < sketch.height - 50) {
+            // Add a particle at the mouse location with the current material
             addParticle(sketch.mouseX, sketch.mouseY, currentMaterial);
         }
     };
 
+    // Function to set up the UI for material selection
     function setupUI() {
-        // Example: Setup your UI here
-        // This should interact with DOM elements directly, not through p5
         const selector = document.getElementById('materialSelector');
         const materials = ['sand', 'water', 'oil', 'rock', 'lava']; // Define available materials
-        materials.forEach(material => {
+
+        // Create a button for each material
+        materials.forEach((material) => {
             let button = document.createElement('button');
             button.innerText = material;
-            button.addEventListener('click', () => setCurrentMaterial(material));
+            button.onclick = () => setCurrentMaterial(material);
             selector.appendChild(button);
         });
     }
 
+    // Function to set the current material based on user selection
     function setCurrentMaterial(material) {
         currentMaterial = material;
-        console.log(`Current material set to: ${currentMaterial}`);
+        console.log(`Current material set to: ${currentMaterial}`); // For debugging purposes
     }
-
-    new p5((sketch) => {
-    sketch.setup = () => {
-        sketch.createCanvas(sketch.windowWidth, sketch.windowHeight);
-        initPhysics(); // Initialize physics after confirming Matter.js is loaded
-    };
-
-    sketch.draw = () => {
-        sketch.background(51);
-        // Additional drawing or physics update logic here
-    };
-        
 });
-
-
-// Note: Ensure the rest of your functions like `initPhysics`, `addParticle`, `createGravityInversionField`, and `createTimeDilationField` are defined in their respective modules and are correctly imported here.
