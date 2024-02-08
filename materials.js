@@ -1,6 +1,6 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
-import { Bodies, World } from 'matter-js';
+import { Bodies, World } from 'https://cdn.skypack.dev/matter-js';
 
 const materialProperties = {
     sand: {
