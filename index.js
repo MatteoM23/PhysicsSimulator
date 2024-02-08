@@ -1,11 +1,12 @@
-// Import the entire Matter library from the Skypack CDN
+// Correctly import the entire Matter.js library from the Skypack CDN
 import * as Matter from 'https://cdn.skypack.dev/matter-js';
 
-// Import local modules. Ensure these modules are also updated to import Matter correctly.
+// Assuming createMaterial, materialProperties, and handleInteractions are correctly imported
 import { createMaterial, materialProperties } from './materials.js';
 import { handleInteractions } from './interactions.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Correctly access the Engine and Render through the Matter namespace
     const engine = Matter.Engine.create();
     const render = Matter.Render.create({
         element: document.body,
@@ -14,40 +15,57 @@ document.addEventListener('DOMContentLoaded', () => {
             width: window.innerWidth,
             height: window.innerHeight,
             wireframes: false,
-            background: 'transparent' // Use a transparent background to see the CSS gradient
+            background: 'transparent' // Keeping the background transparent
         }
     });
 
-    // Create ground to prevent particles from falling indefinitely
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 40, { isStatic: true });
+    // Add ground
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - 20, window.innerWidth, 40, { isStatic: true });
     Matter.World.add(engine.world, ground);
 
-    // Initialize custom interactions
+    // Initialize interactions
     handleInteractions(engine, engine.world);
 
-    let currentMaterial = 'sand'; // Default material
+    // Material selection UI
+    const uiContainer = document.createElement('div');
+    uiContainer.id = 'uiContainer';
+    document.body.appendChild(uiContainer);
 
-    // Create UI for material selection
     const materialSelector = document.createElement('div');
     materialSelector.id = 'materialSelector';
-    document.body.appendChild(materialSelector);
+    uiContainer.appendChild(materialSelector);
 
-    // Dynamically create buttons based on available materials
+    // Dynamically creating material selection buttons
     Object.keys(materialProperties).forEach(material => {
         const button = document.createElement('button');
         button.innerText = material;
-        button.addEventListener('click', () => currentMaterial = material);
+        button.onclick = () => currentMaterial = material;
         materialSelector.appendChild(button);
     });
 
-    // Handle mouse down event to create materials
+    // Feature buttons container
+    const featureButtons = document.createElement('div');
+    featureButtons.id = 'featureButtons';
+    uiContainer.appendChild(featureButtons);
+
+    // Example feature button
+    const gravityInversionBtn = document.createElement('button');
+    gravityInversionBtn.innerText = 'Gravity Inversion';
+    featureButtons.appendChild(gravityInversionBtn);
+
+    // Example interaction for the feature button
+    gravityInversionBtn.addEventListener('click', () => {
+        engine.world.gravity.y = engine.world.gravity.y * -1;
+    });
+
+    let currentMaterial = 'sand'; // Default material
+
     window.addEventListener('mousedown', function(event) {
-        const { x, y } = { x: event.clientX, y: event.clientY };
+        const { x, y } = { x: event.clientX, y: event.clientY - document.body.getBoundingClientRect().top }; // Adjust y coordinate
         createMaterial(x, y, currentMaterial, engine.world);
     });
 
-    // Run the engine and renderer
+    // Running the engine and renderer
     Matter.Engine.run(engine);
     Matter.Render.run(render);
 });
-
