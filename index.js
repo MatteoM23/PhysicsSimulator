@@ -1,9 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
-    let engine = Matter.Engine.create();
-    let world = engine.world;
-    engine.world.gravity.y = 1;
-
-    let render = Matter.Render.create({
+    const engine = Matter.Engine.create();
+    const render = Matter.Render.create({
         element: document.body,
         engine: engine,
         options: {
@@ -11,9 +8,14 @@ document.addEventListener('DOMContentLoaded', function () {
             height: window.innerHeight,
             wireframes: false,
             background: 'transparent',
-        },
+        }
     });
 
+    // Define ground to keep particles within view
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - 10, window.innerWidth, 20, { isStatic: true, render: { fillStyle: '#959595' }});
+    Matter.World.add(engine.world, ground);
+
+    // Initial material setup
     let currentMaterial = 'sand';
     const materialOptions = {
         sand: { density: 0.002, restitution: 0.5, color: '#f4e04d' },
@@ -24,69 +26,60 @@ document.addEventListener('DOMContentLoaded', function () {
         antimatter: { density: 0.001, restitution: 1.0, color: '#8e44ad', isAntimatter: true },
     };
 
-    const features = {
-        gravityInversion: { isActive: false },
-        timeDilation: { isActive: false, factor: 0.5 },
-    };
-
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 20, { isStatic: true });
-    Matter.World.add(world, ground);
-
+    // UI setup for material selection
     setupUI();
+
+    // Run the engine and render
     Matter.Engine.run(engine);
     Matter.Render.run(render);
 
     window.addEventListener('mousedown', function (event) {
+        // Prevent interaction if clicked on UI
         if (event.target.tagName.toLowerCase() === 'button') return;
-        addParticle(event.clientX, event.clientY, currentMaterial);
+        
+        // Add particle on click
+        const { density, restitution, color, isAntimatter } = materialOptions[currentMaterial];
+        let particle = Matter.Bodies.circle(event.clientX, event.clientY, 5, {
+            density, restitution,
+            render: { fillStyle: color },
+            plugin: { isAntimatter }
+        });
+        Matter.World.add(engine.world, particle);
     });
 
     function setupUI() {
         const materialSelector = document.getElementById('materialSelector');
+        if (!materialSelector) {
+            console.error('Material selector container not found!');
+            return;
+        }
+        materialSelector.innerHTML = ''; // Reset material selector
+
         Object.keys(materialOptions).forEach(material => {
-            let button = document.createElement('button');
+            const button = document.createElement('button');
             button.innerText = material;
-            button.addEventListener('click', () => setCurrentMaterial(material));
+            button.onclick = () => setCurrentMaterial(material);
             materialSelector.appendChild(button);
         });
 
-        // Feature buttons setup
-        const featureButtons = document.getElementById('featureButtons');
-        Object.keys(features).forEach(feature => {
-            let button = document.createElement('button');
-            button.innerText = feature.replace(/([A-Z])/g, ' $1').trim(); // Convert camelCase to Normal Case
-            button.addEventListener('click', () => toggleFeature(feature));
-            featureButtons.appendChild(button);
-        });
+        // Set up feature buttons
+        setupFeatureButtons();
     }
 
     function setCurrentMaterial(material) {
         currentMaterial = material;
     }
 
-    function addParticle(x, y, material) {
-        const { density, restitution, color, isAntimatter } = materialOptions[material];
-        let particle = Matter.Bodies.circle(x, y, 5, {
-            density, restitution,
-            render: { fillStyle: color },
-            plugin: { isAntimatter: !!isAntimatter }
-        });
-        Matter.World.add(world, particle);
-    }
+    function setupFeatureButtons() {
+        // Example for gravity inversion, implement similarly for time dilation if needed
+        const featureButtons = document.getElementById('featureButtons');
+        featureButtons.innerHTML = ''; // Reset feature buttons to remove duplicates
 
-    function toggleFeature(feature) {
-        features[feature].isActive = !features[feature].isActive;
-        applyFeatureEffects();
-    }
-
-    function applyFeatureEffects() {
-        if (features.gravityInversion.isActive) {
-            world.gravity.y = world.gravity.y * -1; // Invert gravity
-        } else {
-            world.gravity.y = Math.abs(world.gravity.y); // Ensure gravity is normal
-        }
-
-        // Time dilation could be complex to implement directly as it would require altering the engine's timing mechanism.
-        // As an alternative, consider adjusting the velocity of all bodies to simulate time dilation.
+        const gravityButton = document.createElement('button');
+        gravityButton.innerText = 'Toggle Gravity';
+        gravityButton.onclick = () => {
+            engine.world.gravity.y = engine.world.gravity.y * -1;
+        };
+        featureButtons.appendChild(gravityButton);
     }
 });
