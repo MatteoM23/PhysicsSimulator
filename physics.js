@@ -15,9 +15,10 @@ function initPhysics() {
 }
 
 function addParticle(x, y, materialType) {
-    // Call createMaterial to add a new particle of the specified material
+    console.log(`Adding particle at ${x}, ${y} of type ${materialType}`);
     createMaterial(x, y, materialType, world);
 }
+
 
 function createGravityInversionField(x, y, radius, strength) {
     Events.on(engine, 'beforeUpdate', function() {
