@@ -1,7 +1,6 @@
 import { Bodies, World } from 'matter-js';
 
 const materialProperties = {
-    // Existing material definitions...
     sand: {
         label: 'sand',
         render: { fillStyle: '#f4e04d' },
@@ -42,17 +41,16 @@ const materialProperties = {
         friction: 0.2,
         restitution: 0.4,
         size: 7,
-        temperature: 1200
+        temperature: 1200 // Custom property, possibly for specific interactions
     },
     antimatter: {
         label: 'antimatter',
         render: { fillStyle: '#8e44ad' },
-        density: 0.001, // Unique property to make it interact differently
+        density: 0.001,
         friction: 0.0,
         restitution: 1.0,
-        size: 10, // Distinguishable size
-        // Custom property to trigger unique interactions
-        isAntimatter: true
+        size: 10,
+        isAntimatter: true // Mark antimatter for special collision handling
     }
 };
 
@@ -64,12 +62,8 @@ function createMaterial(x, y, materialType, world) {
         density: properties.density,
         friction: properties.friction,
         restitution: properties.restitution,
-        plugin: { materialType: materialType } // Use for collision detection
+        plugin: { materialType: materialType } // Use for collision detection and interactions
     });
-
-    if (materialType === 'antimatter') {
-        body.plugin.isAntimatter = true; // Mark antimatter for special collision handling
-    }
 
     World.add(world, body);
     return body;
