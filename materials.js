@@ -25,6 +25,8 @@ const materialProperties = {
         friction: 0.01,
         restitution: 0.05,
         size: 6
+        flammable: true,
+        temperature: 25, // Example property
     },
     rock: {
         label: 'rock',
@@ -41,6 +43,8 @@ const materialProperties = {
         friction: 0.2,
         restitution: 0.4,
         size: 7 // mimic slightly fluid-like but still viscous
+        reactsWith: ['oil'],
+        temperature: 1200, // Example property
     }
 };
 
