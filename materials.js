@@ -70,4 +70,3 @@ export function createMaterial(x, y, materialType, world) {
     return body;
 }
 
-export { materials };
