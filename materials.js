@@ -91,4 +91,5 @@ function createParticle(x, y, materialType) {
 
 
 
-export { createMaterial, materialProperties };
+// Example corrected export statement for materials.js
+export { createParticle, materialProperties };
