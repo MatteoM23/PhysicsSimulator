@@ -1,6 +1,6 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
-import { Vertices, Body } from 'matter-js';
+import { Vertices, Body } from 'https://cdn.skypack.dev/matter-js';
 
 // Converts screen coordinates to physics world coordinates, assuming a 1:1 scale for simplicity
 function screenToWorld(x, y) {
