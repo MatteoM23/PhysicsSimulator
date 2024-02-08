@@ -46,7 +46,7 @@ const materialProperties = {
     }
 };
 
-function createMaterial(x, y, materialType, world) {
+export function createMaterial(x, y, materialType, world) {
     const properties = materialProperties[materialType];
     const body = Bodies.circle(x, y, properties.size / 2, {
         label: materialType,
