@@ -1,129 +1,55 @@
-// physics.js
-const { Engine, World, Bodies, Body, Events, Composite } = Matter;
+// Import necessary components from Matter.js
+import { Engine, World, Events } from 'matter-js';
+import { createMaterial } from './materials.js'; // Ensure this import matches your project structure
 
-let engine, world;
-const particles = []; // To store all dynamic particles
+// Initialize engine and world
+let engine = Engine.create();
+let world = engine.world;
 
+// Initialize physics settings
 function initPhysics() {
-    engine = Engine.create();
-    world = engine.world;
-    engine.world.gravity.y = 1;
-
-    // Listen for collision events to simulate water-sand interaction
-    Events.on(engine, 'collisionStart', event => handleCollisions(event));
+    engine.gravity.y = 1; // Default gravity, can be adjusted as needed
 }
 
-function handleCollisions(event) {
-    event.pairs.forEach(pair => {
-        const labels = [pair.bodyA.label, pair.bodyB.label];
-        // Check if one is water and the other is sand
-        if (labels.includes('water') && labels.includes('sand')) {
-            const waterBody = pair.bodyA.label === 'water' ? pair.bodyA : pair.bodyB;
-            const sandBody = pair.bodyA.label === 'water' ? pair.bodyB : pair.bodyA;
-
-            // Example of changing sand properties - this could be more complex in a real scenario
-            Body.setStatic(sandBody, true); // Simplification: just make the sand static to simulate "wet sand"
-        }
-    });
-}
-
+// Add a particle with specified material properties to the world
 function addParticle(x, y, materialType) {
-    // Simplified particle creation logic
-    const size = materialType === 'sand' ? 2 : materialType === 'water' ? 5 : 3; // Adjust size based on type
-    const properties = { isStatic: false, restitution: 0.5, density: 0.001, label: materialType };
-    const particle = Bodies.circle(x, y, size, properties);
-    particles.push(particle);
-    World.add(world, particle);
+    // Directly utilize the createMaterial function from materials.js
+    createMaterial(x, y, materialType, world);
 }
 
-// Placeholder for adding simplified fluid behavior
-function updateFluidBehavior() {
-    const fluidParticles = particles.filter(p => p.label === 'water');
-    fluidParticles.forEach(particle => {
-        applyCohesion(fluidParticles, particle);
-        applySeparation(fluidParticles, particle);
-    });
-}
-
-function applyCohesion(particles, target) {
-    const cohesionRange = 50; // Max distance for attracting particles
-    const cohesionStrength = 0.001; // Strength of attraction
-
-    particles.forEach(p => {
-        const distance = Matter.Vector.magnitude(Matter.Vector.sub(p.position, target.position));
-        if (distance > 0 && distance < cohesionRange) {
-            const forceDirection = Matter.Vector.normalise(Matter.Vector.sub(p.position, target.position));
-            const forceMagnitude = cohesionStrength * (cohesionRange - distance) / cohesionRange;
-            const force = Matter.Vector.mult(forceDirection, -forceMagnitude);
-
-            Matter.Body.applyForce(target, target.position, force);
-        }
-    });
-}
-
-function applySeparation(particles, target) {
-    const separationRange = 25; // Distance to maintain from other particles
-    const separationStrength = 0.002; // Strength of repulsion
-
-    particles.forEach(p => {
-        const distance = Matter.Vector.magnitude(Matter.Vector.sub(p.position, target.position));
-        if (distance > 0 && distance < separationRange) {
-            const forceDirection = Matter.Vector.normalise(Matter.Vector.sub(target.position, p.position));
-            const forceMagnitude = separationStrength * (separationRange - distance) / separationRange;
-            const force = Matter.Vector.mult(forceDirection, forceMagnitude);
-
-            Matter.Body.applyForce(target, target.position, force);
-        }
-    });
-}
-
-// Integrate updateFluidBehavior into the main update loop
-function update() {
-    Engine.update(engine, 1000 / 60);
-    updateFluidBehavior(); // Call fluid behavior update
-}
-
-
+// Create a gravity inversion field effect
 function createGravityInversionField(x, y, radius, strength) {
-    Events.on(engine, 'beforeUpdate', () => {
-        Composite.allBodies(world).forEach(body => {
-            if (!body.isStatic && body.label !== 'boundary') {
-                const dx = body.position.x - x;
-                const dy = body.position.y - y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance < radius) {
-                    const forceMagnitude = strength * (radius - distance) / radius;
-                    Body.applyForce(body, body.position, { x: 0, y: -forceMagnitude * body.mass });
-                }
+    Events.on(engine, 'beforeUpdate', function() {
+        World.allBodies(world).forEach(body => {
+            const distance = Math.sqrt(Math.pow(body.position.x - x, 2) + Math.pow(body.position.y - y, 2));
+            if (distance < radius && !body.isStatic) {
+                // Invert gravity within the specified radius
+                const forceDirection = Math.atan2(body.position.y - y, body.position.x - x);
+                const forceMagnitude = strength * (radius - distance) / radius;
+                body.force.x += Math.cos(forceDirection) * forceMagnitude * body.mass;
+                body.force.y += Math.sin(forceDirection) * forceMagnitude * body.mass;
             }
         });
     });
 }
 
+// Create a time dilation field effect
 function createTimeDilationField(x, y, radius, dilationFactor) {
-    Events.on(engine, 'beforeUpdate', () => {
-        Composite.allBodies(world).forEach(body => {
-            if (!body.isStatic && body.label !== 'boundary') {
-                const dx = body.position.x - x;
-                const dy = body.position.y - y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance < radius) {
-                    // Adjust velocity based on dilation factor
-                    Body.setVelocity(body, {
-                        x: body.velocity.x * dilationFactor,
-                        y: body.velocity.y * dilationFactor,
-                    });
-                    // Optionally, adjust angular velocity
-                    Body.setAngularVelocity(body, body.angularVelocity * dilationFactor);
-                }
+    Events.on(engine, 'beforeUpdate', function() {
+        World.allBodies(world).forEach(body => {
+            const distance = Math.sqrt(Math.pow(body.position.x - x, 2) + Math.pow(body.position.y - y, 2));
+            if (distance < radius && !body.isStatic) {
+                // Slow down time by reducing velocity
+                body.velocity.x *= dilationFactor;
+                body.velocity.y *= dilationFactor;
             }
         });
     });
 }
 
+// Update the engine
+function update() {
+    Engine.update(engine, 1000 / 60); // Update the engine at 60 fps
+}
 
-
-// Example corrected export statement for physics.js
-export { initPhysics, addParticle, update, createGravityInversionField, createTimeDilationField };
+export { initPhysics, addParticle, createGravityInversionField, createTimeDilationField, update };
