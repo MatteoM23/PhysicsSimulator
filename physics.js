@@ -1,36 +1,57 @@
-// Import Matter.js and custom modules for interactions and material creation.
+// Import Matter.js from Skypack CDN
 import Matter from 'https://cdn.skypack.dev/matter-js';
-import { handleInteractions } from './interactions.js';
-import { createMaterial } from './materials.js';
 
-// Create a Matter.js engine and world.
-let engine = Matter.Engine.create();
-let world = engine.world;
-// Set the gravity for the simulation.
-engine.world.gravity.y = 1;
+// Setup the engine and world
+const engine = Matter.Engine.create();
+const world = engine.world;
+engine.world.gravity.y = 1; // Apply gravity
 
+// Define custom material properties
+const materialProperties = {
+    sand: { density: 0.002, friction: 0.5 },
+    water: { density: 0.001, friction: 0.01 }
+    // Add more materials as needed
+};
+
+// Initialize physics environment and ground
 function initPhysics() {
-    // Add ground to prevent particles from falling out of view.
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 20, { isStatic: true, render: { fillStyle: 'grey' } });
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - 10, window.innerWidth, 20, { isStatic: true, render: { fillStyle: 'grey' } });
     Matter.World.add(world, ground);
-
-    // Initialize custom interactions between materials.
-    handleInteractions(engine);
 }
 
-// Function to add a particle with a specified material type at the given (x, y) position.
+// Function to handle material interactions, placeholder for demonstration
+function handleInteractions() {
+    Matter.Events.on(engine, 'collisionStart', (event) => {
+        event.pairs.forEach((pair) => {
+            const { bodyA, bodyB } = pair;
+            // Example interaction: If sand hits water, do something specific
+            // This is where you'd implement specific logic based on your game's rules
+        });
+    });
+}
+
+// Function to add particles of a given material type
 function addParticle(x, y, materialType) {
-    // Utilize createMaterial from 'materials.js' to add a new material particle to the world.
-    createMaterial(x, y, materialType, world);
+    const properties = materialProperties[materialType];
+    if (!properties) return; // Material type not recognized
+
+    const particle = Matter.Bodies.circle(x, y, 5, {
+        density: properties.density,
+        friction: properties.friction,
+        render: { fillStyle: properties.color || 'white' } // Default color if not specified
+    });
+
+    Matter.World.add(world, particle);
 }
 
-// Function to update the engine. This should be called in a loop or driven by a rendering loop.
+// Update the physics world
 function update() {
-    Matter.Engine.update(engine, 1000 / 60); // Update the engine at 60 fps.
+    Matter.Engine.update(engine, 1000 / 60);
 }
 
-// Immediately initialize the physics engine upon script execution.
+// Initialize physics and handle interactions
 initPhysics();
+handleInteractions();
 
-// Expose functions for external use, if necessary.
+// Expose functions if needed elsewhere
 export { initPhysics, addParticle, update, engine, world };
