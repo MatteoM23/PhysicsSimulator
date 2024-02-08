@@ -1,55 +1,59 @@
-// Import necessary components from Matter.js
+// Assuming Matter.js is available globally
+// Remove the import statement for Matter.js components if Matter is included via a script tag
 const { Engine, World, Bodies, Events } = Matter;
-import { createMaterial } from './materials.js'; // Ensure this import matches your project structure
 
-// Initialize engine and world
+// Import createMaterial from materials.js if using ES6 modules, otherwise ensure it's globally accessible
+import { createMaterial } from './materials.js';
+
 let engine = Engine.create();
 let world = engine.world;
 
-// Initialize physics settings
 function initPhysics() {
-    engine.gravity.y = 1; // Default gravity, can be adjusted as needed
+    engine.gravity.y = 1; // Adjust gravity to your simulation's needs
 }
 
-// Add a particle with specified material properties to the world
 function addParticle(x, y, materialType) {
-    // Directly utilize the createMaterial function from materials.js
+    // Utilizes createMaterial from materials.js, passing in Matter.js world object
     createMaterial(x, y, materialType, world);
 }
 
-// Create a gravity inversion field effect
 function createGravityInversionField(x, y, radius, strength) {
-    Events.on(engine, 'beforeUpdate', function() {
-        World.allBodies(world).forEach(body => {
-            const distance = Math.sqrt(Math.pow(body.position.x - x, 2) + Math.pow(body.position.y - y, 2));
+    Events.on(engine, 'beforeUpdate', function(event) {
+        World.allBodies(world).forEach(function(body) {
+            const dx = body.position.x - x;
+            const dy = body.position.y - y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
             if (distance < radius && !body.isStatic) {
-                // Invert gravity within the specified radius
-                const forceDirection = Math.atan2(body.position.y - y, body.position.x - x);
+                // Apply force in the opposite direction of gravity
                 const forceMagnitude = strength * (radius - distance) / radius;
-                body.force.x += Math.cos(forceDirection) * forceMagnitude * body.mass;
-                body.force.y += Math.sin(forceDirection) * forceMagnitude * body.mass;
+                Body.applyForce(body, body.position, {
+                    x: 0, // No horizontal force
+                    y: -forceMagnitude * body.mass // Upward force
+                });
             }
         });
     });
 }
 
-// Create a time dilation field effect
 function createTimeDilationField(x, y, radius, dilationFactor) {
-    Events.on(engine, 'beforeUpdate', function() {
-        World.allBodies(world).forEach(body => {
-            const distance = Math.sqrt(Math.pow(body.position.x - x, 2) + Math.pow(body.position.y - y, 2));
+    Events.on(engine, 'beforeUpdate', function(event) {
+        World.allBodies(world).forEach(function(body) {
+            const dx = body.position.x - x;
+            const dy = body.position.y - y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
             if (distance < radius && !body.isStatic) {
-                // Slow down time by reducing velocity
-                body.velocity.x *= dilationFactor;
-                body.velocity.y *= dilationFactor;
+                // Adjust the body's time scale
+                body.timeScale = dilationFactor;
             }
         });
     });
 }
 
-// Update the engine
 function update() {
-    Engine.update(engine, 1000 / 60); // Update the engine at 60 fps
+    Engine.update(engine, 1000 / 60); // Ideally called within a requestAnimationFrame loop or p5.js draw function
 }
 
+// Ensure these functions are exported if using ES6 modules
 export { initPhysics, addParticle, createGravityInversionField, createTimeDilationField, update };
