@@ -1,16 +1,12 @@
-// Ensure the import statement is correct
-import * as Matter from 'https://cdn.skypack.dev/matter-js';
-import { materials, createMaterial } from './materials.js';
+// Use the provided optimized Matter.js CDN link
+import Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
+
+// Assume materials.js exports a `materials` object with properties for each material
+import { materials } from './materials.js';
+import { initPhysics, addWalls } from './physics.js';
 import { handleInteractions } from './interactions.js';
-import { screenToWorld } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Confirm Matter.js is correctly loaded
-    if (!Matter || !Matter.Engine) {
-        console.error("Matter.js didn't load correctly.");
-        return;
-    }
-
     const engine = Matter.Engine.create();
     const render = Matter.Render.create({
         element: document.body,
@@ -22,90 +18,76 @@ document.addEventListener('DOMContentLoaded', () => {
         },
     });
 
-    // Create invisible walls
-    const createWalls = () => {
-        const thickness = 50;
-        const wallOptions = { isStatic: true, render: { visible: false }};
-        const walls = [
-            Matter.Bodies.rectangle(render.options.width / 2, 0, render.options.width, thickness, wallOptions), // Top
-            Matter.Bodies.rectangle(render.options.width / 2, render.options.height, render.options.width, thickness, wallOptions), // Bottom
-            Matter.Bodies.rectangle(0, render.options.height / 2, thickness, render.options.height, wallOptions), // Left
-            Matter.Bodies.rectangle(render.options.width, render.options.height / 2, thickness, render.options.height, wallOptions) // Right
-        ];
-        Matter.World.add(engine.world, walls);
-    };
-    createWalls();
+    // Initialize physics and add invisible walls
+    initPhysics(engine);
+    addWalls(engine, render);
 
-    // UI for Material Selection
+    // UI setup
     const uiContainer = document.createElement('div');
+    document.body.appendChild(uiContainer);
     uiContainer.style.position = 'fixed';
     uiContainer.style.top = '0';
     uiContainer.style.left = '0';
     uiContainer.style.width = '100%';
     uiContainer.style.display = 'flex';
-    uiContainer.style.justifyContent = 'center';
+    uiContainer.style.flexDirection = 'column';
+    uiContainer.style.alignItems = 'center';
     uiContainer.style.zIndex = '1';
-    document.body.appendChild(uiContainer);
 
     let currentMaterial = 'sand'; // Default material
-    Object.entries(materials).forEach(([key, value]) => {
-        const button = document.createElement('button');
-        button.innerText = value.label;
-        button.onclick = () => { currentMaterial = key; };
-        uiContainer.appendChild(button);
+    const materialSelector = document.createElement('div');
+    uiContainer.appendChild(materialSelector);
+
+    Object.keys(materials).forEach(material => {
+        const btn = document.createElement('button');
+        btn.innerText = material;
+        btn.addEventListener('click', () => {
+            currentMaterial = material;
+        });
+        materialSelector.appendChild(btn);
     });
 
-    // Feature Buttons
-    const featureContainer = document.createElement('div');
-    featureContainer.style.position = 'fixed';
-    featureContainer.style.bottom = '10px';
-    featureContainer.style.left = '50%';
-    featureContainer.style.transform = 'translateX(-50%)';
-    featureContainer.style.zIndex = '1';
+    // Feature buttons setup
+    const featureButtons = document.createElement('div');
+    uiContainer.appendChild(featureButtons);
 
-    // Gravity Inversion Button
-    const invertGravityBtn = document.createElement('button');
-    invertGravityBtn.innerText = 'Invert Gravity';
-    invertGravityBtn.onclick = () => { engine.world.gravity.y *= -1; };
-    featureContainer.appendChild(invertGravityBtn);
+    const gravityBtn = document.createElement('button');
+    gravityBtn.innerText = 'Invert Gravity';
+    gravityBtn.addEventListener('click', () => {
+        engine.world.gravity.y = -engine.world.gravity.y;
+    });
+    featureButtons.appendChild(gravityBtn);
 
-    // Time Dilation Button
-    const timeDilationBtn = document.createElement('button');
-    timeDilationBtn.innerText = 'Toggle Time Dilation';
-    let timeDilation = 1;
-    timeDilationBtn.onclick = () => {
-        timeDilation = timeDilation === 0.5 ? 1 : 0.5;
-        engine.timing.timeScale = timeDilation;
-    };
-    featureContainer.appendChild(timeDilationBtn);
+    const timeBtn = document.createElement('button');
+    timeBtn.innerText = 'Toggle Time Dilation';
+    timeBtn.addEventListener('click', () => {
+        engine.timing.timeScale = engine.timing.timeScale === 1 ? 0.5 : 1;
+    });
+    featureButtons.appendChild(timeBtn);
 
-    document.body.appendChild(featureContainer);
-
-    // Continuous Particle Creation
+    // Continuous particle creation on mouse hold
     let mouseHold = false;
-    document.body.addEventListener('mousedown', (e) => {
-        if (e.target === render.canvas) {
-            mouseHold = true;
-            document.body.addEventListener('mousemove', continuousCreation);
-            continuousCreation(e); // For immediate response
-        }
-    });
-    document.body.addEventListener('mouseup', () => {
-        mouseHold = false;
-        document.body.removeEventListener('mousemove', continuousCreation);
+    document.addEventListener('mousedown', (e) => {
+        mouseHold = true;
+        const interval = setInterval(() => {
+            if (!mouseHold) clearInterval(interval);
+            if (e.target.tagName.toLowerCase() === 'button') return; // Prevents particle creation when clicking UI buttons
+            const mousePosition = { x: e.clientX, y: e.clientY - uiContainer.offsetHeight };
+            const materialConfig = materials[currentMaterial];
+            const body = Matter.Bodies.circle(mousePosition.x, mousePosition.y, materialConfig.size, {
+                ...materialConfig.options,
+                render: { fillStyle: materialConfig.color },
+            });
+            Matter.World.add(engine.world, body);
+        }, 100); // Adjust interval as needed for performance
     });
 
-    function continuousCreation(e) {
-        if (!mouseHold) return;
-        const { x, y } = screenToWorld(e.clientX, e.clientY);
-        if (y > uiContainer.offsetHeight) { // Avoid spawning particles behind the UI
-            createMaterial(x, y, currentMaterial, engine.world);
-        }
-    }
+    document.addEventListener('mouseup', () => {
+        mouseHold = false;
+    });
 
     handleInteractions(engine);
 
     Matter.Engine.run(engine);
     Matter.Render.run(render);
 });
-
