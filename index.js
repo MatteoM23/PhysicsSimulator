@@ -1,7 +1,6 @@
 import Matter from 'matter-js';
 import { createMaterial, materialProperties } from './materials.js';
 import { handleInteractions } from './interactions.js';
-import { screenToWorld, getRandomColor } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     const engine = Matter.Engine.create();
@@ -11,49 +10,62 @@ document.addEventListener('DOMContentLoaded', function() {
         options: {
             width: window.innerWidth,
             height: window.innerHeight,
-            wireframes: false
+            wireframes: false,
+            background: 'rgba(255, 255, 255, 0.9)' // Light background to ensure visibility
         }
     });
 
-    // Ground to prevent particles from falling indefinitely
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - 10, window.innerWidth, 20, {
-        isStatic: true,
-        render: { fillStyle: '#060a19' }
-    });
+    // Add ground to prevent particles from falling out of view
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 20, { isStatic: true });
     Matter.World.add(engine.world, ground);
 
     // Initialize interactions handling
     handleInteractions(engine);
 
-    // Mouse interaction setup
+    // Current selected material
+    let currentMaterial = 'sand'; // Default material
+
+    // Create material selector UI
+    createMaterialSelector();
+
+    // Mouse interaction for particle creation
+    window.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('mousemove', onMouseMove);
+
+    function createMaterialSelector() {
+        const selector = document.createElement('div');
+        selector.style.position = 'absolute';
+        selector.style.top = '10px';
+        selector.style.left = '10px';
+        selector.style.padding = '5px';
+        selector.style.backgroundColor = '#fff';
+        selector.style.border = '1px solid #ddd';
+        selector.style.borderRadius = '5px';
+
+        Object.keys(materialProperties).forEach((material) => {
+            const button = document.createElement('button');
+            button.textContent = material;
+            button.style.margin = '2px';
+            button.onclick = () => currentMaterial = material;
+            selector.appendChild(button);
+        });
+
+        document.body.appendChild(selector);
+    }
+
     let mouseIsDown = false;
-    window.addEventListener('mousedown', () => mouseIsDown = true);
-    window.addEventListener('mouseup', () => mouseIsDown = false);
-    window.addEventListener('mousemove', (event) => {
+    function onMouseDown() { mouseIsDown = true; }
+    function onMouseUp() { mouseIsDown = false; }
+    function onMouseMove(event) {
         if (mouseIsDown) {
-            const { x, y } = screenToWorld(event.clientX, event.clientY);
-            const materialType = document.querySelector('input[name="material"]:checked').value; // Assuming radio buttons for material selection
-            createMaterial(x, y, materialType, engine.world);
+            // Convert screen coordinates to world coordinates if necessary
+            const { x, y } = { x: event.clientX, y: event.clientY };
+            createMaterial(x, y, currentMaterial, engine.world);
         }
-    });
+    }
 
-    // Material selection UI
-    const materialSelector = document.createElement('div');
-    Object.keys(materialProperties).forEach(type => {
-        const label = document.createElement('label');
-        const radioButton = document.createElement('input');
-        radioButton.setAttribute('type', 'radio');
-        radioButton.setAttribute('name', 'material');
-        radioButton.setAttribute('value', type);
-        if (type === 'sand') { // Default selection
-            radioButton.checked = true;
-        }
-        label.appendChild(radioButton);
-        label.appendChild(document.createTextNode(type));
-        materialSelector.appendChild(label);
-    });
-    document.body.appendChild(materialSelector);
-
+    // Run the Matter.js engine and renderer
     Matter.Engine.run(engine);
     Matter.Render.run(render);
 });
