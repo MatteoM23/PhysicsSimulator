@@ -74,5 +74,19 @@ window.addEventListener('click', function(event) {
     addParticle(event.clientX, event.clientY, 'sand');
 });
 
+
+
+// Assuming the rest of your physics setup is already here
+export function addWalls(engine, render) {
+    const wallThickness = 50; // Adjust thickness as needed
+    const walls = [
+        Matter.Bodies.rectangle(render.options.width / 2, -wallThickness, render.options.width + wallThickness * 2, wallThickness, { isStatic: true }),
+        Matter.Bodies.rectangle(render.options.width / 2, render.options.height, render.options.width + wallThickness * 2, wallThickness, { isStatic: true }),
+        Matter.Bodies.rectangle(-wallThickness, render.options.height / 2, wallThickness, render.options.height, { isStatic: true }),
+        Matter.Bodies.rectangle(render.options.width + wallThickness, render.options.height / 2, wallThickness, render.options.height, { isStatic: true })
+    ];
+    Matter.World.add(engine.world, walls);
+}
+
 // Export the necessary functions if needed elsewhere
 export { addParticle, update };
