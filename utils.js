@@ -1,4 +1,4 @@
-import * as Matter from 'https://cdn.skypack.dev/matter-js';
+import * as Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
 
 // Access Body and Vertices from the Matter namespace
 const { Body, Vertices } = Matter;
