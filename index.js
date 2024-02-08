@@ -4,14 +4,18 @@ import { initPhysics, addParticle, createGravityInversionField, createTimeDilati
 // Current selected material
 let currentMaterial = 'sand';
 
-function setup() {
-    // This function is automatically called by p5.js once the script loads
-    createCanvas(windowWidth, windowHeight); // Setup the drawing canvas
-    initPhysics(); // Initialize the physics engine from physics.js
+function setupUI() {
+    const selector = document.getElementById('materialSelector');
+    const materials = ['sand', 'water', 'oil', 'rock', 'lava'];
 
-    // Setup the UI for material selection and feature buttons
-    setupUI();
+    materials.forEach(material => {
+        let button = document.createElement('button');
+        button.textContent = material;
+        button.addEventListener('click', () => setCurrentMaterial(material));
+        selector.appendChild(button);
+    });
 }
+
 
 function draw() {
     background(51); // Set the background color of the canvas
