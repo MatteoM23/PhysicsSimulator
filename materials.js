@@ -4,7 +4,7 @@ import * as Matter from 'https://cdn.skypack.dev/matter-js';
 // Then, access the Bodies, World, etc., from the Matter namespace
 const { Bodies, World } = Matter;
 
-const materialProperties = {
+const materials = {
     sand: {
         label: 'sand',
         render: { fillStyle: '#f4e04d' },
