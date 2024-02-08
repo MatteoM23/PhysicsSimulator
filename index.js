@@ -39,6 +39,19 @@ new p5((sketch) => {
         currentMaterial = material;
         console.log(`Current material set to: ${currentMaterial}`);
     }
+
+    new p5((sketch) => {
+    sketch.setup = () => {
+        sketch.createCanvas(sketch.windowWidth, sketch.windowHeight);
+        initPhysics(); // Initialize physics after confirming Matter.js is loaded
+    };
+
+    sketch.draw = () => {
+        sketch.background(51);
+        // Additional drawing or physics update logic here
+    };
+        
 });
+
 
 // Note: Ensure the rest of your functions like `initPhysics`, `addParticle`, `createGravityInversionField`, and `createTimeDilationField` are defined in their respective modules and are correctly imported here.
