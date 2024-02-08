@@ -36,7 +36,14 @@ body, html {
 #materialSelector, #featureButtons {
     display: flex;
     gap: 20px;
+    margin-right: 10px; /* Adds spacing between buttons */
+
 }
+
+#featureButtons {
+    margin-left: 20px; /* Adds spacing between the material selector and feature buttons */
+}
+
 
 button {
     background-color: #16a085;
