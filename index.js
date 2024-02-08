@@ -6,19 +6,18 @@ document.addEventListener('DOMContentLoaded', () => {
     new p5((sketch) => {
         sketch.setup = () => {
             sketch.createCanvas(sketch.windowWidth, sketch.windowHeight);
-            initPhysics();
+            initPhysics(); // Initialize the physics engine
             setupUI();
         };
 
         sketch.draw = () => {
             sketch.background(51);
-            drawBodies(world.bodies, sketch); // Draw all bodies in the world
-        };
-
-        sketch.mousePressed = () => {
-            if (sketch.mouseY < sketch.height - 100) { // Ensure clicks outside UI area
-                addParticle(sketch.mouseX, sketch.mouseY, currentMaterial);
+            if (sketch.mouseIsPressed) {
+                if (sketch.mouseY < sketch.height - 100) { // Check to prevent particle creation in UI area
+                    addParticle(sketch.mouseX, sketch.mouseY, currentMaterial);
+                }
             }
+            drawBodies(world.bodies, sketch); // Draw all bodies in the world
         };
     });
 });
