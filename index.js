@@ -1,14 +1,11 @@
-// Import necessary modules
-import { Engine, Render, World } from 'https://cdn.skypack.dev/matter-js';
+import { Engine, Render, World, Bodies } from 'https://cdn.skypack.dev/matter-js';
 import { createMaterial, materialProperties } from './materials.js';
 import { screenToWorld } from './utils.js';
 import { handleInteractions } from './interactions.js';
 
-import Matter from 'https://cdn.skypack.dev/matter-js';
-
 document.addEventListener('DOMContentLoaded', () => {
-    const engine = Matter.Engine.create();
-    const render = Matter.Render.create({
+    const engine = Engine.create();
+    const render = Render.create({
         element: document.body,
         engine: engine,
         options: {
