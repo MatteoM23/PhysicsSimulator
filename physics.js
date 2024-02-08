@@ -1,4 +1,5 @@
 // Import necessary components from Matter.js
+import { createMaterial } from './materials.js';
 // Assuming Matter.js is globally available, otherwise adjust import as per your setup
 const { Engine, World, Bodies, Events, Body } = Matter;
 
