@@ -1,54 +1,44 @@
-// Assuming this script is correctly marked with type="module" in your HTML
-// and that you have a proper setup for importing functions from other scripts
-
+// Assuming you're importing Matter.js functionality as needed
 import { initPhysics, addParticle, createGravityInversionField, createTimeDilationField } from './physics.js';
 
-let currentMaterial = 'sand'; // Default material
+// Create a new p5 instance by passing a sketch function
+new p5((sketch) => {
+    let currentMaterial = 'sand'; // Default material
 
-document.addEventListener('DOMContentLoaded', () => {
-    setup();
+    sketch.setup = () => {
+        sketch.createCanvas(sketch.windowWidth, sketch.windowHeight);
+        initPhysics(); // Initialize your physics engine here
+        setupUI(); // Set up your UI here, this function needs to be defined to interact with the DOM
+    };
+
+    sketch.draw = () => {
+        sketch.background(51); // Set the background color of the canvas
+    };
+
+    sketch.mousePressed = () => {
+        // Check if the mouse press is within the canvas and not on the UI
+        if (sketch.mouseY < sketch.height - 50) {
+            addParticle(sketch.mouseX, sketch.mouseY, currentMaterial);
+        }
+    };
+
+    function setupUI() {
+        // Example: Setup your UI here
+        // This should interact with DOM elements directly, not through p5
+        const selector = document.getElementById('materialSelector');
+        const materials = ['sand', 'water', 'oil', 'rock', 'lava']; // Define available materials
+        materials.forEach(material => {
+            let button = document.createElement('button');
+            button.innerText = material;
+            button.addEventListener('click', () => setCurrentMaterial(material));
+            selector.appendChild(button);
+        });
+    }
+
+    function setCurrentMaterial(material) {
+        currentMaterial = material;
+        console.log(`Current material set to: ${currentMaterial}`);
+    }
 });
 
-function setup() {
-    // Assuming p5.js is globally available and used for creating canvas and drawing
-    createCanvas(windowWidth, windowHeight);
-    initPhysics(); // Initialize the physics engine from physics.js
-    setupUI(); // Setup the UI for material selection and feature activation
-}
-
-function draw() {
-    // p5.js draw loop
-    background(51); // Set the background color of the canvas
-}
-
-function mousePressed() {
-    // Ensure clicks within the canvas area trigger particle creation
-    if (mouseY < height - 50 && mouseX < width && mouseX > 0 && mouseY > 0) {
-        addParticle(mouseX, mouseY, currentMaterial);
-    }
-}
-
-function setupUI() {
-    const materialSelector = document.getElementById('materialSelector');
-    if (!materialSelector) {
-        console.error('Material selector div not found');
-        return;
-    }
-
-    const materials = ['sand', 'water', 'oil', 'rock', 'lava']; // Define available materials
-    materials.forEach(material => {
-        let button = document.createElement('button');
-        button.innerText = material;
-        button.addEventListener('click', () => setCurrentMaterial(material));
-        materialSelector.appendChild(button);
-    });
-
-    // Assuming buttons for gravity inversion and time dilation already exist in your HTML
-    document.getElementById('gravityInversionBtn').addEventListener('click', () => createGravityInversionField(windowWidth / 2, windowHeight / 2, 200, 1.5));
-    document.getElementById('timeDilationBtn').addEventListener('click', () => createTimeDilationField(windowWidth / 2, windowHeight / 2, 150, 0.5));
-}
-
-function setCurrentMaterial(material) {
-    currentMaterial = material;
-    console.log(`Current material set to: ${currentMaterial}`); // For debugging
-}
+// Note: Ensure the rest of your functions like `initPhysics`, `addParticle`, `createGravityInversionField`, and `createTimeDilationField` are defined in their respective modules and are correctly imported here.
