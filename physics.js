@@ -75,4 +75,4 @@ window.addEventListener('click', function(event) {
 });
 
 // Export the necessary functions if needed elsewhere
-export { addParticle, update, engine };
+export { addParticle, update };
