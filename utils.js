@@ -48,4 +48,4 @@ function normalizeVector(vector) {
     };
 }
 
-export { screenToWorld, isInside, adjustMaterialProperties, getRandomColor, calculateMagnitude, applyForceTowardsPoint, normalizeVector };
+export { screenToWorld, isInside, adjustMaterialProperties, calculateMagnitude, applyForceTowardsPoint, normalizeVector };
