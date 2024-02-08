@@ -1,5 +1,5 @@
 // Import Matter.js module
-import { Bodies, World } from 'matter-js';
+const { Engine, World, Bodies, Events } = Matter;
 
 // Assuming 'world' is the Matter.js world imported or accessible from this script
 // You may need to adjust how 'world' is accessed based on your project structure
