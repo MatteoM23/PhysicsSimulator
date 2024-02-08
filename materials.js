@@ -1,6 +1,8 @@
-import Matter from 'https://cdn.skypack.dev/matter-js';
+// Import the entire Matter library under a namespace
+import * as Matter from 'https://cdn.skypack.dev/matter-js';
 
-import { Bodies, World } from 'https://cdn.skypack.dev/matter-js';
+// Then, access the Bodies, World, etc., from the Matter namespace
+const { Bodies, World } = Matter;
 
 const materialProperties = {
     sand: {
