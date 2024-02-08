@@ -50,4 +50,5 @@ function normalizeVector(vector) {
     };
 }
 
+// Example corrected export statement for utils.js
 export { screenToWorld, isInside, adjustMaterialProperties, getRandomColor, calculateMagnitude, applyForceTowardsPoint, normalizeVector };
