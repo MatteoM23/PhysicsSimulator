@@ -1,44 +1,57 @@
-// Ensure Matter.js is imported correctly from the CDN
+// Correctly import Matter.js from a CDN. Ensure this URL is valid and accessible.
 import * as Matter from 'https://cdn.skypack.dev/matter-js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize the Matter.js engine.
+    // Initialize the Matter.js engine and renderer.
     const engine = Matter.Engine.create();
-    const world = engine.world;
-
-    // Set up rendering. This assumes you want to render to the body of your webpage.
     const render = Matter.Render.create({
         element: document.body,
         engine: engine,
         options: {
             width: window.innerWidth,
             height: window.innerHeight,
-            wireframes: false // Setting wireframes to false to see the styled rendering.
+            wireframes: false,
         },
     });
 
-    // Example: Add a ground to the world.
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - 20, window.innerWidth, 40, {
-        isStatic: true, // Ground should not fall under gravity
-        render: { fillStyle: 'brown' } // Optional: style the ground
-    });
-    Matter.World.add(world, ground);
+    // Define materials with basic properties for demonstration.
+    const materials = {
+        sand: { color: '#f4e04d' },
+        water: { color: '#3498db' },
+    };
 
-    // Start the engine and the renderer.
+    let currentMaterial = 'sand'; // Default material selection.
+
+    // Create and append the material selector UI.
+    const materialSelector = document.createElement('div');
+    materialSelector.id = 'materialSelector';
+    document.body.appendChild(materialSelector);
+
+    Object.keys(materials).forEach(material => {
+        const button = document.createElement('button');
+        button.textContent = material;
+        button.style.backgroundColor = materials[material].color;
+        button.onclick = () => currentMaterial = material;
+        materialSelector.appendChild(button);
+    });
+
+    // Add ground to the world for the particles to land on.
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 40, { isStatic: true });
+    Matter.World.add(engine.world, ground);
+
+    // Function to add particles on mouse click.
+    function addParticle(event) {
+        const mouseX = event.clientX;
+        const mouseY = event.clientY;
+        const particle = Matter.Bodies.circle(mouseX, mouseY, 20, {
+            render: { fillStyle: materials[currentMaterial].color },
+        });
+        Matter.World.add(engine.world, particle);
+    }
+
+    window.addEventListener('mousedown', addParticle);
+
+    // Run the engine and renderer.
     Matter.Engine.run(engine);
     Matter.Render.run(render);
-
-    // Example: Add event listener for clicks to create circles.
-    window.addEventListener('click', function(event) {
-        const x = event.clientX;
-        const y = event.clientY;
-        // Example: create a ball where the user clicks
-        const ball = Matter.Bodies.circle(x, y, 30, {
-            density: 0.04,
-            friction: 0.01,
-            restitution: 0.8, // Bounciness
-            render: { fillStyle: 'blue' } // Optional: style the ball
-        });
-        Matter.World.add(world, ball);
-    });
 });
