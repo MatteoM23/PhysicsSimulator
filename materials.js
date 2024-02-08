@@ -1,3 +1,5 @@
+import Matter from 'https://cdn.skypack.dev/matter-js';
+
 import { Bodies, World } from 'matter-js';
 
 const materialProperties = {
