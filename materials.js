@@ -60,11 +60,10 @@ const materialProperties = {
 
 export function createMaterial(x, y, materialType, world) {
     const material = materials[materialType];
-    if (!material) return null; // Material type not recognized
-
-    const body = Matter.Bodies.circle(x, y, 20, { // Example size: 20
+    const body = Matter.Bodies.circle(x, y, 20, { // Example: using a radius of 20
         render: { fillStyle: material.color },
         density: material.density,
+        // Other properties as needed
     });
 
     Matter.World.add(world, body);
