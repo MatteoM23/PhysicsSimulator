@@ -6,20 +6,18 @@ const { Bodies, World } = Matter;
 
 export const materials = {
     sand: {
-        label: 'sand',
-        render: { fillStyle: '#f4e04d' },
+        label: 'Sand',
+        color: '#f4e04d',
         density: 0.002,
-        friction: 0.5,
-        restitution: 0.3,
-        size: 5
+        size: 5,
     },
     water: {
-        label: 'water',
-        render: { fillStyle: '#3498db' },
-        density: 0.001,
-        friction: 0.0,
+        label: 'Water',
+        color: '#3498db',
+        density: 0.0001, // Lower density for fluids
+        size: 6,
+        friction: 0,
         restitution: 0.1,
-        size: 6
     },
     oil: {
         label: 'oil',
