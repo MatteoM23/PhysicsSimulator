@@ -1,11 +1,25 @@
 import * as Matter from 'https://cdn.skypack.dev/matter-js';
 import { materials, createMaterial } from './materials.js';
-import { handleInteractions } from './interactions.js'; // Assuming this is correctly exporting handleInteractions
+import { handleInteractions } from './interactions.js';
 import { screenToWorld } from './utils.js';
+// If initPhysics is defined in a separate file, import it here
+// import { initPhysics } from './physics.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize engine and world using physics.js logic
-    const { engine, world, update } = initPhysics(); // Assuming initPhysics is properly exported from physics.js
+    // Assuming initPhysics is properly defined and sets up the engine and world
+    const engine = Matter.Engine.create(); // Placeholder for engine initialization
+    const world = engine.world; // Accessing the world from the engine
+
+    // Placeholder setupFeatureButtons function. Define this function based on your application's needs.
+    const setupFeatureButtons = (container, world) => {
+        // Example: Add a gravity inversion button
+        const gravityButton = document.createElement('button');
+        gravityButton.innerText = 'Invert Gravity';
+        gravityButton.addEventListener('click', () => {
+            world.gravity.y *= -1;
+        });
+        container.appendChild(gravityButton);
+    };
 
     // Set up rendering
     const render = Matter.Render.create({
@@ -28,7 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
     materialSelector.id = 'materialSelector';
     uiContainer.appendChild(materialSelector);
 
-    // Populate material selector from materials.js
+    // Dynamically populate material selector based on materials.js
+    let currentMaterial = 'sand'; // Initialize with a default material
     Object.keys(materials).forEach(material => {
         const button = document.createElement('button');
         button.innerText = material;
@@ -36,20 +51,17 @@ document.addEventListener('DOMContentLoaded', () => {
         materialSelector.appendChild(button);
     });
 
-    // Add feature buttons and interactions from interactions.js
-    setupFeatureButtons(uiContainer, world); // Assuming setupFeatureButtons is properly defined to add buttons like "Invert Gravity"
+    // Setup additional feature buttons if needed
+    setupFeatureButtons(uiContainer, world);
 
-    let currentMaterial = 'sand'; // Default material
-
-    // Handle mouse down event to create materials at clicked position
+    // Handle mouse down event to create materials at the clicked position
     window.addEventListener('mousedown', (event) => {
-        const { x, y } = screenToWorld(event.clientX, event.clientY); // Utilize screenToWorld from utils.js
-        const body = createMaterial(x, y, currentMaterial, world); // Utilize createMaterial from materials.js
-        Matter.World.add(world, body);
+        const { x, y } = screenToWorld(event.clientX, event.clientY);
+        createMaterial(x, y, currentMaterial, world);
     });
 
-    // Run custom interaction handlers from interactions.js
-    handleInteractions(engine, world); // Ensure this is properly set up to listen for and handle interactions
+    // Handle custom interactions defined in interactions.js
+    handleInteractions(engine, world);
 
     // Run the engine and renderer
     Matter.Engine.run(engine);
