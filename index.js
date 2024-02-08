@@ -1,10 +1,14 @@
 import * as Matter from 'https://cdn.skypack.dev/matter-js';
 import { materials, createMaterial } from './materials.js';
-import { engine, world, initPhysics } from './physics.js';
+import { engine, world, initPhysics, addParticle } from './physics.js';
+import { handleInteractions } from './interactions.js';
+import { screenToWorld } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize physics, add ground and walls
     initPhysics();
-
+    
+    // Setup rendering
     const render = Matter.Render.create({
         element: document.body,
         engine: engine,
@@ -15,50 +19,81 @@ document.addEventListener('DOMContentLoaded', () => {
         },
     });
 
-    // Create invisible walls
-    const wallOptions = { isStatic: true, render: { visible: false } };
-    const walls = [
-        Matter.Bodies.rectangle(0, render.options.height / 2, 1, render.options.height, wallOptions), // Left wall
-        Matter.Bodies.rectangle(render.options.width, render.options.height / 2, 1, render.options.height, wallOptions), // Right wall
-        Matter.Bodies.rectangle(render.options.width / 2, 0, render.options.width, 1, wallOptions), // Top wall
-    ];
-    Matter.World.add(world, walls);
-
-    let currentMaterial = 'sand';
-    let particleCreationInterval;
-
     // Material Selector UI
+    const uiContainer = document.createElement('div');
+    uiContainer.id = 'uiContainer';
+    document.body.appendChild(uiContainer);
+
     const materialSelector = document.createElement('div');
     materialSelector.id = 'materialSelector';
-    document.body.appendChild(materialSelector);
+    uiContainer.appendChild(materialSelector);
 
-    Object.keys(materials).forEach(materialKey => {
+    Object.keys(materials).forEach(key => {
         const button = document.createElement('button');
-        button.innerText = materials[materialKey].label;
-        button.onclick = (event) => {
-            event.stopPropagation(); // Prevent triggering particle creation when selecting a material
-            currentMaterial = materialKey;
+        button.innerText = materials[key].label;
+        button.onclick = () => {
+            currentMaterial = key;
         };
         materialSelector.appendChild(button);
     });
 
-    // Function to create particles
-    const createParticles = (x, y) => {
-        if (y < materialSelector.offsetHeight) return; // Avoid spawning particles behind the material selector
-        createMaterial(x, y, currentMaterial, world);
+    // Feature Buttons
+    const featureButtons = document.createElement('div');
+    featureButtons.id = 'featureButtons';
+    uiContainer.appendChild(featureButtons);
+
+    // Gravity Inversion Button
+    const gravityButton = document.createElement('button');
+    gravityButton.innerText = 'Invert Gravity';
+    gravityButton.onclick = () => {
+        engine.world.gravity.y *= -1;
     };
+    featureButtons.appendChild(gravityButton);
 
-    // Mouse event handlers
-    const onMouseDown = (event) => {
-        createParticles(event.clientX, event.clientY);
-        particleCreationInterval = setInterval(() => createParticles(event.clientX, event.clientY), 100);
+    // Time Dilation Button
+    const timeButton = document.createElement('button');
+    timeButton.innerText = 'Toggle Time Dilation';
+    let timeScale = 1;
+    timeButton.onclick = () => {
+        timeScale = timeScale === 1 ? 0.5 : 1;
+        engine.timing.timeScale = timeScale;
     };
+    featureButtons.appendChild(timeButton);
 
-    const onMouseUp = () => clearInterval(particleCreationInterval);
+    let isMouseDown = false;
+    let mouseHoldInterval;
 
-    window.addEventListener('mousedown', onMouseDown);
-    window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('mousedown', (event) => {
+        if (event.target === render.canvas) {
+            isMouseDown = true;
+            const { x, y } = screenToWorld(event.clientX, event.clientY, render.canvas);
+            mouseHoldInterval = setInterval(() => {
+                addParticle(x, y, currentMaterial);
+            }, 100); // Adjust time as needed
+        }
+    });
+
+    window.addEventListener('mouseup', () => {
+        clearInterval(mouseHoldInterval);
+        isMouseDown = false;
+    });
+
+    window.addEventListener('mousemove', (event) => {
+        if (isMouseDown) {
+            const { x, y } = screenToWorld(event.clientX, event.clientY, render.canvas);
+            addParticle(x, y, currentMaterial);
+        }
+    });
+
+    // Prevent particle creation behind the UI by stopping propagation
+    uiContainer.addEventListener('mousedown', (event) => {
+        event.stopPropagation();
+    });
+
+    handleInteractions(engine, world);
 
     Matter.Engine.run(engine);
     Matter.Render.run(render);
 });
+
+let currentMaterial = 'sand'; // Default material
