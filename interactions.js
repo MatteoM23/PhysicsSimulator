@@ -1,4 +1,4 @@
-import Matter from 'https://cdn.skypack.dev/matter-js';
+import Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
 
 // A utility function to create new bodies as a result of interactions
 function createNewBody(position, options) {
