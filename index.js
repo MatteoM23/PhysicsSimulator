@@ -1,22 +1,24 @@
-// Import necessary functions from your physics module
+// Assuming you have Matter.js and p5.js correctly included in your project
 import { initPhysics, addParticle } from './physics.js';
 
 let currentMaterial = 'sand'; // Default material
 
 document.addEventListener('DOMContentLoaded', () => {
     new p5((sketch) => {
+        // Setup the sketch
         sketch.setup = () => {
             sketch.createCanvas(sketch.windowWidth, sketch.windowHeight);
             initPhysics(); // Initialize the physics engine
-            setupUI();
+            setupUI(); // Setup the UI for material selection
         };
 
         sketch.draw = () => {
-            sketch.background(51); // A simple background to visualize particles
+            sketch.background(51); // Set a dark background
         };
 
+        // Add a particle at the mouse position upon click, if not on the UI
         sketch.mousePressed = () => {
-            // Only add particles if the click is within bounds to avoid UI overlap
+            // Ensure the click is not on the UI by checking mouseY position
             if (sketch.mouseY < sketch.height - 100) {
                 addParticle(sketch.mouseX, sketch.mouseY, currentMaterial);
             }
@@ -26,18 +28,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function setupUI() {
     const materialSelector = document.getElementById('materialSelector');
-    materialSelector.innerHTML = ''; // Clear previous UI to prevent duplication
+    if (!materialSelector) {
+        console.error('Material selector element not found.');
+        return;
+    }
+    materialSelector.innerHTML = ''; // Clear existing buttons to avoid duplicates
+
+    // Define available materials
     const materials = ['sand', 'water', 'oil', 'rock', 'lava'];
 
+    // Create and append a button for each material
     materials.forEach(material => {
         const button = document.createElement('button');
         button.innerText = material;
-        button.onclick = () => setCurrentMaterial(material);
+        button.addEventListener('click', function() {
+            setCurrentMaterial(material);
+        });
         materialSelector.appendChild(button);
     });
 }
 
+// Function to set the current material based on user selection
 function setCurrentMaterial(material) {
     currentMaterial = material;
-    console.log(`Material set to: ${currentMaterial}`); // Helpful for debugging
+    console.log(`Current material set to: ${currentMaterial}`); // Helpful for debugging
 }
