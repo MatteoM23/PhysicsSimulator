@@ -10,13 +10,10 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function setup() {
-    // Ensure Matter.js is initialized first
-    initPhysics(); // Initialize the physics engine
-
     createCanvas(windowWidth, windowHeight);
+    initPhysics(); // Make sure initPhysics and other functions are defined or imported correctly
     setupUI(); // Setup all UI components
 }
-
 function draw() {
     background(51); // Set canvas background color
     // Optional: Render logic for particles or other entities
