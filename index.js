@@ -1,77 +1,54 @@
-import { initPhysics } from './physics.js';
+// Ensure you've imported necessary functions from other scripts
+import { initPhysics, addParticle, createGravityInversionField, createTimeDilationField } from './physics.js';
 
-// Assuming global access to Matter.js functions and custom physics and materials logic
-let engine, world;
-let currentMaterial = 'sand'; // Default material
-const materials = ['sand', 'water', 'oil', 'rock', 'lava']; // Available materials
-
-document.addEventListener("DOMContentLoaded", function() {
-    setup();
-});
+// Current selected material
+let currentMaterial = 'sand';
 
 function setup() {
-    createCanvas(windowWidth, windowHeight);
-    initPhysics(); // Make sure initPhysics and other functions are defined or imported correctly
-    setupUI(); // Setup all UI components
+    // This function is automatically called by p5.js once the script loads
+    createCanvas(windowWidth, windowHeight); // Setup the drawing canvas
+    initPhysics(); // Initialize the physics engine from physics.js
+
+    // Setup the UI for material selection and feature buttons
+    setupUI();
 }
+
 function draw() {
-    background(51); // Set canvas background color
-    // Optional: Render logic for particles or other entities
+    background(51); // Set the background color of the canvas
 }
 
 function mousePressed() {
-    // Ensure we don't create particles where the UI might be, and within canvas bounds
-    if (mouseY < height - 50 && mouseY > 0 && mouseX > 0 && mouseX < width) {
-        createParticle(mouseX, mouseY, currentMaterial);
+    // Check if the mouse press is within the canvas and not on the UI
+    if (mouseY < height - 100) { // Adjust based on your UI's actual positioning
+        // Add a particle at the mouse position with the current selected material
+        addParticle(mouseX, mouseY, currentMaterial);
     }
 }
 
 function setupUI() {
-    // Dynamically generate material selection buttons
-    const selector = document.createElement('div');
-    selector.id = 'materialSelector';
-    document.body.appendChild(selector);
+    const materialSelector = document.getElementById('materialSelector');
+    const materials = ['sand', 'water', 'oil', 'rock', 'lava']; // Available materials
 
     materials.forEach(material => {
-        const button = document.createElement('button');
+        let button = document.createElement('button');
         button.innerText = material;
-        button.className = 'materialButton';
-        button.addEventListener('click', () => setCurrentMaterial(material));
-        selector.appendChild(button);
+        button.onclick = () => setCurrentMaterial(material);
+        materialSelector.appendChild(button);
     });
 
-    setupFeatureButtons();
+    // Setup feature buttons
+    document.getElementById('gravityInversionBtn').onclick = () => {
+        createGravityInversionField(windowWidth / 2, windowHeight / 2, 200, 0.5);
+    };
+
+    document.getElementById('timeDilationBtn').onclick = () => {
+        createTimeDilationField(windowWidth / 2, windowHeight / 2, 150, 0.1);
+    };
 }
 
-function setCurrentMaterial(materialType) {
-    currentMaterial = materialType;
+function setCurrentMaterial(material) {
+    currentMaterial = material;
     console.log(`Current material set to: ${currentMaterial}`);
 }
 
-function setupFeatureButtons() {
-    // Create container for feature buttons if it doesn't exist
-    const featuresContainer = document.getElementById('featuresContainer') || document.createElement('div');
-    featuresContainer.id = 'featuresContainer';
-    document.body.appendChild(featuresContainer);
-
-    // Button for Gravity Inversion
-    const gravityInversionBtn = document.createElement('button');
-    gravityInversionBtn.innerText = 'Gravity Inversion';
-    gravityInversionBtn.addEventListener('click', () => {
-        createGravityInversionField(width / 2, height / 2, 200, 1.5);
-    });
-    featuresContainer.appendChild(gravityInversionBtn);
-
-    // Button for Time Dilation
-    const timeDilationBtn = document.createElement('button');
-    timeDilationBtn.innerText = 'Time Dilation';
-    timeDilationBtn.addEventListener('click', () => {
-        createTimeDilationField(400, 300, 150, 0.5);
-    });
-    featuresContainer.appendChild(timeDilationBtn);
-}
-
-// Ensure the following functions are defined in your physics.js or materials.js:
-// createParticle(x, y, materialType) - For creating particles of selected materials.
-// createGravityInversionField(x, y, radius, strength) - For activating a gravity inversion field.
-// createTimeDilationField(x, y, radius, dilationFactor) - For applying a time dilation effect.
+// This script tag should include type="module" when referenced in your HTML to support ES6 module syntax
