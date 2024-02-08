@@ -1,71 +1,55 @@
-import Matter from 'matter-js';
+import { Engine, Render, World, Bodies } from 'matter-js';
 import { createMaterial, materialProperties } from './materials.js';
 import { handleInteractions } from './interactions.js';
+import { screenToWorld } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', function() {
-    const engine = Matter.Engine.create();
-    const render = Matter.Render.create({
+    const engine = Engine.create();
+    const world = engine.world;
+    engine.world.gravity.y = 1; // Default gravity setting
+
+    const render = Render.create({
         element: document.body,
         engine: engine,
         options: {
             width: window.innerWidth,
             height: window.innerHeight,
             wireframes: false,
-            background: 'rgba(255, 255, 255, 0.9)' // Light background to ensure visibility
-        }
+            background: 'transparent',
+        },
     });
 
-    // Add ground to prevent particles from falling out of view
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 20, { isStatic: true });
-    Matter.World.add(engine.world, ground);
+    // Adding a ground to prevent particles from falling indefinitely
+    const ground = Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 20, { isStatic: true });
+    World.add(world, ground);
 
-    // Initialize interactions handling
-    handleInteractions(engine);
+    // Initialize material interactions
+    handleInteractions(engine, world);
 
-    // Current selected material
-    let currentMaterial = 'sand'; // Default material
+    let currentMaterial = 'sand'; // Default material selection
 
-    // Create material selector UI
-    createMaterialSelector();
+    setupMaterialSelector();
 
-    // Mouse interaction for particle creation
-    window.addEventListener('mousedown', onMouseDown);
-    window.addEventListener('mouseup', onMouseUp);
-    window.addEventListener('mousemove', onMouseMove);
-
-    function createMaterialSelector() {
+    function setupMaterialSelector() {
         const selector = document.createElement('div');
-        selector.style.position = 'absolute';
-        selector.style.top = '10px';
-        selector.style.left = '10px';
-        selector.style.padding = '5px';
-        selector.style.backgroundColor = '#fff';
-        selector.style.border = '1px solid #ddd';
-        selector.style.borderRadius = '5px';
+        selector.id = 'materialSelector';
+        document.body.appendChild(selector);
 
-        Object.keys(materialProperties).forEach((material) => {
+        Object.keys(materialProperties).forEach(material => {
             const button = document.createElement('button');
-            button.textContent = material;
-            button.style.margin = '2px';
-            button.onclick = () => currentMaterial = material;
+            button.innerText = material;
+            button.addEventListener('click', () => {
+                currentMaterial = material;
+            });
             selector.appendChild(button);
         });
-
-        document.body.appendChild(selector);
     }
 
-    let mouseIsDown = false;
-    function onMouseDown() { mouseIsDown = true; }
-    function onMouseUp() { mouseIsDown = false; }
-    function onMouseMove(event) {
-        if (mouseIsDown) {
-            // Convert screen coordinates to world coordinates if necessary
-            const { x, y } = { x: event.clientX, y: event.clientY };
-            createMaterial(x, y, currentMaterial, engine.world);
-        }
-    }
+    window.addEventListener('mousedown', function(event) {
+        const { x, y } = screenToWorld(event.clientX, event.clientY); // Adjust if your utils.js uses this function differently
+        createMaterial(x, y, currentMaterial, world);
+    });
 
-    // Run the Matter.js engine and renderer
-    Matter.Engine.run(engine);
-    Matter.Render.run(render);
+    Engine.run(engine);
+    Render.run(render);
 });
