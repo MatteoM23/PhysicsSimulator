@@ -1,13 +1,11 @@
-import { Engine, Render, World, Bodies } from 'matter-js';
+// Import necessary modules
+import { Engine, Render, World } from 'https://cdn.skypack.dev/matter-js';
 import { createMaterial, materialProperties } from './materials.js';
-import { handleInteractions } from './interactions.js';
 import { screenToWorld } from './utils.js';
+import { handleInteractions } from './interactions.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     const engine = Engine.create();
-    const world = engine.world;
-    engine.world.gravity.y = 1; // Default gravity setting
-
     const render = Render.create({
         element: document.body,
         engine: engine,
@@ -15,39 +13,38 @@ document.addEventListener('DOMContentLoaded', function() {
             width: window.innerWidth,
             height: window.innerHeight,
             wireframes: false,
-            background: 'transparent',
+            background: 'transparent'
         },
     });
 
-    // Adding a ground to prevent particles from falling indefinitely
-    const ground = Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 20, { isStatic: true });
-    World.add(world, ground);
+    // Add ground to prevent particles from falling indefinitely
+    const ground = World.add(engine.world, [
+        // Ground
+        { type: 'rectangle', x: window.innerWidth / 2, y: window.innerHeight, width: window.innerWidth, height: 40, isStatic: true }
+    ].map(spec => {
+        return Bodies[spec.type](spec.x, spec.y, spec.width, spec.height, { isStatic: spec.isStatic });
+    })[0]);
 
-    // Initialize material interactions
-    handleInteractions(engine, world);
+    // Initialize custom interactions
+    handleInteractions(engine, engine.world);
 
-    let currentMaterial = 'sand'; // Default material selection
+    let currentMaterial = 'sand'; // Default material
 
-    setupMaterialSelector();
+    // Create UI for material selection
+    const materialSelector = document.createElement('div');
+    materialSelector.id = 'materialSelector';
+    document.body.appendChild(materialSelector);
 
-    function setupMaterialSelector() {
-        const selector = document.createElement('div');
-        selector.id = 'materialSelector';
-        document.body.appendChild(selector);
-
-        Object.keys(materialProperties).forEach(material => {
-            const button = document.createElement('button');
-            button.innerText = material;
-            button.addEventListener('click', () => {
-                currentMaterial = material;
-            });
-            selector.appendChild(button);
-        });
-    }
+    Object.keys(materialProperties).forEach(material => {
+        const button = document.createElement('button');
+        button.innerText = material;
+        button.addEventListener('click', () => currentMaterial = material);
+        materialSelector.appendChild(button);
+    });
 
     window.addEventListener('mousedown', function(event) {
-        const { x, y } = screenToWorld(event.clientX, event.clientY); // Adjust if your utils.js uses this function differently
-        createMaterial(x, y, currentMaterial, world);
+        const { x, y } = screenToWorld(event.clientX, event.clientY); // Adjust based on actual utils function
+        createMaterial(x, y, currentMaterial, engine.world);
     });
 
     Engine.run(engine);
