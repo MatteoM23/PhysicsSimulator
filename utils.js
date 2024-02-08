@@ -1,5 +1,5 @@
 // utils.js
-// Ensure Matter.js is accessible in the global scope
+import { Vertices, Body } from 'matter-js';
 
 // Converts screen coordinates to physics world coordinates, assuming a 1:1 scale for simplicity
 function screenToWorld(x, y) {
@@ -8,15 +8,17 @@ function screenToWorld(x, y) {
 
 // Checks if a point is inside a body, useful for interactive elements
 function isInside(body, x, y) {
-    return Matter.Vertices.contains(body.vertices, { x, y });
+    return Vertices.contains(body.vertices, { x, y });
 }
 
 // Dynamically adjusts material properties for real-time physics experimentation
 function adjustMaterialProperties(body, properties) {
     Object.entries(properties).forEach(([key, value]) => {
-        body[key] = value;
+        if (body[key] !== undefined) {
+            body[key] = value;
+        }
     });
-    Matter.Body.set(body, properties);
+    Body.set(body, properties);
 }
 
 // Generates random colors for materials
@@ -38,7 +40,7 @@ function applyForceTowardsPoint(body, point, strength) {
         x: (dx / distance) * strength,
         y: (dy / distance) * strength,
     };
-    Matter.Body.applyForce(body, body.position, force);
+    Body.applyForce(body, body.position, force);
 }
 
 // Normalizes a vector to point in the same direction but with a magnitude of 1
@@ -50,5 +52,4 @@ function normalizeVector(vector) {
     };
 }
 
-// Example corrected export statement for utils.js
 export { screenToWorld, isInside, adjustMaterialProperties, getRandomColor, calculateMagnitude, applyForceTowardsPoint, normalizeVector };
