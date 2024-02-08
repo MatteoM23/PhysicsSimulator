@@ -1,55 +1,46 @@
-// Import necessary functions from your physics script
-import { initPhysics, addParticle, createGravityInversionField, createTimeDilationField } from './physics.js';
+// index.js
+import { initPhysics, addParticle } from './physics.js';
 
-// Define the current material with a default value
-let currentMaterial = 'sand';
+let currentMaterial = 'sand'; // Default material
 
-// Initialize a new p5 instance
-new p5((sketch) => {
-    // p5.js setup function
-    sketch.setup = () => {
-        // Create a canvas that fills the window
-        sketch.createCanvas(sketch.windowWidth, sketch.windowHeight);
+document.addEventListener('DOMContentLoaded', () => {
+    new p5((sketch) => {
+        sketch.setup = () => {
+            sketch.createCanvas(sketch.windowWidth, sketch.windowHeight);
+            initPhysics(); // Initialize the physics engine
+            setupUI();
+        };
 
-        // Initialize the physics engine
-        initPhysics();
+        sketch.draw = () => {
+            sketch.background(51);
+        };
 
-        // Set up the UI for material selection
-        setupUI();
-    };
-
-    // p5.js draw function
-    sketch.draw = () => {
-        // Set the background color of the canvas
-        sketch.background(51);
-    };
-
-    // Function to handle mouse pressed events
-    sketch.mousePressed = () => {
-        // Check if the mouse press is within the canvas and not on the UI
-        if (sketch.mouseY < sketch.height - 50) {
-            // Add a particle at the mouse location with the current material
-            addParticle(sketch.mouseX, sketch.mouseY, currentMaterial);
-        }
-    };
-
-    // Function to set up the UI for material selection
-    function setupUI() {
-        const selector = document.getElementById('materialSelector');
-        const materials = ['sand', 'water', 'oil', 'rock', 'lava']; // Define available materials
-
-        // Create a button for each material
-        materials.forEach((material) => {
-            let button = document.createElement('button');
-            button.innerText = material;
-            button.onclick = () => setCurrentMaterial(material);
-            selector.appendChild(button);
-        });
-    }
-
-    // Function to set the current material based on user selection
-    function setCurrentMaterial(material) {
-        currentMaterial = material;
-        console.log(`Current material set to: ${currentMaterial}`); // For debugging purposes
-    }
+        sketch.mousePressed = () => {
+            if (sketch.mouseY < sketch.height - 100) { // Adjust based on your UI's actual positioning
+                addParticle(sketch.mouseX, sketch.mouseY, currentMaterial);
+            }
+        };
+    });
 });
+
+function setupUI() {
+    const materials = ['sand', 'water', 'oil', 'rock', 'lava']; // Define available materials
+    const materialSelector = document.getElementById('materialSelector');
+    materials.forEach(material => {
+        const button = document.createElement('button');
+        button.innerText = material;
+        button.addEventListener('click', () => setCurrentMaterial(material));
+        materialSelector.appendChild(button);
+    });
+
+    // Adding a spacer div between material and feature buttons
+    const spacer = document.createElement('div');
+    spacer.style.flex = '1';
+    materialSelector.parentNode.insertBefore(spacer, materialSelector.nextSibling);
+
+    // Feature buttons setup already assumed to be in HTML
+}
+
+function setCurrentMaterial(material) {
+    currentMaterial = material;
+}
