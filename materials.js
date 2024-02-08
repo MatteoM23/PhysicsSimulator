@@ -1,5 +1,5 @@
 // Import the entire Matter library under a namespace
-import * as Matter from 'https://cdn.skypack.dev/matter-js';
+import Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
 
 // Then, access the Bodies, World, etc., from the Matter namespace
 const { Bodies, World } = Matter;
