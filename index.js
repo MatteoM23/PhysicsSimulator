@@ -1,6 +1,6 @@
 import * as Matter from 'https://cdn.skypack.dev/matter-js';
-import { materials, createMaterial } from './materials.js';
-import { handleInteractions } from './interactions.js';
+import { materials, createMaterial } from './materials.js'; // Ensure this matches the exported names
+import { handleInteractions } from './interactions.js'; // Assuming this is correctly exporting handleInteractions
 import { screenToWorld } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
