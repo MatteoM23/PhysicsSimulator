@@ -3,21 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Physics Simulation</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Removed the script tag for Matter.js since it will be imported via modules -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <title>Physics Simulation</title>
 </head>
 <body>
-    <div id="uiContainer">
-        <div id="materialSelector"></div>
-        <div id="featureButtons">
-            <button id="gravityInversionBtn">Gravity Inversion</button>
-            <button id="timeDilationBtn">Time Dilation</button>
-        </div>
-    </div>
-    <!-- Ensure scripts are executed as modules after the HTML document has been parsed -->
+    <div id="materialSelector"></div>
     <script type="module" src="index.js"></script>
-    <!-- Removed script tags for materials.js, utils.js, and physics.js since these should be imported within index.js or other modules as needed -->
 </body>
 </html>
