@@ -1,4 +1,3 @@
-// utils.js
 import { Vertices, Body } from 'matter-js';
 
 // Converts screen coordinates to physics world coordinates, assuming a 1:1 scale for simplicity
