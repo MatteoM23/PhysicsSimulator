@@ -125,4 +125,5 @@ function createTimeDilationField(x, y, radius, dilationFactor) {
 
 
 
+// Example corrected export statement for physics.js
 export { initPhysics, addParticle, update, createGravityInversionField, createTimeDilationField };
