@@ -1,5 +1,5 @@
-// Assuming Matter.js is globally available
-const { Bodies } = Matter;
+// Ensure Matter.js is accessible. If using modules, import Matter.js as needed.
+const { Bodies, World } = Matter;
 
 const materialProperties = {
     sand: {
@@ -46,20 +46,18 @@ const materialProperties = {
     }
 };
 
-export function createMaterial(x, y, materialType, world) {
+function createMaterial(x, y, materialType, world) {
     const properties = materialProperties[materialType];
-    const body = Bodies.circle(x, y, properties.size / 2, {
+    const body = Bodies.circle(x, y, properties.size / 2, Object.assign({}, properties, {
         label: materialType,
         render: properties.render,
         density: properties.density,
         friction: properties.friction,
         restitution: properties.restitution,
         plugin: { materialType: materialType } // For identifying material during collisions
-    });
+    }));
 
-    // Additional logic here for special material behaviors, if needed
-
-    Matter.World.add(world, body);
+    World.add(world, body);
     return body; // Return the body in case further manipulation is needed
 }
 
