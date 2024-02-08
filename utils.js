@@ -1,6 +1,7 @@
-import Matter from 'https://cdn.skypack.dev/matter-js';
+import * as Matter from 'https://cdn.skypack.dev/matter-js';
 
-import { Vertices, Body } from 'https://cdn.skypack.dev/matter-js';
+// Access Body and Vertices from the Matter namespace
+const { Body, Vertices } = Matter;
 
 // Converts screen coordinates to physics world coordinates, assuming a 1:1 scale for simplicity
 function screenToWorld(x, y) {
@@ -20,6 +21,11 @@ function adjustMaterialProperties(body, properties) {
         }
     });
     Body.set(body, properties);
+}
+
+// Generates random colors for materials
+function getRandomColor() {
+    return '#' + Math.floor(Math.random() * 16777215).toString(16);
 }
 
 // Calculates the magnitude of a vector
@@ -48,4 +54,4 @@ function normalizeVector(vector) {
     };
 }
 
-export { screenToWorld, isInside, adjustMaterialProperties, calculateMagnitude, applyForceTowardsPoint, normalizeVector };
+export { screenToWorld, isInside, adjustMaterialProperties, getRandomColor, calculateMagnitude, applyForceTowardsPoint, normalizeVector };
