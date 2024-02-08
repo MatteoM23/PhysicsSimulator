@@ -2,8 +2,8 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
 // Setup the engine, world, and gravity
-const engine = Matter.Engine.create();
-const world = engine.world;
+export const engine = Matter.Engine.create();
+export const world = engine.world;
 engine.world.gravity.y = 1; // Apply default gravity
 
 // Material properties
@@ -14,7 +14,7 @@ const materialProperties = {
 };
 
 // Initialize physics environment with ground
-function initPhysics() {
+export function initPhysics() {
     const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 60, { isStatic: true, render: { fillStyle: '#464646' } });
     Matter.World.add(world, ground);
 }
