@@ -1,5 +1,5 @@
 // Import Matter.js from Skypack CDN
-import Matter from 'https://cdn.skypack.dev/matter-js';
+import Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
 
 // Setup the engine, world, and gravity
 export const engine = Matter.Engine.create();
