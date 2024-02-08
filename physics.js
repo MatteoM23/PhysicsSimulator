@@ -1,53 +1,42 @@
-// Import necessary components from Matter.js
-import { Engine, World, Bodies, Events, Body } from 'matter-js';
-import { createMaterial } from './materials.js';
+import { Engine, World, Bodies, Events } from 'matter-js';
+import { createMaterial, materialProperties } from './materials.js';
 
-let engine, world;
+let engine = Engine.create();
+let world = engine.world;
+engine.world.gravity.y = 1; // Standard gravity
 
 function initPhysics() {
     engine = Engine.create();
     world = engine.world;
-    engine.world.gravity.y = 1; // Set gravity for the simulation
 
-    // Setup advanced collision handling
-    setupCollisionHandling();
+    Events.on(engine, 'collisionStart', event => {
+        event.pairs.forEach(pair => {
+            const { bodyA, bodyB } = pair;
+            handleMaterialInteractions(bodyA, bodyB);
+        });
+    });
+}
+
+function handleMaterialInteractions(bodyA, bodyB) {
+    if (bodyA.plugin.materialType === 'antimatter' || bodyB.plugin.materialType === 'antimatter') {
+        const otherBody = bodyA.plugin.materialType === 'antimatter' ? bodyB : bodyA;
+        // Add specific antimatter interaction logic here
+        // For example, annihilate the other body
+        World.remove(world, otherBody);
+    }
+    // Additional interactions can be handled here
 }
 
 function addParticle(x, y, materialType) {
     createMaterial(x, y, materialType, world);
 }
 
-function setupCollisionHandling() {
-    Events.on(engine, 'collisionStart', function(event) {
-        event.pairs.forEach(pair => {
-            const { bodyA, bodyB } = pair;
-            // Example for specific interactions, such as explosion on lava and oil collision
-            if ((bodyA.plugin && bodyA.plugin.materialType === 'lava' && bodyB.plugin && bodyB.plugin.materialType === 'oil') ||
-                (bodyA.plugin && bodyA.plugin.materialType === 'oil' && bodyB.plugin && bodyB.plugin.materialType === 'lava')) {
-                triggerExplosion(bodyA.position.x, bodyA.position.y);
-            }
-            // Implement more interactions as required
-        });
-    });
-}
-
 function triggerExplosion(x, y) {
-    for (let i = 0; i < 20; i++) {
-        const angle = Math.random() * 2 * Math.PI;
-        const speed = Math.random() * 5 + 5; // Adjust speed for visual effect
-        let particle = Bodies.circle(x, y, 2, {
-            density: 0.0005,
-            frictionAir: 0.05,
-            restitution: 0.9,
-            render: { fillStyle: '#ff4136' }
-        });
-        Body.setVelocity(particle, { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed });
-        World.add(world, particle);
-    }
+    // Explosion logic that creates multiple particles around (x, y)
 }
 
 function update() {
-    Engine.update(engine, 1000 / 60); // Update the engine at 60 fps
+    Engine.update(engine, 1000 / 60);
 }
 
-export { initPhysics, addParticle, update, triggerExplosion, engine, world };
+export { initPhysics, addParticle, update, world };
