@@ -4,17 +4,6 @@ import { initPhysics, addParticle, createGravityInversionField, createTimeDilati
 // Current selected material
 let currentMaterial = 'sand';
 
-function setupUI() {
-    const selector = document.getElementById('materialSelector');
-    const materials = ['sand', 'water', 'oil', 'rock', 'lava'];
-
-    materials.forEach(material => {
-        let button = document.createElement('button');
-        button.textContent = material;
-        button.addEventListener('click', () => setCurrentMaterial(material));
-        selector.appendChild(button);
-    });
-}
 
 
 function draw() {
