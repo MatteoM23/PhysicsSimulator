@@ -1,5 +1,5 @@
 // Import necessary components from Matter.js
-import { Engine, World, Events } from 'matter-js';
+const { Engine, World, Bodies, Events } = Matter;
 import { createMaterial } from './materials.js'; // Ensure this import matches your project structure
 
 // Initialize engine and world
