@@ -5,12 +5,17 @@ const { Engine, World, Bodies, Events } = Matter;
 // Import createMaterial from materials.js if using ES6 modules, otherwise ensure it's globally accessible
 import { createMaterial } from './materials.js';
 
-let engine = Engine.create();
-let world = engine.world;
+let engine;
+let world;
 
 function initPhysics() {
-    engine.gravity.y = 1; // Adjust gravity to your simulation's needs
+    engine = Engine.create();
+    world = engine.world;
+
+    // Properly access the gravity property of the engine
+    engine.world.gravity.y = 1; // Set default gravity
 }
+
 
 function addParticle(x, y, materialType) {
     // Utilizes createMaterial from materials.js, passing in Matter.js world object
