@@ -58,18 +58,16 @@ const materialProperties = {
     }
 };
 
-function createMaterial(x, y, materialType, world) {
-    const properties = materialProperties[materialType];
-    const body = Bodies.circle(x, y, properties.size / 2, {
-        label: materialType,
-        render: properties.render,
-        density: properties.density,
-        friction: properties.friction,
-        restitution: properties.restitution,
-        plugin: { materialType: materialType } // Use for collision detection and interactions
+export function createMaterial(x, y, materialType, world) {
+    const material = materials[materialType];
+    if (!material) return null; // Material type not recognized
+
+    const body = Matter.Bodies.circle(x, y, 20, { // Example size: 20
+        render: { fillStyle: material.color },
+        density: material.density,
     });
 
-    World.add(world, body);
+    Matter.World.add(world, body);
     return body;
 }
 
