@@ -1,11 +1,19 @@
-import { Engine, Render, World, Bodies } from 'https://cdn.skypack.dev/matter-js';
+// Import necessary modules from the Skypack CDN
+import Matter from 'https://cdn.skypack.dev/matter-js';
+
+// Since the detailed code for creating materials and handling interactions is not provided,
+// it's assumed that `createMaterial`, `materialProperties`, and `handleInteractions`
+// are defined in separate files and are correctly importing Matter from the CDN as well.
+
+// Assuming `createMaterial`, `materialProperties`, and `handleInteractions`
+// are exported from their respective modules correctly.
 import { createMaterial, materialProperties } from './materials.js';
-import { screenToWorld } from './utils.js';
 import { handleInteractions } from './interactions.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const engine = Engine.create();
-    const render = Render.create({
+    // Create an engine and a renderer
+    const engine = Matter.Engine.create();
+    const render = Matter.Render.create({
         element: document.body,
         engine: engine,
         options: {
@@ -15,18 +23,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Add ground to prevent particles from falling indefinitely
-    const ground = World.add(engine.world, [
-        // Ground
-        { type: 'rectangle', x: window.innerWidth / 2, y: window.innerHeight, width: window.innerWidth, height: 40, isStatic: true }
-    ].map(spec => {
-        return Bodies[spec.type](spec.x, spec.y, spec.width, spec.height, { isStatic: spec.isStatic });
-    })[0]);
+    // Create ground to prevent particles from falling indefinitely
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 40, { isStatic: true });
+    Matter.World.add(engine.world, ground);
 
     // Initialize custom interactions
     handleInteractions(engine, engine.world);
 
-    let currentMaterial = 'sand'; // Default material
+    // Default material
+    let currentMaterial = 'sand';
 
     // Create UI for material selection
     const materialSelector = document.createElement('div');
@@ -40,11 +45,29 @@ document.addEventListener('DOMContentLoaded', () => {
         materialSelector.appendChild(button);
     });
 
+    // Handle mouse down event to create materials
     window.addEventListener('mousedown', function(event) {
-        const { x, y } = screenToWorld(event.clientX, event.clientY); // Adjust based on actual utils function
+        // Convert screen coordinates to world coordinates
+        // Assuming `screenToWorld` is defined in your utilities and correctly imported
+        const { x, y } = screenToWorld(event.clientX, event.clientY);
         createMaterial(x, y, currentMaterial, engine.world);
     });
 
-    Engine.run(engine);
-    Render.run(render);
+    // Run the engine and renderer
+    Matter.Engine.run(engine);
+    Matter.Render.run(render);
 });
+
+function screenToWorld(x, y, render) {
+    // Assuming zoom and pan are stored or can be calculated
+    // For example purposes, let's say you have these values
+    const zoom = render.options.zoom || 1; // Default to 1 if not zoomed
+    const pan = render.options.pan || { x: 0, y: 0 }; // Default to no pan
+
+    // Adjust for zoom
+    const adjustedX = (x - pan.x) / zoom;
+    const adjustedY = (y - pan.y) / zoom;
+
+    return { x: adjustedX, y: adjustedY };
+}
+
