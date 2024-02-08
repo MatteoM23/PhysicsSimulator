@@ -3,55 +3,8 @@ import { materials, createMaterial } from './materials.js';
 import { engine, world, initPhysics } from './physics.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize the physics environment
     initPhysics();
 
-    // Create UI container if it doesn't exist
-    let uiContainer = document.getElementById('uiContainer');
-    if (!uiContainer) {
-        uiContainer = document.createElement('div');
-        uiContainer.id = 'uiContainer';
-        document.body.appendChild(uiContainer);
-    }
-
-    // Material Selector
-    const materialSelector = document.createElement('div');
-    materialSelector.id = 'materialSelector';
-    uiContainer.appendChild(materialSelector);
-
-    // Populate material selector
-    Object.keys(materials).forEach(key => {
-        const material = materials[key];
-        const button = document.createElement('button');
-        button.textContent = material.label;
-        button.style.backgroundColor = material.render.fillStyle;
-        button.onclick = () => currentMaterial = key;
-        materialSelector.appendChild(button);
-    });
-
-    // Feature Buttons
-    // Gravity Inversion Button
-    const gravityButton = document.createElement('button');
-    gravityButton.textContent = 'Invert Gravity';
-    gravityButton.onclick = () => {
-        engine.world.gravity.y *= -1;
-    };
-    uiContainer.appendChild(gravityButton);
-
-    // Time Dilation Button
-    const timeButton = document.createElement('button');
-    timeButton.textContent = 'Toggle Time Dilation';
-    let timeDilation = 1;
-    timeButton.onclick = () => {
-        timeDilation = timeDilation === 1 ? 0.5 : 1;
-        engine.timing.timeScale = timeDilation;
-    };
-    uiContainer.appendChild(timeButton);
-
-    // Default material
-    let currentMaterial = 'sand';
-
-    // Setup rendering
     const render = Matter.Render.create({
         element: document.body,
         engine: engine,
@@ -62,13 +15,50 @@ document.addEventListener('DOMContentLoaded', () => {
         },
     });
 
-    // Add particles on mouse click
-    window.addEventListener('mousedown', event => {
-        const { clientX, clientY } = event;
-        createMaterial(clientX, clientY, currentMaterial, world);
+    // Create invisible walls
+    const wallOptions = { isStatic: true, render: { visible: false } };
+    const walls = [
+        Matter.Bodies.rectangle(0, render.options.height / 2, 1, render.options.height, wallOptions), // Left wall
+        Matter.Bodies.rectangle(render.options.width, render.options.height / 2, 1, render.options.height, wallOptions), // Right wall
+        Matter.Bodies.rectangle(render.options.width / 2, 0, render.options.width, 1, wallOptions), // Top wall
+    ];
+    Matter.World.add(world, walls);
+
+    let currentMaterial = 'sand';
+    let particleCreationInterval;
+
+    // Material Selector UI
+    const materialSelector = document.createElement('div');
+    materialSelector.id = 'materialSelector';
+    document.body.appendChild(materialSelector);
+
+    Object.keys(materials).forEach(materialKey => {
+        const button = document.createElement('button');
+        button.innerText = materials[materialKey].label;
+        button.onclick = (event) => {
+            event.stopPropagation(); // Prevent triggering particle creation when selecting a material
+            currentMaterial = materialKey;
+        };
+        materialSelector.appendChild(button);
     });
 
-    // Run the engine and renderer
+    // Function to create particles
+    const createParticles = (x, y) => {
+        if (y < materialSelector.offsetHeight) return; // Avoid spawning particles behind the material selector
+        createMaterial(x, y, currentMaterial, world);
+    };
+
+    // Mouse event handlers
+    const onMouseDown = (event) => {
+        createParticles(event.clientX, event.clientY);
+        particleCreationInterval = setInterval(() => createParticles(event.clientX, event.clientY), 100);
+    };
+
+    const onMouseUp = () => clearInterval(particleCreationInterval);
+
+    window.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mouseup', onMouseUp);
+
     Matter.Engine.run(engine);
     Matter.Render.run(render);
 });
