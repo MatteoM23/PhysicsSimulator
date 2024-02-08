@@ -1,4 +1,4 @@
-// index.js
+import { initPhysics } from './physics.js';
 
 // Assuming global access to Matter.js functions and custom physics and materials logic
 let engine, world;
