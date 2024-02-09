@@ -5,8 +5,25 @@
     --container-bg-color: rgba(23, 32, 42, 0.85);
     --text-color: #ecf0f1;
     --font-family: 'Helvetica Neue', Arial, sans-serif;
+    --gradient-start: #8e9eab;
+    --gradient-end: #eef2f3;
     --shadow-color: rgba(0, 0, 0, 0.6);
     --transition-speed: 0.3s;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    color: var(--text-color);
+    font-family: var(--font-family);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none; /* Prevent text selection */
 }
 
 .material-selector, .feature-buttons {
@@ -22,20 +39,6 @@
     z-index: 1050;
     opacity: 0.95;
     transition: opacity var(--transition-speed) ease;
-    /* Adding a pseudo-element to create the 3D top light effect */
-    position: relative;
-}
-
-.material-selector::before, .feature-buttons::before {
-    content: '';
-    position: absolute;
-    top: -2px; /* Slightly above the container to create the illusion of light */
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 10px; /* Match the container's border-radius */
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
-    z-index: -1;
 }
 
 .material-selector {
@@ -45,8 +48,8 @@
 }
 
 .feature-buttons {
-    top: 20px; /* Align to the top right */
-    right: 10px; /* Keep aligned to the right */
+    bottom: 20px; /* Align to the bottom for clear separation */
+    right: 10px; /* Align to the right, away from center */
     transform: none; /* Remove transform for right alignment */
 }
 
