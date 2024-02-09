@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const { engine, world, render } = initPhysics({
         width: window.innerWidth,
         height: window.innerHeight,
+        setupMaterialSelector(materials);
     });
 
     // Ensure the walls are added after the engine and render have been initialized.
@@ -36,18 +37,24 @@ document.addEventListener('DOMContentLoaded', () => {
     Matter.Render.run(render);
 
     function setupMaterialSelector(materials) {
-        const selector = document.createElement('div');
-        selector.id = 'materialSelector';
-        document.body.appendChild(selector);
-
-        Object.entries(materials).forEach(([key, { color }]) => {
-            const button = document.createElement('button');
-            button.textContent = key;
-            button.style.backgroundColor = color;
-            button.onclick = () => currentMaterial = key;
-            selector.appendChild(button);
-        });
+    const materialSelector = document.getElementById('materialSelector');
+    if (!materialSelector) {
+        console.error('Material selector container not found');
+        return;
     }
+
+    Object.entries(materials).forEach(([materialKey, material]) => {
+        const button = document.createElement('button');
+        button.innerText = materialKey; // Display the key or you could use material.label if it exists
+        button.style.backgroundColor = material.color; // Optional: Style button with material color
+        button.onclick = () => {
+            currentMaterial = materialKey;
+            console.log(`Current material: ${currentMaterial}`);
+        };
+        materialSelector.appendChild(button);
+    });
+}
+
 
     function setupFeatureButtons(engine) {
         const buttonsContainer = document.createElement('div');
