@@ -20,7 +20,7 @@ export function initPhysics() {
     return { engine, world, render };
 }
 
-function addGroundAndWalls(world, canvasWidth, canvasHeight) {
+export function addGroundAndWalls(world, canvasWidth, canvasHeight) {
     const thickness = 60; // Thickness of the walls and ground
     const offScreenMargin = 5; // Ensures walls and ceiling are just beyond the visible canvas
     
