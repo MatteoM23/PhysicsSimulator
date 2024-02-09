@@ -65,7 +65,7 @@ export function addParticle(x, y, materialType, world) {
 }
 
 // Add walls to contain the particles
-function addWalls(world, engine) {
+export function addWalls(world, engine) {
     const thickness = 50;
     const walls = [
         Matter.Bodies.rectangle(engine.render.options.width / 2, 0 - thickness / 2, engine.render.options.width, thickness, { isStatic: true }),
