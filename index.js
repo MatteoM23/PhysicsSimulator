@@ -5,7 +5,7 @@ import { handleInteractions } from './interactions.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Initialize the physics environment with your setup
-    const { engine, world, render } = await initPhysics({
+    const { engine, world, render } = initPhysics(); // Ensure this is correctly awaited if initPhysics is async
         width: Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
         height: Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
     });
