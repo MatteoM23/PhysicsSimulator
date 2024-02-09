@@ -14,36 +14,6 @@ export function initPhysics() {
         }
     });
 
-    // Adjust positions and make them invisible
-    addGroundAndWalls(world, render.canvas.width, render.canvas.height);
-
     return { engine, world, render };
 }
 
-export function addGroundAndWalls(world, canvasWidth, canvasHeight) {
-    const thickness = 60; // Thickness of the walls and ground
-    const offScreenMargin = 5; // Ensures walls and ceiling are just beyond the visible canvas
-    
-    // Adjust positions to be just outside the visible area and make them invisible
-    const ground = Matter.Bodies.rectangle(canvasWidth / 2, canvasHeight + (thickness / 2) - offScreenMargin, canvasWidth, thickness, {
-        isStatic: true,
-        render: { visible: false } // Makes the ground invisible
-    });
-
-    const leftWall = Matter.Bodies.rectangle(-(thickness / 2) + offScreenMargin, canvasHeight / 2, thickness, canvasHeight, {
-        isStatic: true,
-        render: { visible: false } // Makes the left wall invisible
-    });
-
-    const rightWall = Matter.Bodies.rectangle(canvasWidth + (thickness / 2) - offScreenMargin, canvasHeight / 2, thickness, canvasHeight, {
-        isStatic: true,
-        render: { visible: false } // Makes the right wall invisible
-    });
-
-    const ceiling = Matter.Bodies.rectangle(canvasWidth / 2, -(thickness / 2) + offScreenMargin, canvasWidth, thickness, {
-        isStatic: true,
-        render: { visible: false } // Makes the ceiling invisible
-    });
-
-    Matter.World.add(world, [ground, leftWall, rightWall, ceiling]);
-}
