@@ -1,11 +1,11 @@
 import Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
-import { engine, world, initPhysics, addWalls } from './physics.js';
+import { engine, world, initPhysics } from './physics.js';
 import { screenToWorld } from './utils.js';
 import { handleInteractions } from './interactions.js';
 
-initPhysics(); // Initializes physics settings, including the ground
+// Initialize physics environment
+initPhysics();
 
-// Ensure addWalls is called after render has been defined to access render's options
 const render = Matter.Render.create({
     element: document.body,
     engine: engine,
@@ -16,7 +16,8 @@ const render = Matter.Render.create({
     },
 });
 
-addWalls(); // Now that render is defined, we can safely call addWalls
+// Call addWalls after render is defined, assuming addWalls is a function in ./physics.js that now receives render as an argument
+addWalls(render);
 
 const materials = {
     sand: { label: 'Sand', color: '#f4e04d', density: 0.002, size: 5 },
@@ -27,7 +28,7 @@ const materials = {
     antimatter: { label: 'Antimatter', color: '#8e44ad', density: 0.001, size: 10, friction: 0.0, restitution: 1.0, isAntimatter: true },
 };
 
-let currentMaterial = 'sand'; // Default material
+let currentMaterial = 'sand';
 
 setupMaterialSelector();
 setupFeatureButtons();
@@ -35,12 +36,13 @@ setupFeatureButtons();
 document.addEventListener('mousedown', (event) => {
     if (event.target === render.canvas) {
         const onMouseMove = (e) => {
-            const { x, y } = screenToWorld(e.clientX, e.clientY);
-            // Add a condition to create particles based on the selected material
+            const { x, y } = screenToWorld(e.clientX, e.clientY, render);
             createParticle(x, y, currentMaterial);
         };
         document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', () => document.removeEventListener('mousemove', onMouseMove), { once: true });
+        document.addEventListener('mouseup', () => {
+            document.removeEventListener('mousemove', onMouseMove);
+        }, { once: true });
     }
 });
 
@@ -62,40 +64,32 @@ function setupMaterialSelector() {
         const material = materials[key];
         const button = document.createElement('button');
         button.innerText = material.label;
-        button.onclick = () => {
+        button.addEventListener('click', () => {
             currentMaterial = key;
-        };
+        });
         materialSelector.appendChild(button);
     });
 }
 
-
 function setupFeatureButtons() {
     const featureButtons = document.createElement('div');
     featureButtons.style.position = 'fixed';
-    featureButtons.style.bottom = '50px';
+    featureButtons.style.bottom = '60px';
     featureButtons.style.left = '50%';
     featureButtons.style.transform = 'translateX(-50%)';
     featureButtons.style.display = 'flex';
     document.body.appendChild(featureButtons);
 
-    // Gravity Inversion Button
     const gravityBtn = document.createElement('button');
     gravityBtn.innerText = 'Invert Gravity';
-    gravityBtn.onclick = () => {
-        engine.world.gravity.y *= -1;
-    };
+    gravityBtn.addEventListener('click', () => engine.world.gravity.y *= -1);
     featureButtons.appendChild(gravityBtn);
 
-    // Time Dilation Button
     const timeBtn = document.createElement('button');
     timeBtn.innerText = 'Toggle Time Dilation';
-    timeBtn.onclick = () => {
-        engine.timing.timeScale = engine.timing.timeScale === 1 ? 0.5 : 1;
-    };
+    timeBtn.addEventListener('click', () => engine.timing.timeScale = engine.timing.timeScale === 1 ? 0.5 : 1);
     featureButtons.appendChild(timeBtn);
 }
-
 
 function createParticle(x, y, materialType) {
     const material = materials[materialType];
@@ -107,4 +101,3 @@ function createParticle(x, y, materialType) {
     });
     Matter.World.add(world, body);
 }
-
