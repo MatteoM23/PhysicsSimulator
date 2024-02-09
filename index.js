@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     let currentMaterial = 'sand';
     let isMouseDown = false;
-    let lastPlacedPosition = null;
 
     setupMaterialSelector(materials);
     setupFeatureButtons(engine);
@@ -33,34 +32,23 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('mousedown', function(event) {
         if (event.target.tagName === 'CANVAS') {
             isMouseDown = true;
-            lastPlacedPosition = null;
-            placeMaterialContinuous(event);
+            createParticleAtMouse(event);
         }
     });
 
-    document.addEventListener('mousemove', placeMaterialContinuous);
+    document.addEventListener('mousemove', function(event) {
+        if (isMouseDown && event.target.tagName === 'CANVAS') {
+            createParticleAtMouse(event);
+        }
+    });
 
     document.addEventListener('mouseup', function() {
         isMouseDown = false;
-        lastPlacedPosition = null;
     });
 
-    function placeMaterialContinuous(event) {
-        if (isMouseDown && event.target.tagName === 'CANVAS') {
-            requestAnimationFrame(() => placeMaterial(event));
-        }
-    }
-
-    function placeMaterial(event) {
+    function createParticleAtMouse(event) {
         const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-        if (!lastPlacedPosition || distance(x, y, lastPlacedPosition.x, lastPlacedPosition.y) > materials[currentMaterial].size) {
-            addParticle(x, y, materials[currentMaterial], world);
-            lastPlacedPosition = { x, y };
-        }
-    }
-
-    function distance(x1, y1, x2, y2) {
-        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+        addParticle(x, y, materials[currentMaterial], world);
     }
 
     function setupMaterialSelector(materials) {
