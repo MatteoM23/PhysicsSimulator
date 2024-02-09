@@ -29,11 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
     addGroundAndWalls(world, render.options.width, render.options.height);
 
     render.canvas.addEventListener('mousedown', (event) => {
-        createParticleAtMouse(event, true);
+        createSparksAtMouse(event, true);
     });
 
     render.canvas.addEventListener('mousemove', (event) => {
-        createParticleAtMouse(event);
+        createSparksAtMouse(event);
     });
 
     render.canvas.addEventListener('mouseup', () => {
@@ -41,10 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // No additional action required here for stopping particle creation
     });
 
-    function createParticleAtMouse(event, isMouseDown = false) {
+    function createSparksAtMouse(event, isMouseDown = false) {
         if (isMouseDown || render.mouse.button === 0) {
             const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-            addParticle(x, y, materials[currentMaterial], world);
+            addSparks(x, y, materials[currentMaterial], world);
         }
     }
 
