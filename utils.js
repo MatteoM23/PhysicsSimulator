@@ -4,12 +4,20 @@ import Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskg
 // Destructure necessary components from Matter for convenience
 const { Body, Vertices } = Matter;
 
-// Adjusts the screenToWorld function to work without direct access to Render's screenToWorld, assuming Render instance is passed correctly
+// Adjusts the screenToWorld function to correctly convert screen coordinates to world coordinates
 function screenToWorld(clientX, clientY, render) {
-    const point = { x: clientX, y: clientY };
-    // Assuming 'render' is an instance of Matter.Render with the viewport properly set up
-    return Matter.Render.screenToWorld(render, point);
+    // Calculate the position of the canvas element on the page
+    const bounds = render.canvas.getBoundingClientRect();
+    
+    // Calculate world coordinates
+    const scaleX = render.canvas.width / bounds.width;
+    const scaleY = render.canvas.height / bounds.height;
+    const worldX = (clientX - bounds.left) * scaleX;
+    const worldY = (clientY - bounds.top) * scaleY;
+
+    return { x: worldX, y: worldY };
 }
+
 
 // Other utility functions remain the same as they don't directly interact with Render
 function isInside(body, x, y) {
