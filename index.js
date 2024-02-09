@@ -1,19 +1,14 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
+import { initPhysics, addParticle, addGroundAndWalls } from './physics.js';
+import { handleInteractions } from './interactions.js';
+import { screenToWorld } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const engine = Matter.Engine.create();
-    const render = Matter.Render.create({
-        element: document.body,
-        engine: engine,
-        options: {
-            width: window.innerWidth,
-            height: window.innerHeight,
-            wireframes: false,
-        },
-    });
-
-    // Add walls around the canvas
-    addWalls(engine.world);
+    // Initialize the physics engine and world
+    const { engine, world, render } = initPhysics();
+    Matter.Engine.run(engine);
+    Matter.Render.run(render);
+    handleInteractions(engine, world); // Set up custom interactions
 
     const materials = {
         sand: { label: 'Sand', color: '#f4e04d', density: 0.002, size: 5 },
@@ -28,19 +23,21 @@ document.addEventListener('DOMContentLoaded', () => {
         wood: { label: 'Wood', color: '#deb887', density: 0.003, size: 8, friction: 0.6 },
         antimatter: { label: 'Antimatter', color: '#8e44ad', density: 0.001, size: 10, friction: 0.0, restitution: 1.0, isAntimatter: true },
     };
-
     let currentMaterial = 'sand';
 
+    // UI for selecting materials
     setupMaterialSelector(materials);
+
+    // Feature buttons like gravity inversion
     setupFeatureButtons(engine);
 
+    // Mouse interaction for adding particles
     document.addEventListener('mousedown', function(event) {
-        handleMouseDown(event, materials[currentMaterial]);
+        const { x, y } = screenToWorld(event.clientX, event.clientY);
+        addParticle(x, y, materials[currentMaterial], world);
     });
 
-    Matter.Engine.run(engine);
-    Matter.Render.run(render);
-
+    // Material selection UI setup
     function setupMaterialSelector(materials) {
         const materialSelector = document.createElement('div');
         materialSelector.style.position = 'fixed';
@@ -57,44 +54,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Additional feature buttons setup
     function setupFeatureButtons(engine) {
-    const buttonsContainer = document.createElement('div');
-    buttonsContainer.style.position = 'fixed';
-    buttonsContainer.style.bottom = '100px'; // Adjust as necessary
-    buttonsContainer.style.left = '50%';
-    buttonsContainer.style.transform = 'translateX(-50%)';
-    document.body.appendChild(buttonsContainer);
+        const buttonsContainer = document.createElement('div');
+        buttonsContainer.style.position = 'fixed';
+        buttonsContainer.style.bottom = '100px';
+        buttonsContainer.style.left = '50%';
+        buttonsContainer.style.transform = 'translateX(-50%)';
+        document.body.appendChild(buttonsContainer);
 
-    // Gravity Inversion Button
-    const gravityButton = document.createElement('button');
-    gravityButton.innerText = 'Invert Gravity';
-    gravityButton.addEventListener('click', () => {
-        engine.world.gravity.y *= -1; // Invert gravity
-    });
-    buttonsContainer.appendChild(gravityButton);
+        const gravityButton = document.createElement('button');
+        gravityButton.innerText = 'Invert Gravity';
+        gravityButton.addEventListener('click', () => {
+            engine.world.gravity.y *= -1;
+        });
+        buttonsContainer.appendChild(gravityButton);
 
-    // Time Dilation Button
-    const timeButton = document.createElement('button');
-    timeButton.innerText = 'Toggle Time Dilation';
-    timeButton.addEventListener('click', () => {
-        engine.timing.timeScale = engine.timing.timeScale === 1 ? 0.5 : 1; // Toggle time dilation between normal and half speed
-    });
-    buttonsContainer.appendChild(timeButton);
-}
-
-
-    function handleMouseDown(event, material) {
-        const { x, y } = screenToWorld(event.clientX, event.clientY); // Ensure screenToWorld properly converts coordinates
-        createParticle(x, y, material);
+        const timeButton = document.createElement('button');
+        timeButton.innerText = 'Toggle Time Dilation';
+        timeButton.addEventListener('click', () => {
+            engine.timing.timeScale = engine.timing.timeScale === 1 ? 0.5 : 1;
+        });
+        buttonsContainer.appendChild(timeButton);
     }
-
-    function createParticle(x, y, material) {
-    const particle = Matter.Bodies.circle(x, y, material.size, {
-        density: material.density,
-        friction: material.friction ?? 0.1,
-        restitution: material.restitution ?? 0,
-        render: { fillStyle: material.color },
-    });
-    Matter.World.add(engine.world, particle);
-}
-
+});
