@@ -1,3 +1,4 @@
+// physics.js
 import Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
 
 export function initPhysics() {
@@ -5,7 +6,6 @@ export function initPhysics() {
     const world = engine.world;
     engine.world.gravity.y = 1; // Default gravity setup
 
-    // Initialize renderer with engine and options
     const render = Matter.Render.create({
         element: document.body,
         engine: engine,
@@ -16,17 +16,16 @@ export function initPhysics() {
         },
     });
 
-    // Add ground and walls after render is created
-    addGroundAndWalls(world, render);
+    // Ensuring addGroundAndWalls is called after render is fully initialized.
+    addGroundAndWalls(world, render.options.width, render.options.height);
 
-    // Return engine, world, and render for further use
+    Matter.Render.run(render);
+
     return { engine, world, render };
 }
 
-// Updated to reflect the function renaming from addParticle to addSparks
 export function addSparks(x, y, material, world) {
-    // Assuming 'material' is an object with properties you need, like 'density', 'friction', and 'color'.
-    const spark = Matter.Bodies.circle(x, y, 5, {
+    const spark = Matter.Bodies.circle(x, y, material.size, {
         density: material.density,
         friction: material.friction,
         restitution: material.restitution || 0,
@@ -35,25 +34,13 @@ export function addSparks(x, y, material, world) {
     Matter.World.add(world, spark);
 }
 
-export function addGroundAndWalls(world, render) {
-    // Ground
-    const ground = Matter.Bodies.rectangle(render.options.width / 2, render.options.height, render.options.width, 60, {
-        isStatic: true,
-        render: { fillStyle: '#464646' },
-    });
-    Matter.World.add(world, ground);
-
-    // Walls
-    addWalls(world, render.options.width, render.options.height);
-}
-
-export function addWalls(world, width, height) {
-    const thickness = 50;
+export function addGroundAndWalls(world, width, height) {
+    const ground = Matter.Bodies.rectangle(width / 2, height, width, 60, { isStatic: true, render: { fillStyle: '#464646' } });
     const walls = [
-        Matter.Bodies.rectangle(width / 2, -thickness / 2, width, thickness, { isStatic: true }), // Top
-        Matter.Bodies.rectangle(width / 2, height + thickness / 2, width, thickness, { isStatic: true }), // Bottom
-        Matter.Bodies.rectangle(-thickness / 2, height / 2, thickness, height, { isStatic: true }), // Left
-        Matter.Bodies.rectangle(width + thickness / 2, height / 2, thickness, height, { isStatic: true }) // Right
+        Matter.Bodies.rectangle(width / 2, -30, width, 60, { isStatic: true }),
+        Matter.Bodies.rectangle(width / 2, height + 30, width, 60, { isStatic: true }),
+        Matter.Bodies.rectangle(-30, height / 2, 60, height, { isStatic: true }),
+        Matter.Bodies.rectangle(width + 30, height / 2, 60, height, { isStatic: true })
     ];
-    walls.forEach(wall => Matter.World.add(world, wall));
+    Matter.World.add(world, [ground, ...walls]);
 }
