@@ -33,13 +33,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add walls around the canvas using the provided addGroundAndWalls function
     addGroundAndWalls(world, render.options.width, render.options.height);
 
-    // Mouse interaction for adding particles, with prevention on UI elements
+    // Corrected mouse interaction for adding particles
     document.addEventListener('mousedown', function(event) {
-        // Prevent particle creation when clicking on UI elements
-        if (event.target.closest('#materialSelector, #featureButtons')) return;
-
-        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-        addParticle(x, y, materials[currentMaterial], world);
+        // Check if the click is within the canvas area to allow material placement
+        if (event.target.tagName === 'CANVAS') {
+            const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+            addParticle(x, y, materials[currentMaterial], world);
+        }
     });
 
     function setupMaterialSelector(materials) {
@@ -54,7 +54,10 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.keys(materials).forEach(materialKey => {
             const button = document.createElement('button');
             button.innerText = materials[materialKey].label;
-            button.onclick = () => currentMaterial = materialKey;
+            button.onclick = (e) => {
+                e.stopPropagation(); // Prevent event from bubbling to canvas
+                currentMaterial = materialKey;
+            };
             materialSelector.appendChild(button);
         });
     }
@@ -70,12 +73,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const gravityButton = document.createElement('button');
         gravityButton.innerText = 'Invert Gravity';
-        gravityButton.addEventListener('click', () => engine.world.gravity.y *= -1);
+        gravityButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent event from bubbling to canvas
+            engine.world.gravity.y *= -1;
+        });
         buttonsContainer.appendChild(gravityButton);
 
         const timeButton = document.createElement('button');
         timeButton.innerText = 'Toggle Time Dilation';
-        timeButton.addEventListener('click', () => engine.timing.timeScale = engine.timing.timeScale === 1 ? 0.5 : 1);
+        timeButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent event from bubbling to canvas
+            engine.timing.timeScale = engine.timing.timeScale === 1 ? 0.5 : 1;
+        });
         buttonsContainer.appendChild(timeButton);
     }
 });
