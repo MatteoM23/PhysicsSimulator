@@ -1,16 +1,11 @@
 import Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
-import { initPhysics, addGroundAndWalls } from './physics.js';
-import { handleInteractions } from './interactions.js';
-import { screenToWorld } from './utils.js';
+import { initPhysics } from './physics.js';
+import { handleInteractions, createNewBody, simulateExplosion } from './interactions.js';
+import { screenToWorld, adjustMaterialProperties, isInside, calculateMagnitude, applyForceTowardsPoint, normalizeVector } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const { engine, render, world } = initPhysics();
 
-    // Initialize Matter.Runner to replace deprecated Engine.run
-    const runner = Matter.Runner.create();
-    Matter.Runner.run(runner, engine);
-
-    Matter.Render.run(render);
     handleInteractions(engine, world);
 
     let currentMaterial = 'sand';
@@ -30,96 +25,67 @@ document.addEventListener('DOMContentLoaded', () => {
         wood: { label: 'Wood', color: '#deb887', density: 0.003, size: 8, friction: 0.6, restitution: 0 }
     };
 
-    function createParticle(x, y, material) {
-    // Convert screen coordinates to world coordinates directly
-    const point = { x: x, y: y };
-    const worldPoint = screenToWorld(point.x, point.y, render);
-
-    // Calculate the speed based on the difference between the current and last mouse position
-    const dx = worldPoint.x - lastMousePosition.x;
-    const dy = worldPoint.y - lastMousePosition.y;
-    const speed = Math.sqrt(dx * dx + dy * dy);
-
-    // Adjust the size of the particle based on the speed, ensuring it doesn't exceed a maximum size
-    const baseSize = material.size;
-    const maxSize = baseSize * 2;
-    const size = Math.min(baseSize + speed / 50, maxSize); // Adjust divisor for speed sensitivity
-
-    // Create the particle with dynamic properties based on the material and interaction
-    const particle = Matter.Bodies.circle(worldPoint.x, worldPoint.y, size / 2, {
-        restitution: material.restitution,
-        density: material.density,
-        friction: material.friction,
-        render: {
-            fillStyle: material.color
-        }
+    document.addEventListener('mousedown', event => {
+        mouseDown = true;
+        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+        createParticle(x, y, materials[currentMaterial]);
     });
 
-    // Add the newly created particle to the Matter.js world
-    Matter.World.add(world, particle);
-
-    // Update the lastMousePosition with the current worldPoint for next calculation
-    lastMousePosition = { x: worldPoint.x, y: worldPoint.y };
-}
-
-    document.addEventListener('mousedown', (event) => {
-    mouseDown = true;
-    const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-    createParticle(x, y, materials[currentMaterial]);
-});
-
-document.addEventListener('mousemove', (event) => {
-    if (!mouseDown) return;
-    const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-    createParticle(x, y, materials[currentMaterial]);
-});
-
+    document.addEventListener('mousemove', event => {
+        if (!mouseDown) return;
+        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+        createParticle(x, y, materials[currentMaterial]);
+    });
 
     document.addEventListener('mouseup', () => {
         mouseDown = false;
     });
 
-
-    addGroundAndWalls(world, render.options.width, render.options.height);
-
-    function materialSelector(materials) {
-        const selector = document.createElement('div');
-        selector.className = 'material-selector';
-        document.body.appendChild(selector);
-
-        Object.entries(materials).forEach(([key, material]) => {
-            const button = document.createElement('button');
-            button.innerText = material.label;
-            button.style.backgroundColor = material.color;
-            button.onclick = () => {
-                currentMaterial = key;
-                document.querySelectorAll('.material-selector button').forEach(btn => btn.classList.remove('selected'));
-                button.classList.add('selected');
-            };
-            selector.appendChild(button);
-        });
+    function createParticle(x, y, material) {
+        const position = { x, y };
+        const options = {
+            restitution: material.restitution,
+            density: material.density,
+            render: { fillStyle: material.color }
+        };
+        const particle = createNewBody(position, options);
+        Matter.World.add(world, particle);
     }
 
-    function setupFeatureButtons(engine) {
-        const buttonsContainer = document.createElement('div');
-        buttonsContainer.className = 'feature-buttons';
-        document.body.appendChild(buttonsContainer);
-
-        const gravityButton = document.createElement('button');
-        gravityButton.innerText = 'Invert Gravity';
-        gravityButton.onclick = () => {
-            engine.world.gravity.y *= -1;
-        };
-        buttonsContainer.appendChild(gravityButton);
-
-        const timeButton = document.createElement('button');
-        timeButton.innerText = 'Toggle Time Dilation';
-        timeButton.onclick = () => {
-            engine.timing.timeScale = engine.timing.timeScale === 1 ? 0.5 : 1;
-        };
-        buttonsContainer.appendChild(timeButton);
-    }
-
-    materialSelector(materials);
-    setupFeatureButtons(engine);
+    setupMaterialSelector(materials);
+    setupFeatureButtons(engine, world);
 });
+
+function setupMaterialSelector(materials) {
+    const selector = document.createElement('div');
+    selector.className = 'material-selector';
+    document.body.appendChild(selector);
+
+    Object.entries(materials).forEach(([key, material]) => {
+        const button = document.createElement('button');
+        button.innerText = material.label;
+        button.style.backgroundColor = material.color;
+        button.onclick = () => {
+            currentMaterial = key;
+            document.querySelectorAll('.material-selector button').forEach(btn => btn.classList.remove('selected'));
+            button.classList.add('selected');
+        };
+        selector.appendChild(button);
+    });
+}
+
+function setupFeatureButtons(engine, world) {
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.className = 'feature-buttons';
+    document.body.appendChild(buttonsContainer);
+
+    // Example feature button: Invert Gravity
+    const gravityButton = document.createElement('button');
+    gravityButton.innerText = 'Invert Gravity';
+    gravityButton.onclick = () => {
+        engine.world.gravity.y = -engine.world.gravity.y;
+    };
+    buttonsContainer.appendChild(gravityButton);
+
+    // Add more feature buttons as needed
+}
