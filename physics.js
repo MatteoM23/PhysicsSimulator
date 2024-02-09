@@ -1,11 +1,9 @@
 import Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
 
 export function initPhysics() {
-    // Create an engine
     const engine = Matter.Engine.create();
     const world = engine.world;
 
-    // Create a renderer (optional here, assuming you might have this set up for visual output)
     const render = Matter.Render.create({
         element: document.body,
         engine: engine,
@@ -16,18 +14,36 @@ export function initPhysics() {
         }
     });
 
-    // Now add the ground and walls
-    addGroundAndWalls(world);
+    // Adjust positions and make them invisible
+    addGroundAndWalls(world, render.canvas.width, render.canvas.height);
 
-    // Return the engine, world, and render for further use
     return { engine, world, render };
 }
 
-function addGroundAndWalls(world) {
-    const ground = Matter.Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
-    const leftWall = Matter.Bodies.rectangle(0, 305, 60, 610, { isStatic: true });
-    const rightWall = Matter.Bodies.rectangle(800, 305, 60, 610, { isStatic: true });
-    const ceiling = Matter.Bodies.rectangle(400, 0, 810, 60, { isStatic: true });
+function addGroundAndWalls(world, canvasWidth, canvasHeight) {
+    const thickness = 60; // Thickness of the walls and ground
+    const offScreenMargin = 5; // Ensures walls and ceiling are just beyond the visible canvas
+    
+    // Adjust positions to be just outside the visible area and make them invisible
+    const ground = Matter.Bodies.rectangle(canvasWidth / 2, canvasHeight + (thickness / 2) - offScreenMargin, canvasWidth, thickness, {
+        isStatic: true,
+        render: { visible: false } // Makes the ground invisible
+    });
+
+    const leftWall = Matter.Bodies.rectangle(-(thickness / 2) + offScreenMargin, canvasHeight / 2, thickness, canvasHeight, {
+        isStatic: true,
+        render: { visible: false } // Makes the left wall invisible
+    });
+
+    const rightWall = Matter.Bodies.rectangle(canvasWidth + (thickness / 2) - offScreenMargin, canvasHeight / 2, thickness, canvasHeight, {
+        isStatic: true,
+        render: { visible: false } // Makes the right wall invisible
+    });
+
+    const ceiling = Matter.Bodies.rectangle(canvasWidth / 2, -(thickness / 2) + offScreenMargin, canvasWidth, thickness, {
+        isStatic: true,
+        render: { visible: false } // Makes the ceiling invisible
+    });
 
     Matter.World.add(world, [ground, leftWall, rightWall, ceiling]);
 }
