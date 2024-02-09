@@ -2,6 +2,9 @@
     --button-bg-color: #16a085;
     --button-hover-bg-color: #1abc9c;
     --button-active-bg-color: #149174;
+    --container-bg-color: rgba(0, 0, 0, 0.6); /* Slightly darker for better contrast */
+    --text-color: #ffffff;
+    --font-family: 'Arial', sans-serif;
 }
 
 body, html {
@@ -11,60 +14,51 @@ body, html {
     width: 100%;
     height: 100%;
     background: linear-gradient(135deg, #2c3e50, #34495e);
-    color: white;
-    font-family: 'Arial', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    color: var(--text-color);
+    font-family: var(--font-family);
 }
 
-
-#uiContainer {
+/* Adjusted for direct styling instead of id #uiContainer */
+.material-selector, .feature-buttons {
     position: fixed;
-    bottom: 20px;
+    bottom: 20px; /* Adjusted spacing for visibility */
     left: 50%;
     transform: translateX(-50%);
     display: flex;
     justify-content: center;
+    gap: 10px; /* Consistent gap for all buttons */
     align-items: center;
     padding: 10px;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--container-bg-color);
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Slightly deeper shadow for depth */
+    z-index: 1000; /* Ensure it's above any canvas or other elements */
 }
 
-#materialSelector, #featureButtons {
-    display: flex;
-    gap: 20px;
-    margin-right: 10px; /* Adds spacing between buttons */
-
+.feature-buttons {
+    bottom: 60px; /* Provide distinct space from material selector */
 }
-
-#featureButtons {
-    margin-left: 20px; /* Adds spacing between the material selector and feature buttons */
-}
-
 
 button {
-    background-color: #16a085;
-    color: white;
+    background-color: var(--button-bg-color);
+    color: var(--text-color);
     border: none;
-    padding: 10px 20px;
+    padding: 8px 16px; /* Slightly smaller for a more refined look */
     font-size: 14px;
     cursor: pointer;
-    border-radius: 20px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    border-radius: 5px; /* Less rounded for a modern appearance */
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 button:hover {
-    background-color: #1abc9c;
+    background-color: var(--button-hover-bg-color);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Enhanced shadow on hover for lift effect */
 }
 
 button:active {
-    background-color: #149174;
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    background-color: var(--button-active-bg-color);
+    transform: translateY(1px); /* Slight press-down effect */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Subtle shadow for pressed state */
 }
