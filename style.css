@@ -1,12 +1,12 @@
 :root {
-    --button-bg-color: #2980b9; /* Updated for a more vibrant primary color */
-    --button-hover-bg-color: #3498db; /* Lighter for hover state */
-    --button-active-bg-color: #2779a7; /* Darker for active state */
-    --container-bg-color: rgba(0, 0, 0, 0.75); /* Darker for contrast and focus */
-    --text-color: #ecf0f1; /* Light text for readability */
-    --font-family: 'Helvetica Neue', Arial, sans-serif; /* Modern and sleek font */
-    --gradient-start: #6dd5fa; /* Lighter start for background gradient */
-    --gradient-end: #2980b9; /* Harmonious end for background gradient */
+    --button-bg-color: #2980b9;
+    --button-hover-bg-color: #3498db;
+    --button-active-bg-color: #2779a7;
+    --container-bg-color: rgba(0, 0, 0, 0.75);
+    --text-color: #ecf0f1;
+    --font-family: 'Helvetica Neue', Arial, sans-serif;
+    --gradient-start: #6dd5fa;
+    --gradient-end: #2980b9;
 }
 
 body, html {
@@ -25,41 +25,48 @@ body, html {
 
 .material-selector, .feature-buttons {
     position: fixed;
-    padding: 15px 20px; /* Increased for better touch target and visual presence */
+    top: 10px; /* Moved to the top with slight padding from the edge */
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px 20px;
     background-color: var(--container-bg-color);
-    border-radius: 20px; /* More pronounced rounded corners for a modern look */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5); /* Deeper shadow for a more premium feel */
+    border-radius: 20px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 15px; /* Increased gap for better separation and clarity */
-    z-index: 1000; /* Ensure it's above any canvas or other elements */
+    gap: 15px;
+    z-index: 1000;
+}
+
+.material-selector {
+    top: 20px; /* Slightly lower than the very top for aesthetic balance */
 }
 
 .feature-buttons {
-    bottom: 100px; /* Increased space from material selector for clear distinction */
+    top: 80px; /* Positioned below the material selector for clear distinction */
 }
 
 button {
     background-color: var(--button-bg-color);
     color: var(--text-color);
     border: none;
-    padding: 10px 20px; /* More padding for a larger, more clickable area */
-    font-size: 16px; /* Larger font size for better readability */
+    padding: 10px 20px;
+    font-size: 16px;
     cursor: pointer;
-    border-radius: 10px; /* Updated to match container border-radius */
-    transition: all 0.3s ease; /* Smooth transition for all interactive properties */
+    border-radius: 10px;
+    transition: all 0.3s ease;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
 }
 
 button:hover {
     background-color: var(--button-hover-bg-color);
-    transform: translateY(-3px); /* Increased lift for a more dynamic interaction */
+    transform: translateY(-3px);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.4);
 }
 
 button:active {
     background-color: var(--button-active-bg-color);
-    transform: translateY(2px); /* Adjusted press-down effect for tactile feedback */
+    transform: translateY(2px);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
