@@ -48,10 +48,11 @@ body, html {
 }
 
 .feature-buttons {
-    bottom: 20px; /* Align to the bottom for clear separation */
-    right: 10px; /* Align to the right, away from center */
+    top: 20px; /* Align to the top for clear separation */
+    right: 10px; /* Keep aligned to the right */
     transform: none; /* Remove transform for right alignment */
 }
+
 
 button {
     background-color: var(--button-bg-color);
