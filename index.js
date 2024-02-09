@@ -4,14 +4,15 @@ import { screenToWorld } from './utils.js';
 import { handleInteractions } from './interactions.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize physics with optional configuration if needed.
+    // If initPhysics doesn't take an object for configuration, just call initPhysics();
     const { engine, world, render } = initPhysics({
         width: window.innerWidth,
-        height: window.innerHeight,
-        setupMaterialSelector(materials)
+        height: window.innerHeight
     });
 
-    // Ensure the walls are added after the engine and render have been initialized.
-    addWalls(world);
+    // Add walls around the canvas to contain particles.
+    addWalls(world, engine, render);
 
     const materials = {
         sand: { density: 0.002, friction: 0.5, color: '#f4e04d' },
@@ -27,21 +28,31 @@ document.addEventListener('DOMContentLoaded', () => {
         antimatter: { density: 0.0, friction: 0.0, color: '#8e44ad', restitution: 1.0, isAntimatter: true }
     };
 
-    let currentMaterial = 'sand';
+     let currentMaterial = 'sand';
 
+    // Calls to setup functions
     setupMaterialSelector(materials);
     setupFeatureButtons(engine);
     handleMouseEvents(engine, render, world, materials);
 
+    // Start the engine and renderer
     Matter.Engine.run(engine);
     Matter.Render.run(render);
+});
 
-    function setupMaterialSelector(materials) {
-    const materialSelector = document.getElementById('materialSelector');
-    if (!materialSelector) {
-        console.error('Material selector container not found');
-        return;
-    }
+function setupMaterialSelector(materials) {
+    const materialSelector = document.createElement('div');
+    materialSelector.id = 'materialSelector';
+    document.body.appendChild(materialSelector);
+
+    Object.entries(materials).forEach(([materialKey, material]) => {
+        const button = document.createElement('button');
+        button.innerText = materialKey; // Or material.label if defined
+        button.style.backgroundColor = material.color; // Style the button
+        button.onclick = () => currentMaterial = materialKey;
+        materialSelector.appendChild(button);
+    });
+}
 
     Object.entries(materials).forEach(([materialKey, material]) => {
         const button = document.createElement('button');
