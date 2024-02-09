@@ -1,20 +1,21 @@
-import * as Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
+// Import the required namespaces from Matter.js directly
+import Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
 
-// Access relevant parts from the Matter namespace
-const { Body, Vertices, Render } = Matter;
+// Destructure necessary components from Matter for convenience
+const { Body, Vertices } = Matter;
 
-// Converts screen coordinates to physics world coordinates
+// Adjusts the screenToWorld function to work without direct access to Render's screenToWorld, assuming Render instance is passed correctly
 function screenToWorld(clientX, clientY, render) {
     const point = { x: clientX, y: clientY };
-    return Render.screenToWorld(render, point);
+    // Assuming 'render' is an instance of Matter.Render with the viewport properly set up
+    return Matter.Render.screenToWorld(render, point);
 }
 
-// Checks if a point is inside a body, useful for interactive elements
+// Other utility functions remain the same as they don't directly interact with Render
 function isInside(body, x, y) {
     return Vertices.contains(body.vertices, { x, y });
 }
 
-// Dynamically adjusts material properties for real-time physics experimentation
 function adjustMaterialProperties(body, properties) {
     Object.entries(properties).forEach(([key, value]) => {
         if (body[key] !== undefined) {
@@ -24,13 +25,10 @@ function adjustMaterialProperties(body, properties) {
     Body.set(body, properties);
 }
 
-
-// Calculates the magnitude of a vector
 function calculateMagnitude(vector) {
     return Math.sqrt(vector.x ** 2 + vector.y ** 2);
 }
 
-// Applies a force to a body directing it towards a specific point in space
 function applyForceTowardsPoint(body, point, strength) {
     const dx = point.x - body.position.x;
     const dy = point.y - body.position.y;
@@ -43,7 +41,6 @@ function applyForceTowardsPoint(body, point, strength) {
     Body.applyForce(body, body.position, force);
 }
 
-// Normalizes a vector to have a magnitude of 1
 function normalizeVector(vector) {
     const magnitude = calculateMagnitude(vector);
     return {
@@ -52,6 +49,7 @@ function normalizeVector(vector) {
     };
 }
 
+// Export the functions for use in other modules
 export {
     screenToWorld,
     isInside,
