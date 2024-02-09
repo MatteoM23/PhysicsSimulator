@@ -29,24 +29,18 @@ document.addEventListener('DOMContentLoaded', () => {
     addGroundAndWalls(world, render.options.width, render.options.height);
 
     render.canvas.addEventListener('mousedown', (event) => {
-        createSparksAtMouse(event, true);
+        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+        addSparks(x, y, materials[currentMaterial], world);
     });
 
     render.canvas.addEventListener('mousemove', (event) => {
-        createSparksAtMouse(event);
+        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+        addSparks(x, y, materials[currentMaterial], world);
     });
 
     render.canvas.addEventListener('mouseup', () => {
-        // This ensures we capture the mouse up event specifically on the canvas
-        // No additional action required here for stopping particle creation
+        // Intentionally left empty; future logic could be added here if needed
     });
-
-    function createSparksAtMouse(event, isMouseDown = false) {
-        if (isMouseDown || render.mouse.button === 0) {
-            const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-            addSparks(x, y, materials[currentMaterial], world);
-        }
-    }
 
     function setupMaterialSelector(materials) {
         const selector = document.createElement('div');
@@ -56,8 +50,11 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.entries(materials).forEach(([key, { label, color }]) => {
             const button = document.createElement('button');
             button.textContent = label;
-            button.style.backgroundColor = color; // Use material color for button
-            button.onclick = () => currentMaterial = key;
+            button.style.backgroundColor = color;
+            button.onclick = () => {
+                currentMaterial = key;
+                // Additional UI feedback for material selection could be implemented here
+            };
             selector.appendChild(button);
         });
     }
