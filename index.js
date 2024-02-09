@@ -4,24 +4,23 @@ import { handleInteractions } from './interactions.js';
 import { screenToWorld } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize the physics engine and world
     const { engine, world, render } = initPhysics();
     Matter.Engine.run(engine);
     Matter.Render.run(render);
-    handleInteractions(engine, world); // Set up custom interactions
+    handleInteractions(engine, world); // Set up custom interactions from interactions.js
 
     const materials = {
         sand: { label: 'Sand', color: '#f4e04d', density: 0.002, size: 5 },
         water: { label: 'Water', color: '#3498db', density: 0.0001, size: 6, friction: 0, restitution: 0.1 },
-        oil: { label: 'Oil', color: '#34495e', density: 0.0012, size: 6, friction: 0.05, restitution: 0.05, flammable: true },
+        oil: { label: 'Oil', color: '#34495e', density: 0.0012, size: 6, friction: 0.05, restitution: 0.05 },
         rock: { label: 'Rock', color: '#7f8c8d', density: 0.004, size: 8, friction: 0.6, restitution: 0.1 },
-        lava: { label: 'Lava', color: '#e74c3c', density: 0.003, size: 7, friction: 0.2, restitution: 0.4, temperature: 1200 },
+        lava: { label: 'Lava', color: '#e74c3c', density: 0.003, size: 7, friction: 0.2, restitution: 0.4 },
         ice: { label: 'Ice', color: '#a8e0ff', density: 0.0009, size: 6, friction: 0.1, restitution: 0.8 },
         rubber: { label: 'Rubber', color: '#ff3b3b', density: 0.001, size: 7, friction: 1.0, restitution: 0.9 },
         steel: { label: 'Steel', color: '#8d8d8d', density: 0.008, size: 10, friction: 0.4 },
         glass: { label: 'Glass', color: '#c4faf8', density: 0.0025, size: 5, friction: 0.1, restitution: 0.5 },
         wood: { label: 'Wood', color: '#deb887', density: 0.003, size: 8, friction: 0.6 },
-        antimatter: { label: 'Antimatter', color: '#8e44ad', density: 0.001, size: 10, friction: 0.0, restitution: 1.0, isAntimatter: true },
+        antimatter: { label: 'Antimatter', color: '#8e44ad', density: 0.001, size: 10, friction: 0.0, restitution: 1.0 },
     };
     let currentMaterial = 'sand';
 
@@ -31,15 +30,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // Feature buttons like gravity inversion
     setupFeatureButtons(engine);
 
-    // Mouse interaction for adding particles
+    // Add walls around the canvas using the provided addGroundAndWalls function
+    addGroundAndWalls(world, render.options.width, render.options.height);
+
+    // Mouse interaction for adding particles, with prevention on UI elements
     document.addEventListener('mousedown', function(event) {
-        const { x, y } = screenToWorld(event.clientX, event.clientY);
+        // Prevent particle creation when clicking on UI elements
+        if (event.target.closest('#materialSelector, #featureButtons')) return;
+
+        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
         addParticle(x, y, materials[currentMaterial], world);
     });
 
-    // Material selection UI setup
     function setupMaterialSelector(materials) {
         const materialSelector = document.createElement('div');
+        materialSelector.id = 'materialSelector'; // Assign an ID for CSS and event handling
         materialSelector.style.position = 'fixed';
         materialSelector.style.bottom = '20px';
         materialSelector.style.left = '50%';
@@ -54,9 +59,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Additional feature buttons setup
     function setupFeatureButtons(engine) {
         const buttonsContainer = document.createElement('div');
+        buttonsContainer.id = 'featureButtons'; // Assign an ID for CSS and event handling
         buttonsContainer.style.position = 'fixed';
         buttonsContainer.style.bottom = '100px';
         buttonsContainer.style.left = '50%';
@@ -65,16 +70,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const gravityButton = document.createElement('button');
         gravityButton.innerText = 'Invert Gravity';
-        gravityButton.addEventListener('click', () => {
-            engine.world.gravity.y *= -1;
-        });
+        gravityButton.addEventListener('click', () => engine.world.gravity.y *= -1);
         buttonsContainer.appendChild(gravityButton);
 
         const timeButton = document.createElement('button');
         timeButton.innerText = 'Toggle Time Dilation';
-        timeButton.addEventListener('click', () => {
-            engine.timing.timeScale = engine.timing.timeScale === 1 ? 0.5 : 1;
-        });
+        timeButton.addEventListener('click', () => engine.timing.timeScale = engine.timing.timeScale === 1 ? 0.5 : 1);
         buttonsContainer.appendChild(timeButton);
     }
 });
