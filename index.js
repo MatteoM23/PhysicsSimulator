@@ -60,10 +60,15 @@ function createParticle(x, y, materialKey, world, engine) {
         restitution: material.restitution ?? 0.1, // Provide default values
         density: material.density,
         friction: material.friction ?? 0.5,
+        render: {
+            fillStyle: material.color, // Ensure visual properties are passed
+        },
     };
+    // Ensure radius is explicitly passed
     const particle = createNewBody({ x, y }, material.size, options);
     Matter.World.add(world, particle);
 }
+
 
 function setupMaterialSelector(materials) {
     const selector = document.createElement('div');
