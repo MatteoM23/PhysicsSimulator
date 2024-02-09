@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('mousedown', function(event) {
         if (event.target.tagName === 'CANVAS') {
             isMouseDown = true;
-            placeMaterial(event);
+            placeMaterial(event); // This line ensures a particle is created on click
         }
     });
 
