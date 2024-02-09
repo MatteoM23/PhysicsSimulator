@@ -5,12 +5,13 @@ import { screenToWorld } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const { engine, render, world } = initPhysics();
-    let mouseDown = false;
-    let lastMousePosition = { x: 0, y: 0 };
-
     Matter.Engine.run(engine);
     Matter.Render.run(render);
     handleInteractions(engine, world);
+
+    let currentMaterial = 'sand';
+    let mouseDown = false;
+    let lastMousePosition = { x: 0, y: 0 };
 
     const materials = {
         sand: { label: 'Sand', color: '#f4e04d', density: 0.002, size: 5 },
@@ -23,69 +24,45 @@ document.addEventListener('DOMContentLoaded', () => {
         steel: { label: 'Steel', color: '#8d8d8d', density: 0.008, size: 10, friction: 0.4 },
         glass: { label: 'Glass', color: '#c4faf8', density: 0.0025, size: 5, friction: 0.1, restitution: 0.5 },
         wood: { label: 'Wood', color: '#deb887', density: 0.003, size: 8, friction: 0.6 },
-        // Add more materials as needed
     };
-    let currentMaterial = 'sand'; // Default material
-
-    document.addEventListener('mousedown', startDrawing);
-    document.addEventListener('mouseup', stopDrawing);
-    document.addEventListener('mousemove', draw);
-
-    function startDrawing(e) {
-        mouseDown = true;
-        const { x, y } = screenToWorld(e.clientX, e.clientY, render);
-        lastMousePosition = { x, y };
-        createParticle(x, y, materials[currentMaterial]);
-    }
-
-    function stopDrawing() {
-        mouseDown = false;
-    }
-
-    function draw(e) {
-        if (!mouseDown) return;
-        const { x, y } = screenToWorld(e.clientX, e.clientY, render);
-        createParticle(x, y, materials[currentMaterial]);
-    }
 
     function createParticle(x, y, material) {
         const speed = Math.sqrt((x - lastMousePosition.x) ** 2 + (y - lastMousePosition.y) ** 2);
-        const size = Math.min(material.size + speed / 20, material.size * 2); // Dynamically adjust size based on speed
+        const size = Math.min(material.size + speed / 20, material.size * 2);
         const particle = Matter.Bodies.circle(x, y, size / 2, {
             restitution: material.restitution,
             density: material.density,
             friction: material.friction,
-            render: { fillStyle: material.color }
+            render: { fillStyle: material.color },
         });
         Matter.World.add(world, particle);
         lastMousePosition = { x, y };
     }
 
-    addGroundAndWalls(world, render.options.width, render.options.height);
-});
-
-
-    document.body.addEventListener('mousedown', (event) => {
-        render.canvas.addEventListener('mousemove', handleMouseMove);
-    });
-
-    window.addEventListener('mouseup', () => {
-        render.canvas.removeEventListener('mousemove', handleMouseMove);
-    });
-
-    function handleMouseMove(event) {
-        const { x, y } = screenToWorld(event.clientX, event.clientY);
+    document.addEventListener('mousedown', (event) => {
+        mouseDown = true;
+        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+        lastMousePosition = { x, y };
         createParticle(x, y, materials[currentMaterial]);
-    }
+    });
 
-    // Implement materialSelector and featureButtons as previously described
+    document.addEventListener('mouseup', () => {
+        mouseDown = false;
+    });
+
+    document.addEventListener('mousemove', (event) => {
+        if (!mouseDown) return;
+        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+        createParticle(x, y, materials[currentMaterial]);
+    });
+
+    addGroundAndWalls(world, render.options.width, render.options.height);
     materialSelector(materials);
     setupFeatureButtons(engine);
 
     function materialSelector(materials) {
         const selector = document.createElement('div');
         selector.className = 'material-selector';
-        selector.style.top = '20px'; // Adjusted to align with your CSS
         document.body.appendChild(selector);
 
         Object.entries(materials).forEach(([key, material]) => {
@@ -94,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
             button.style.backgroundColor = material.color;
             button.onclick = () => {
                 currentMaterial = key;
-                // Highlight the selected material
                 document.querySelectorAll('.material-selector button').forEach(btn => btn.classList.remove('selected'));
                 button.classList.add('selected');
             };
@@ -102,22 +78,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
     function setupFeatureButtons(engine) {
         const buttonsContainer = document.createElement('div');
-        buttonsContainer.style.position = 'fixed';
-        buttonsContainer.style.top = '50px';
-        buttonsContainer.style.left = '10px';
+        buttonsContainer.className = 'feature-buttons';
         document.body.appendChild(buttonsContainer);
 
         const gravityButton = document.createElement('button');
         gravityButton.innerText = 'Invert Gravity';
-        gravityButton.onclick = () => engine.world.gravity.y *= -1;
+        gravityButton.onclick = () => {
+            engine.world.gravity.y *= -1;
+        };
         buttonsContainer.appendChild(gravityButton);
 
         const timeButton = document.createElement('button');
         timeButton.innerText = 'Toggle Time Dilation';
-        timeButton.onclick = () => engine.timing.timeScale = engine.timing.timeScale === 1 ? 0.5 : 1;
+        timeButton.onclick = () => {
+            engine.timing.timeScale = engine.timing.timeScale === 1 ? 0.5 : 1;
+        };
         buttonsContainer.appendChild(timeButton);
     }
 });
