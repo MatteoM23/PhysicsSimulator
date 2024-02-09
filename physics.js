@@ -24,15 +24,6 @@ export function initPhysics() {
     return { engine, world, render };
 }
 
-export function addSparks(x, y, material, world) {
-    const spark = Matter.Bodies.circle(x, y, material.size, {
-        density: material.density,
-        friction: material.friction,
-        restitution: material.restitution || 0,
-        render: { fillStyle: material.color },
-    });
-    Matter.World.add(world, spark);
-}
 
 export function addGroundAndWalls(world, width, height) {
     const ground = Matter.Bodies.rectangle(width / 2, height, width, 60, { isStatic: true, render: { fillStyle: '#464646' } });
