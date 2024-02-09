@@ -5,7 +5,11 @@ import { screenToWorld } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const { engine, render, world } = initPhysics();
-    Matter.Engine.run(engine);
+
+    // Initialize Matter.Runner to replace deprecated Engine.run
+    const runner = Matter.Runner.create();
+    Matter.Runner.run(runner, engine);
+
     Matter.Render.run(render);
     handleInteractions(engine, world);
 
@@ -21,15 +25,16 @@ document.addEventListener('DOMContentLoaded', () => {
         lava: { label: 'Lava', color: '#e74c3c', density: 0.003, size: 7, friction: 0.2, restitution: 0.4 },
         ice: { label: 'Ice', color: '#a8e0ff', density: 0.0009, size: 6, friction: 0.1, restitution: 0.8 },
         rubber: { label: 'Rubber', color: '#ff3b3b', density: 0.001, size: 7, friction: 1.0, restitution: 0.9 },
-        steel: { label: 'Steel', color: '#8d8d8d', density: 0.008, size: 10, friction: 0.4 },
+        steel: { label: 'Steel', color: '#8d8d8d', density: 0.008, size: 10, friction: 0.4, restitution: 0 },
         glass: { label: 'Glass', color: '#c4faf8', density: 0.0025, size: 5, friction: 0.1, restitution: 0.5 },
-        wood: { label: 'Wood', color: '#deb887', density: 0.003, size: 8, friction: 0.6 },
+        wood: { label: 'Wood', color: '#deb887', density: 0.003, size: 8, friction: 0.6, restitution: 0 }
     };
 
     function createParticle(x, y, material) {
-        const speed = Math.sqrt((x - lastMousePosition.x) ** 2 + (y - lastMousePosition.y) ** 2);
+        const { x: worldX, y: worldY } = screenToWorld(x, y, render);
+        const speed = Math.sqrt((worldX - lastMousePosition.x) ** 2 + (worldY - lastMousePosition.y) ** 2);
         const size = Math.min(material.size + speed / 20, material.size * 2);
-        const particle = Matter.Bodies.circle(x, y, size / 2, {
+        const particle = Matter.Bodies.circle(worldX, worldY, size / 2, {
             restitution: material.restitution,
             density: material.density,
             friction: material.friction,
@@ -42,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('mousedown', (event) => {
         mouseDown = true;
         const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-        lastMousePosition = { x, y };
         createParticle(x, y, materials[currentMaterial]);
     });
 
@@ -57,8 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     addGroundAndWalls(world, render.options.width, render.options.height);
-    materialSelector(materials);
-    setupFeatureButtons(engine);
 
     function materialSelector(materials) {
         const selector = document.createElement('div');
@@ -97,4 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         buttonsContainer.appendChild(timeButton);
     }
+
+    materialSelector(materials);
+    setupFeatureButtons(engine);
 });
