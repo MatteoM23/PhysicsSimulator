@@ -1,12 +1,16 @@
 import Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
-import { materials, createMaterial } from './materials.js';
-import { engine, world, initPhysics, addWalls } from './physics.js'; // Correct the import based on the provided `addWalls` function
-import { handleInteractions } from './interactions.js';
+
+// Assuming materials.js is set up correctly, simulate its structure for the example
+const materials = {
+    sand: { label: 'Sand', options: { density: 0.002, restitution: 0.3 } },
+    water: { label: 'Water', options: { density: 0.001, restitution: 0.1 } },
+    oil: { label: 'Oil', options: { density: 0.0012, restitution: 0.05 } },
+};
+
+let currentMaterial = 'sand'; // Default material
 
 document.addEventListener('DOMContentLoaded', () => {
-    initPhysics(engine, world); // Initialize physics settings, ensure this function is correctly defined in `physics.js`
-    addWalls(engine, render); // Add walls around the canvas
-
+    const engine = Matter.Engine.create();
     const render = Matter.Render.create({
         element: document.body,
         engine: engine,
@@ -17,46 +21,53 @@ document.addEventListener('DOMContentLoaded', () => {
         },
     });
 
+    // Create invisible walls
+    const addWalls = () => {
+        const wallThickness = 50;
+        const walls = [
+            Matter.Bodies.rectangle(render.options.width / 2, 0, render.options.width + wallThickness, wallThickness, { isStatic: true }),
+            Matter.Bodies.rectangle(render.options.width / 2, render.options.height, render.options.width + wallThickness, wallThickness, { isStatic: true }),
+            Matter.Bodies.rectangle(0, render.options.height / 2, wallThickness, render.options.height + wallThickness, { isStatic: true }),
+            Matter.Bodies.rectangle(render.options.width, render.options.height / 2, wallThickness, render.options.height + wallThickness, { isStatic: true })
+        ];
+        Matter.World.add(engine.world, walls);
+    };
+    addWalls();
+
     // Dynamic Material Selector
     const materialSelector = document.createElement('div');
     materialSelector.style.position = 'fixed';
-    materialSelector.style.top = '10px';
+    materialSelector.style.top = '0';
     materialSelector.style.left = '50%';
     materialSelector.style.transform = 'translateX(-50%)';
-    materialSelector.style.zIndex = 100;
+    materialSelector.style.display = 'flex';
+    materialSelector.style.justifyContent = 'center';
+    materialSelector.style.zIndex = '1';
     document.body.appendChild(materialSelector);
 
-    Object.keys(materials).forEach(key => {
-        const material = materials[key];
+    Object.entries(materials).forEach(([key, value]) => {
         const btn = document.createElement('button');
-        btn.textContent = material.label;
-        btn.onclick = () => { currentMaterial = key; };
+        btn.textContent = value.label;
+        btn.onclick = () => {
+            currentMaterial = key;
+        };
         materialSelector.appendChild(btn);
     });
 
-    let currentMaterial = 'sand'; // Default material
+    // Particle creation logic
+    const createParticle = (x, y, material) => {
+        const properties = materials[material].options;
+        const particle = Matter.Bodies.circle(x, y, 20, { ...properties, render: { fillStyle: materials[material].color || '#ffffff' } });
+        Matter.World.add(engine.world, particle);
+    };
 
-    // Mouse event for continuous particle creation
-    let isMouseDown = false;
-    document.addEventListener('mousedown', (event) => {
-        isMouseDown = true;
-        document.addEventListener('mousemove', onMouseMove);
-        onMouseMove(event); // Create a particle immediately
-    });
-    document.addEventListener('mouseup', () => {
-        isMouseDown = false;
-        document.removeEventListener('mousemove', onMouseMove);
-    });
-
-    function onMouseMove(event) {
-        if (!isMouseDown || event.target.tagName.toLowerCase() === 'button') {
-            return; // Prevent particle creation when clicking buttons
+    document.body.addEventListener('mousedown', (event) => {
+        // Exclude clicks on the material selector
+        if (event.target !== materialSelector && event.target.parentNode !== materialSelector) {
+            const x = event.clientX, y = event.clientY;
+            createParticle(x, y, currentMaterial);
         }
-        const { x, y } = { x: event.clientX, y: event.clientY };
-        createMaterial(x, y, currentMaterial, engine.world); // Adjust this function as necessary
-    }
-
-    handleInteractions(engine, world); // Ensure interactions are handled
+    });
 
     Matter.Engine.run(engine);
     Matter.Render.run(render);
