@@ -1,65 +1,69 @@
-import Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
+// Importing Matter.js from a CDN
+import Matter from 'https://cdn.skypack.dev/matter-js';
+
+// Importing local modules
 import { initPhysics } from './physics.js';
-import { handleInteractions, createNewBody, simulateExplosion } from './interactions.js';
-import { screenToWorld, adjustMaterialProperties, isInside, calculateMagnitude, applyForceTowardsPoint, normalizeVector } from './utils.js';
+import { handleInteractions, createNewBody } from './interactions.js';
+import { screenToWorld } from './utils.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-    const { engine, render, world } = initPhysics();
+// Materials definition with properties
+const materials = {
+    sand: { label: 'Sand', color: '#f4e04d', density: 0.002, size: 5 },
+    water: { label: 'Water', color: '#3498db', density: 0.0001, size: 6, friction: 0, restitution: 0.1 },
+    oil: { label: 'Oil', color: '#34495e', density: 0.0012, size: 6, friction: 0.05, restitution: 0.05 },
+    rock: { label: 'Rock', color: '#7f8c8d', density: 0.004, size: 8, friction: 0.6, restitution: 0.1 },
+    lava: { label: 'Lava', color: '#e74c3c', density: 0.003, size: 7, friction: 0.2, restitution: 0.4 },
+    ice: { label: 'Ice', color: '#a8e0ff', density: 0.0009, size: 6, friction: 0.1, restitution: 0.8 },
+    rubber: { label: 'Rubber', color: '#ff3b3b', density: 0.001, size: 7, friction: 1.0, restitution: 0.9 },
+    steel: { label: 'Steel', color: '#8d8d8d', density: 0.008, size: 10, friction: 0.4, restitution: 0 },
+    glass: { label: 'Glass', color: '#c4faf8', density: 0.0025, size: 5, friction: 0.1, restitution: 0.5 },
+    wood: { label: 'Wood', color: '#deb887', density: 0.003, size: 8, friction: 0.6, restitution: 0 }
+};
 
-    handleInteractions(engine, world);
+let currentMaterial = 'sand';
 
-    let currentMaterial = 'sand';
-    let mouseDown = false;
-    let lastMousePosition = { x: 0, y: 0 };
-
-    const materials = {
-        sand: { label: 'Sand', color: '#f4e04d', density: 0.002, size: 5 },
-        water: { label: 'Water', color: '#3498db', density: 0.0001, size: 6, friction: 0, restitution: 0.1 },
-        oil: { label: 'Oil', color: '#34495e', density: 0.0012, size: 6, friction: 0.05, restitution: 0.05 },
-        rock: { label: 'Rock', color: '#7f8c8d', density: 0.004, size: 8, friction: 0.6, restitution: 0.1 },
-        lava: { label: 'Lava', color: '#e74c3c', density: 0.003, size: 7, friction: 0.2, restitution: 0.4 },
-        ice: { label: 'Ice', color: '#a8e0ff', density: 0.0009, size: 6, friction: 0.1, restitution: 0.8 },
-        rubber: { label: 'Rubber', color: '#ff3b3b', density: 0.001, size: 7, friction: 1.0, restitution: 0.9 },
-        steel: { label: 'Steel', color: '#8d8d8d', density: 0.008, size: 10, friction: 0.4, restitution: 0 },
-        glass: { label: 'Glass', color: '#c4faf8', density: 0.0025, size: 5, friction: 0.1, restitution: 0.5 },
-        wood: { label: 'Wood', color: '#deb887', density: 0.003, size: 8, friction: 0.6, restitution: 0 }
-    };
-
-
+// Main initialization function
 document.addEventListener('DOMContentLoaded', () => {
     const { engine, render, world } = initPhysics();
     Matter.Render.run(render);
 
     handleInteractions(engine, world);
 
-    let currentMaterial = 'sand';
+    // Setup event listeners for material selection and particle creation
+    setupMaterialSelector(materials);
+    setupParticleCreation(engine, world, render);
+
+    // Setup additional feature buttons if needed
+    setupFeatureButtons(engine, world);
+});
+
+function setupParticleCreation(engine, world, render) {
     document.body.addEventListener('mousedown', event => {
-        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-        createParticle(x, y, currentMaterial, world, engine);
+        createParticleAtMousePosition(event, render, world, engine);
     });
 
     document.body.addEventListener('mousemove', event => {
         if (event.buttons === 1) { // Check if left mouse button is pressed
-            const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-            createParticle(x, y, currentMaterial, world, engine);
+            createParticleAtMousePosition(event, render, world, engine);
         }
     });
+}
 
-    setupMaterialSelector();
-    setupFeatureButtons(engine);
-});
+function createParticleAtMousePosition(event, render, world, engine) {
+    const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+    createParticle(x, y, currentMaterial, world, engine);
+}
 
-    function createParticle(x, y, materialKey, world, engine) {
+function createParticle(x, y, materialKey, world, engine) {
     const material = materials[materialKey];
     const options = {
-        restitution: material.restitution,
+        restitution: material.restitution ?? 0.1, // Provide default values
         density: material.density,
-        friction: material.friction,
+        friction: material.friction ?? 0.5,
     };
     const particle = createNewBody({ x, y }, material.size, options);
     Matter.World.add(world, particle);
 }
-
 
 function setupMaterialSelector(materials) {
     const selector = document.createElement('div');
@@ -84,7 +88,6 @@ function setupFeatureButtons(engine, world) {
     buttonsContainer.className = 'feature-buttons';
     document.body.appendChild(buttonsContainer);
 
-    // Example feature button: Invert Gravity
     const gravityButton = document.createElement('button');
     gravityButton.innerText = 'Invert Gravity';
     gravityButton.onclick = () => {
@@ -92,6 +95,5 @@ function setupFeatureButtons(engine, world) {
     };
     buttonsContainer.appendChild(gravityButton);
 
-    // Add more feature buttons as needed
-    });
+    // Additional feature buttons can be added here
 }
