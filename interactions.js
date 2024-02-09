@@ -1,14 +1,17 @@
 import Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
 
-export function createNewBody(position, options) {
+export function createNewBody(position, radius, options) {
     const defaults = {
         restitution: 0.9,
         density: 0.001,
         friction: 0.1,
     };
     const bodyOptions = { ...defaults, ...options, render: { ...options.render } };
-    return Matter.Bodies.circle(position.x, position.y, options.radius, bodyOptions);
+
+    // Explicitly pass radius to Matter.Bodies.circle
+    return Matter.Bodies.circle(position.x, position.y, radius, bodyOptions);
 }
+
 
 export function simulateExplosion(centerPosition, world, explosionOptions) {
     const { numberOfParticles, spread, color, forceScale } = explosionOptions;
