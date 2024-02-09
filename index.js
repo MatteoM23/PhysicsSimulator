@@ -1,5 +1,5 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
-import { initPhysics, addParticle, addGroundAndWalls, createMaterial } from './physics.js';
+import { initPhysics, addParticle, addGroundAndWalls } from './physics.js';
 import { handleInteractions } from './interactions.js';
 import { screenToWorld } from './utils.js';
 
@@ -34,35 +34,35 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add walls around the canvas using the provided addGroundAndWalls function
     addGroundAndWalls(world, render.options.width, render.options.height);
 
-    // Mouse down and move event for continuous material placement
-    document.body.addEventListener('mousedown', handleMouseDown);
-    document.body.addEventListener('mousemove', handleMouseMove);
-    document.body.addEventListener('mouseup', () => isMouseDown = false);
-
-    function handleMouseDown(event) {
-        // Ensure material is placed only when clicking on the canvas
+    // Mouse down event to start placing materials
+    document.addEventListener('mousedown', function(event) {
         if (event.target.tagName === 'CANVAS') {
             isMouseDown = true;
             placeMaterial(event);
         }
-    }
+    });
 
-    function handleMouseMove(event) {
-        // Continue placing material only if the mouse is down and over the canvas
+    // Mouse move event to continue placing materials if mouse is down
+    document.addEventListener('mousemove', function(event) {
         if (isMouseDown && event.target.tagName === 'CANVAS') {
             placeMaterial(event);
         }
-    }
+    });
 
+    // Mouse up event to stop placing materials
+    document.addEventListener('mouseup', function() {
+        isMouseDown = false;
+    });
+
+    // Function to place material
     function placeMaterial(event) {
         const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-        // Assuming createMaterial is a function that handles material creation
-        createMaterial(x, y, materials[currentMaterial], world);
+        addParticle(x, y, materials[currentMaterial], world);
     }
 
     function setupMaterialSelector(materials) {
         const materialSelector = document.createElement('div');
-        materialSelector.id = 'materialSelector';
+        materialSelector.id = 'materialSelector'; // Assign an ID for CSS and event handling
         materialSelector.style.position = 'fixed';
         materialSelector.style.bottom = '20px';
         materialSelector.style.left = '50%';
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const button = document.createElement('button');
             button.innerText = materials[materialKey].label;
             button.onclick = (e) => {
-                e.stopPropagation(); // Prevent event from bubbling
+                e.stopPropagation(); // Prevent event from bubbling to canvas
                 currentMaterial = materialKey;
             };
             materialSelector.appendChild(button);
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setupFeatureButtons(engine) {
         const buttonsContainer = document.createElement('div');
-        buttonsContainer.id = 'featureButtons';
+        buttonsContainer.id = 'featureButtons'; // Assign an ID for CSS and event handling
         buttonsContainer.style.position = 'fixed';
         buttonsContainer.style.bottom = '100px';
         buttonsContainer.style.left = '50%';
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const gravityButton = document.createElement('button');
         gravityButton.innerText = 'Invert Gravity';
         gravityButton.addEventListener('click', (e) => {
-            e.stopPropagation();
+            e.stopPropagation(); // Prevent event from bubbling to canvas
             engine.world.gravity.y *= -1;
         });
         buttonsContainer.appendChild(gravityButton);
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const timeButton = document.createElement('button');
         timeButton.innerText = 'Toggle Time Dilation';
         timeButton.addEventListener('click', (e) => {
-            e.stopPropagation();
+            e.stopPropagation(); // Prevent event from bubbling to canvas
             engine.timing.timeScale = engine.timing.timeScale === 1 ? 0.5 : 1;
         });
         buttonsContainer.appendChild(timeButton);
