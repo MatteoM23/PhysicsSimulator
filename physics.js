@@ -25,13 +25,12 @@ export function initPhysics() {
 }
 
 
-export function addGroundAndWalls(world, width, height) {
-    const ground = Matter.Bodies.rectangle(width / 2, height, width, 60, { isStatic: true, render: { fillStyle: '#464646' } });
-    const walls = [
-        Matter.Bodies.rectangle(width / 2, -30, width, 60, { isStatic: true }),
-        Matter.Bodies.rectangle(width / 2, height + 30, width, 60, { isStatic: true }),
-        Matter.Bodies.rectangle(-30, height / 2, 60, height, { isStatic: true }),
-        Matter.Bodies.rectangle(width + 30, height / 2, 60, height, { isStatic: true })
-    ];
-    Matter.World.add(world, [ground, ...walls]);
+export function addGroundAndWalls(world) {
+    const ground = Matter.Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
+    const leftWall = Matter.Bodies.rectangle(0, 305, 60, 610, { isStatic: true });
+    const rightWall = Matter.Bodies.rectangle(800, 305, 60, 610, { isStatic: true });
+    const ceiling = Matter.Bodies.rectangle(400, 0, 810, 60, { isStatic: true });
+
+    Matter.World.add(world, [ground, leftWall, rightWall, ceiling]);
 }
+
