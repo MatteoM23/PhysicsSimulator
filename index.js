@@ -1,7 +1,6 @@
 import Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
 import { initPhysics, addGroundAndWalls } from './physics.js';
 import { handleInteractions } from './interactions.js';
-import { screenToWorld } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const { engine, world, render } = initPhysics();
@@ -9,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     Matter.Render.run(render);
     handleInteractions(engine, world);
 
-    const materials = {
+     const materials = {
         sand: { label: 'Sand', color: '#f4e04d', density: 0.002, size: 5 },
         water: { label: 'Water', color: '#3498db', density: 0.0001, size: 6, friction: 0, restitution: 0.1 },
         oil: { label: 'Oil', color: '#34495e', density: 0.0012, size: 6, friction: 0.05, restitution: 0.05 },
@@ -23,57 +22,63 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add more materials as needed
     };
     let currentMaterial = 'sand';
+    let lastMousePosition = { x: 0, y: 0 };
 
-    setupMaterialSelector(materials);
-    setupFeatureButtons(engine);
-    addGroundAndWalls(world, render.options.width, render.options.height);
-
-    let isMouseDown = false;
-    render.canvas.addEventListener('mousedown', () => isMouseDown = true);
-    window.addEventListener('mouseup', () => isMouseDown = false);
-    render.canvas.addEventListener('mousemove', (event) => {
-        if (isMouseDown) {
-            const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-            createParticle(x, y, materials[currentMaterial]);
-        }
-    });
-
-    function createParticle(x, y, material) {
-        const particleOptions = {
-            isStatic: false,
-            restitution: material.restitution,
-            friction: material.friction,
-            density: material.density,
-            render: {
-                fillStyle: material.color,
-                strokeStyle: material.color,
-                lineWidth: 1
-            }
-        };
-        const particle = Matter.Bodies.circle(x, y, material.size, particleOptions);
-        Matter.World.add(world, particle);
+    function screenToWorld(x, y) {
+        return { x: (x - render.canvas.offsetLeft) / render.options.pixelRatio,
+                 y: (y - render.canvas.offsetTop) / render.options.pixelRatio };
     }
 
-    function setupMaterialSelector(materials) {
+    function createParticle(x, y, material) {
+        const speed = Math.sqrt((x - lastMousePosition.x) ** 2 + (y - lastMousePosition.y) ** 2);
+        const size = Math.min(material.size + speed / 20, material.size * 2); // Dynamically adjust size based on speed
+        const particle = Matter.Bodies.circle(x, y, size / 2, {
+            restitution: material.restitution,
+            density: material.density,
+            friction: material.friction,
+            render: { fillStyle: material.color }
+        });
+        Matter.World.add(world, particle);
+        lastMousePosition = { x, y };
+    }
+
+    document.body.addEventListener('mousedown', (event) => {
+        render.canvas.addEventListener('mousemove', handleMouseMove);
+    });
+
+    window.addEventListener('mouseup', () => {
+        render.canvas.removeEventListener('mousemove', handleMouseMove);
+    });
+
+    function handleMouseMove(event) {
+        const { x, y } = screenToWorld(event.clientX, event.clientY);
+        createParticle(x, y, materials[currentMaterial]);
+    }
+
+    // Implement materialSelector and featureButtons as previously described
+    materialSelector(materials);
+    setupFeatureButtons(engine);
+
+    function materialSelector(materials) {
         const selector = document.createElement('div');
-        selector.style.position = 'fixed';
-        selector.style.top = '10px';
-        selector.style.left = '10px';
+        selector.className = 'material-selector';
+        selector.style.top = '20px'; // Adjusted to align with your CSS
         document.body.appendChild(selector);
 
         Object.entries(materials).forEach(([key, material]) => {
             const button = document.createElement('button');
             button.innerText = material.label;
             button.style.backgroundColor = material.color;
-            button.style.color = '#fff';
             button.onclick = () => {
                 currentMaterial = key;
-                document.querySelectorAll('.material-selector button').forEach(btn => btn.style.opacity = '0.5');
-                button.style.opacity = '1';
+                // Highlight the selected material
+                document.querySelectorAll('.material-selector button').forEach(btn => btn.classList.remove('selected'));
+                button.classList.add('selected');
             };
             selector.appendChild(button);
         });
     }
+
 
     function setupFeatureButtons(engine) {
         const buttonsContainer = document.createElement('div');
