@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const { engine, world, render } = initPhysics();
     Matter.Engine.run(engine);
     Matter.Render.run(render);
-    handleInteractions(engine, world); // Set up custom interactions from interactions.js
+    handleInteractions(engine, world);
 
     const materials = {
         sand: { label: 'Sand', color: '#f4e04d', density: 0.002, size: 5 },
@@ -28,65 +28,57 @@ document.addEventListener('DOMContentLoaded', () => {
     setupFeatureButtons(engine);
     addGroundAndWalls(world, render.options.width, render.options.height);
 
-    document.addEventListener('mousedown', event => handleMouseInteraction(event, true));
-    document.addEventListener('mousemove', event => handleMouseInteraction(event, false));
-    document.addEventListener('mouseup', () => handleMouseInteraction(null, false, true));
+    render.canvas.addEventListener('mousedown', (event) => {
+        createParticleAtMouse(event, true);
+    });
 
-    function handleMouseInteraction(event, isMouseDown, isMouseUp = false) {
-        if (isMouseUp) {
-            render.mouse.button = -1; // Reset mouse state
-            return;
-        }
-        if (event.target.tagName === 'CANVAS' && (isMouseDown || render.mouse.button === 0)) {
+    render.canvas.addEventListener('mousemove', (event) => {
+        createParticleAtMouse(event);
+    });
+
+    render.canvas.addEventListener('mouseup', () => {
+        // This ensures we capture the mouse up event specifically on the canvas
+        // No additional action required here for stopping particle creation
+    });
+
+    function createParticleAtMouse(event, isMouseDown = false) {
+        if (isMouseDown || render.mouse.button === 0) {
             const { x, y } = screenToWorld(event.clientX, event.clientY, render);
             addParticle(x, y, materials[currentMaterial], world);
-            if (isMouseDown) render.mouse.button = 0; // Mimic mouse down state
         }
     }
 
     function setupMaterialSelector(materials) {
-        const materialSelector = document.createElement('div');
-        materialSelector.style.position = 'absolute';
-        materialSelector.style.top = '10px';
-        materialSelector.style.left = '10px';
-        document.body.appendChild(materialSelector);
+        const selector = document.createElement('div');
+        selector.className = 'material-selector';
+        document.body.appendChild(selector);
 
-        Object.entries(materials).forEach(([key, material]) => {
+        Object.entries(materials).forEach(([key, { label, color }]) => {
             const button = document.createElement('button');
-            button.textContent = material.label;
-            button.style.margin = '0 5px';
-            button.onclick = () => setCurrentMaterial(key);
-            materialSelector.appendChild(button);
+            button.textContent = label;
+            button.style.backgroundColor = color; // Use material color for button
+            button.onclick = () => currentMaterial = key;
+            selector.appendChild(button);
         });
-    }
-
-    function setCurrentMaterial(materialKey) {
-        currentMaterial = materialKey;
     }
 
     function setupFeatureButtons(engine) {
         const buttonsContainer = document.createElement('div');
-        buttonsContainer.id = 'featureButtons';
-        buttonsContainer.style.position = 'fixed';
-        buttonsContainer.style.top = '80px';
-        buttonsContainer.style.left = '50%';
-        buttonsContainer.style.transform = 'translateX(-50%)';
+        buttonsContainer.className = 'feature-buttons';
         document.body.appendChild(buttonsContainer);
 
         const gravityButton = document.createElement('button');
-        gravityButton.innerText = 'Invert Gravity';
-        gravityButton.addEventListener('click', (e) => {
-            e.stopPropagation();
+        gravityButton.textContent = 'Invert Gravity';
+        gravityButton.onclick = () => {
             engine.world.gravity.y *= -1;
-        });
+        };
         buttonsContainer.appendChild(gravityButton);
 
         const timeButton = document.createElement('button');
-        timeButton.innerText = 'Toggle Time Dilation';
-        timeButton.addEventListener('click', (e) => {
-            e.stopPropagation();
+        timeButton.textContent = 'Toggle Time Dilation';
+        timeButton.onclick = () => {
             engine.timing.timeScale = engine.timing.timeScale === 1 ? 0.5 : 1;
-        });
+        };
         buttonsContainer.appendChild(timeButton);
     }
 });
