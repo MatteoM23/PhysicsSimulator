@@ -63,20 +63,22 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 
     document.addEventListener('mousedown', (event) => {
-        mouseDown = true;
-        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-        createParticle(x, y, materials[currentMaterial]);
-    });
+    mouseDown = true;
+    const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+    createParticle(x, y, materials[currentMaterial]);
+});
+
+document.addEventListener('mousemove', (event) => {
+    if (!mouseDown) return;
+    const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+    createParticle(x, y, materials[currentMaterial]);
+});
+
 
     document.addEventListener('mouseup', () => {
         mouseDown = false;
     });
 
-    document.addEventListener('mousemove', (event) => {
-        if (!mouseDown) return;
-        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-        createParticle(x, y, materials[currentMaterial]);
-    });
 
     addGroundAndWalls(world, render.options.width, render.options.height);
 
