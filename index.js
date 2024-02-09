@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const { engine, world, render } = initPhysics({
         width: window.innerWidth,
         height: window.innerHeight,
-        setupMaterialSelector(materials);
+        setupMaterialSelector(materials)
     });
 
     // Ensure the walls are added after the engine and render have been initialized.
