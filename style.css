@@ -1,12 +1,12 @@
 :root {
-    --button-bg-color: #2980b9;
-    --button-hover-bg-color: #3498db;
-    --button-active-bg-color: #2779a7;
-    --container-bg-color: rgba(0, 0, 0, 0.75);
+    --button-bg-color: #2c3e50;
+    --button-hover-bg-color: #34495e;
+    --button-active-bg-color: #2c3f50;
+    --container-bg-color: rgba(23, 32, 42, 0.85);
     --text-color: #ecf0f1;
     --font-family: 'Helvetica Neue', Arial, sans-serif;
-    --gradient-start: #6dd5fa;
-    --gradient-end: #2980b9;
+    --gradient-start: #8e9eab;
+    --gradient-end: #eef2f3;
 }
 
 body, html {
@@ -25,48 +25,48 @@ body, html {
 
 .material-selector, .feature-buttons {
     position: fixed;
-    top: 10px; /* Moved to the top with slight padding from the edge */
+    top: 10px;
     left: 50%;
     transform: translateX(-50%);
-    padding: 15px 20px;
+    padding: 10px 15px;
     background-color: var(--container-bg-color);
-    border-radius: 20px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 15px;
-    z-index: 1000;
+    gap: 10px;
+    z-index: 1050;
 }
 
 .material-selector {
-    top: 20px; /* Slightly lower than the very top for aesthetic balance */
+    top: 20px;
 }
 
 .feature-buttons {
-    top: 80px; /* Positioned below the material selector for clear distinction */
+    top: 70px;
 }
 
 button {
     background-color: var(--button-bg-color);
     color: var(--text-color);
     border: none;
-    padding: 10px 20px;
-    font-size: 16px;
+    padding: 8px 16px;
+    font-size: 14px;
     cursor: pointer;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
 button:hover {
     background-color: var(--button-hover-bg-color);
-    transform: translateY(-3px);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
 button:active {
     background-color: var(--button-active-bg-color);
-    transform: translateY(2px);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
