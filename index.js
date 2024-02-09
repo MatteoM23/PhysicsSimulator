@@ -1,5 +1,5 @@
 import Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
-import { initPhysics, addParticle, addGroundAndWalls } from './physics.js';
+import { initPhysics, addsparks, addGroundAndWalls } from './physics.js';
 import { handleInteractions } from './interactions.js';
 import { screenToWorld } from './utils.js';
 
