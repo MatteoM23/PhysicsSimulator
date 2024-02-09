@@ -9,43 +9,38 @@ document.addEventListener('DOMContentLoaded', () => {
     Matter.Render.run(render);
     handleInteractions(engine, world);
 
+    // Setup a Mouse object for the canvas to handle continuous particle creation
+    const mouse = Matter.Mouse.create(render.canvas);
+    const mouseConstraint = Matter.MouseConstraint.create(engine, {
+        mouse: mouse,
+        constraint: {
+            render: { visible: false }
+        }
+    });
+    Matter.World.add(world, mouseConstraint);
+    render.mouse = mouse; // Ensure render.mouse is properly defined
+
     const materials = {
-        sand: { label: 'Sand', color: '#f4e04d', density: 0.002, size: 5 },
-        water: { label: 'Water', color: '#3498db', density: 0.0001, size: 6, friction: 0, restitution: 0.1 },
-        oil: { label: 'Oil', color: '#34495e', density: 0.0012, size: 6, friction: 0.05, restitution: 0.05 },
-        rock: { label: 'Rock', color: '#7f8c8d', density: 0.004, size: 8, friction: 0.6, restitution: 0.1 },
-        lava: { label: 'Lava', color: '#e74c3c', density: 0.003, size: 7, friction: 0.2, restitution: 0.4 },
-        ice: { label: 'Ice', color: '#a8e0ff', density: 0.0009, size: 6, friction: 0.1, restitution: 0.8 },
-        rubber: { label: 'Rubber', color: '#ff3b3b', density: 0.001, size: 7, friction: 1.0, restitution: 0.9 },
-        steel: { label: 'Steel', color: '#8d8d8d', density: 0.008, size: 10, friction: 0.4 },
-        glass: { label: 'Glass', color: '#c4faf8', density: 0.0025, size: 5, friction: 0.1, restitution: 0.5 },
-        wood: { label: 'Wood', color: '#deb887', density: 0.003, size: 8, friction: 0.6 },
-        antimatter: { label: 'Antimatter', color: '#8e44ad', density: 0.001, size: 10, friction: 0.0, restitution: 1.0 },
+        // Material definitions
     };
     let currentMaterial = 'sand';
+    let isMouseDown = false;
 
     setupMaterialSelector(materials);
     setupFeatureButtons(engine);
     addGroundAndWalls(world, render.options.width, render.options.height);
 
-    render.canvas.addEventListener('mousedown', (event) => {
-        createParticleAtMouse(event, true);
-    });
-
-    render.canvas.addEventListener('mousemove', (event) => {
-        createParticleAtMouse(event);
-    });
-
-    render.canvas.addEventListener('mouseup', () => {
-        // Intentionally left empty; additional logic for mouse up can be added here if needed.
-    });
-
-    function createParticleAtMouse(event, isMouseDown = false) {
-        if (isMouseDown || render.mouse.button === 0) {
-            const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-            addSparks(x, y, materials[currentMaterial], world); // This function now handles both particle creation and sparking effects.
-            // Here you could add additional logic for particle creation if necessary.
+    document.addEventListener('mousedown', () => isMouseDown = true);
+    document.addEventListener('mouseup', () => isMouseDown = false);
+    document.addEventListener('mousemove', (event) => {
+        if (isMouseDown) {
+            createParticleAtMouse(event);
         }
+    });
+
+    function createParticleAtMouse(event) {
+        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+        addSparks(x, y, materials[currentMaterial], world);
     }
 
     function setupMaterialSelector(materials) {
