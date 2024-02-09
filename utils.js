@@ -23,11 +23,6 @@ function adjustMaterialProperties(body, properties) {
     Body.set(body, properties);
 }
 
-// Generates random colors for materials
-function getRandomColor() {
-    return '#' + Math.floor(Math.random() * 16777215).toString(16);
-}
-
 // Calculates the magnitude of a vector
 function calculateMagnitude(vector) {
     return Math.sqrt(vector.x ** 2 + vector.y ** 2);
