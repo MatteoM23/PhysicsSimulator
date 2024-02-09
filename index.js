@@ -25,36 +25,39 @@ document.addEventListener('DOMContentLoaded', () => {
         wood: { label: 'Wood', color: '#deb887', density: 0.003, size: 8, friction: 0.6, restitution: 0 }
     };
 
-    document.addEventListener('mousedown', event => {
-        mouseDown = true;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const { engine, render, world } = initPhysics();
+    Matter.Render.run(render);
+
+    handleInteractions(engine, world);
+
+    let currentMaterial = 'sand';
+    document.body.addEventListener('mousedown', event => {
         const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-        createParticle(x, y, materials[currentMaterial]);
+        createParticle(x, y, currentMaterial, world, engine);
     });
 
-    document.addEventListener('mousemove', event => {
-        if (!mouseDown) return;
-        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-        createParticle(x, y, materials[currentMaterial]);
+    document.body.addEventListener('mousemove', event => {
+        if (event.buttons === 1) { // Check if left mouse button is pressed
+            const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+            createParticle(x, y, currentMaterial, world, engine);
+        }
     });
 
-    document.addEventListener('mouseup', () => {
-        mouseDown = false;
-    });
+    setupMaterialSelector();
+    setupFeatureButtons(engine);
+});
 
-    function createParticle(x, y, material) {
-    const position = { x, y };
+    function createParticle(x, y, materialKey, world, engine) {
+    const material = materials[materialKey];
     const options = {
-        radius: material.size / 2, // Example: Convert diameter to radius if necessary
         restitution: material.restitution,
         density: material.density,
         friction: material.friction,
-        render: {
-            fillStyle: material.color,
-        },
     };
-
-    const particle = createNewBody(position, options);
-    Matter.World.add(engine.world, particle);
+    const particle = createNewBody({ x, y }, material.size, options);
+    Matter.World.add(world, particle);
 }
 
 
