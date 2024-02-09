@@ -24,7 +24,24 @@ export function initPhysics() {
     return { engine, world, render };
 }
 
-function addGroundAndWalls(world, render) {
+
+const engine = Matter.Engine.create();
+const world = engine.world;
+
+// Define the addParticle function
+export function addParticle(x, y, material, world) {
+    // Assuming 'material' is an object with properties you need, like 'density', 'friction', and 'color'.
+    const particle = Matter.Bodies.circle(x, y, 5, {
+        density: material.density,
+        friction: material.friction,
+        restitution: material.restitution || 0,
+        render: { fillStyle: material.color },
+    });
+    Matter.World.add(world, particle);
+}
+
+
+export function addGroundAndWalls(world, render) {
     // Ground
     const ground = Matter.Bodies.rectangle(render.options.width / 2, render.options.height, render.options.width, 60, {
         isStatic: true,
@@ -36,7 +53,7 @@ function addGroundAndWalls(world, render) {
     addWalls(world, render.options.width, render.options.height);
 }
 
-function addWalls(world, width, height) {
+export function addWalls(world, width, height) {
     const thickness = 50;
     const walls = [
         Matter.Bodies.rectangle(width / 2, -thickness / 2, width, thickness, { isStatic: true }), // Top
@@ -46,3 +63,6 @@ function addWalls(world, width, height) {
     ];
     walls.forEach(wall => Matter.World.add(world, wall));
 }
+
+
+export { engine, world };
