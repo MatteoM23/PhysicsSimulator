@@ -3,57 +3,46 @@
     --button-hover-bg-color: #34495e;
     --button-active-bg-color: #2c3f50;
     --container-bg-color: rgba(23, 32, 42, 0.85);
+    --container-accent-color: #3d5967; /* Accent color for the 3D effect */
     --text-color: #ecf0f1;
     --font-family: 'Helvetica Neue', Arial, sans-serif;
     --gradient-start: #8e9eab;
     --gradient-end: #eef2f3;
     --shadow-color: rgba(0, 0, 0, 0.6);
     --transition-speed: 0.3s;
-}
-
-body, html {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-    color: var(--text-color);
-    font-family: var(--font-family);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    user-select: none; /* Prevent text selection */
+    --3d-effect-angle: 145deg; /* Angle of the 3D effect gradient */
 }
 
 .material-selector, .feature-buttons {
     position: fixed;
     padding: 10px 15px;
-    background-color: var(--container-bg-color);
+    background: linear-gradient(var(--3d-effect-angle), var(--container-accent-color), var(--container-bg-color) 70%);
     border-radius: 10px;
-    box-shadow: 0 4px 8px var(--shadow-color);
+    box-shadow: 0 6px 12px var(--shadow-color), 0 10px 20px var(--container-accent-color); /* Enhanced shadow for 3D depth */
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
     z-index: 1050;
     opacity: 0.95;
-    transition: opacity var(--transition-speed) ease;
+    transition: opacity var(--transition-speed) ease, box-shadow 0.3s ease;
+    backface-visibility: hidden; /* Improves rendering for 3D transformations */
 }
 
+/* Adjustments for positioning remain the same */
 .material-selector {
     top: 20px;
-    left: 10px; /* Align to the left, away from center */
-    transform: none; /* Remove transform for left alignment */
+    left: 10px;
+    transform: none;
 }
 
 .feature-buttons {
-    top: 20px; /* Align to the top for clear separation */
-    right: 10px; /* Keep aligned to the right */
-    transform: none; /* Remove transform for right alignment */
+    top: 20px;
+    right: 10px;
+    transform: none;
 }
 
-
+/* Button styles remain the same */
 button {
     background-color: var(--button-bg-color);
     color: var(--text-color);
@@ -79,5 +68,5 @@ button:active {
 }
 
 .material-selector:hover, .feature-buttons:hover {
-    opacity: 1; /* Increase opacity on hover for better interaction feedback */
+    opacity: 1;
 }
