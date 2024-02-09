@@ -1,4 +1,3 @@
-// physics.js
 import Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
 
 export function initPhysics() {
@@ -24,22 +23,17 @@ export function initPhysics() {
     return { engine, world, render };
 }
 
-
-const engine = Matter.Engine.create();
-const world = engine.world;
-
-// Define the addParticle function
-export function addParticle(x, y, material, world) {
+// Updated to reflect the function renaming from addParticle to addSparks
+export function addSparks(x, y, material, world) {
     // Assuming 'material' is an object with properties you need, like 'density', 'friction', and 'color'.
-    const particle = Matter.Bodies.circle(x, y, 5, {
+    const spark = Matter.Bodies.circle(x, y, 5, {
         density: material.density,
         friction: material.friction,
         restitution: material.restitution || 0,
         render: { fillStyle: material.color },
     });
-    Matter.World.add(world, particle);
+    Matter.World.add(world, spark);
 }
-
 
 export function addGroundAndWalls(world, render) {
     // Ground
@@ -63,6 +57,3 @@ export function addWalls(world, width, height) {
     ];
     walls.forEach(wall => Matter.World.add(world, wall));
 }
-
-
-export { engine, world };
