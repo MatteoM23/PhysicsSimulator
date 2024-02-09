@@ -3,10 +3,9 @@ import { engine, world, initPhysics, addWalls } from './physics.js';
 import { screenToWorld } from './utils.js';
 import { handleInteractions } from './interactions.js';
 
-// Initialize physics environment and add walls
-initPhysics();
-addWalls();
+initPhysics(); // Initializes physics settings, including the ground
 
+// Ensure addWalls is called after render has been defined to access render's options
 const render = Matter.Render.create({
     element: document.body,
     engine: engine,
@@ -17,7 +16,8 @@ const render = Matter.Render.create({
     },
 });
 
-// Material definitions
+addWalls(); // Now that render is defined, we can safely call addWalls
+
 const materials = {
     sand: { label: 'Sand', color: '#f4e04d', density: 0.002, size: 5 },
     water: { label: 'Water', color: '#3498db', density: 0.0001, size: 6, friction: 0, restitution: 0.1 },
@@ -29,8 +29,27 @@ const materials = {
 
 let currentMaterial = 'sand'; // Default material
 
-// UI for material selection at the bottom of the screen
-const setupMaterialSelector = () => {
+setupMaterialSelector();
+setupFeatureButtons();
+
+document.addEventListener('mousedown', (event) => {
+    if (event.target === render.canvas) {
+        const onMouseMove = (e) => {
+            const { x, y } = screenToWorld(e.clientX, e.clientY);
+            // Add a condition to create particles based on the selected material
+            createParticle(x, y, currentMaterial);
+        };
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', () => document.removeEventListener('mousemove', onMouseMove), { once: true });
+    }
+});
+
+handleInteractions(engine, world);
+
+Matter.Engine.run(engine);
+Matter.Render.run(render);
+
+function setupMaterialSelector() {
     const materialSelector = document.createElement('div');
     materialSelector.style.position = 'fixed';
     materialSelector.style.bottom = '10px';
@@ -43,53 +62,49 @@ const setupMaterialSelector = () => {
         const material = materials[key];
         const button = document.createElement('button');
         button.innerText = material.label;
-        button.addEventListener('click', () => currentMaterial = key);
+        button.onclick = () => {
+            currentMaterial = key;
+        };
         materialSelector.appendChild(button);
     });
-};
+}
 
-// Feature buttons for gravity inversion and time dilation
-const setupFeatureButtons = () => {
+
+function setupFeatureButtons() {
     const featureButtons = document.createElement('div');
     featureButtons.style.position = 'fixed';
-    featureButtons.style.bottom = '60px'; // Adjusted to not overlap material selector
+    featureButtons.style.bottom = '50px';
     featureButtons.style.left = '50%';
     featureButtons.style.transform = 'translateX(-50%)';
     featureButtons.style.display = 'flex';
     document.body.appendChild(featureButtons);
 
+    // Gravity Inversion Button
     const gravityBtn = document.createElement('button');
     gravityBtn.innerText = 'Invert Gravity';
-    gravityBtn.addEventListener('click', () => engine.world.gravity.y *= -1);
+    gravityBtn.onclick = () => {
+        engine.world.gravity.y *= -1;
+    };
     featureButtons.appendChild(gravityBtn);
 
+    // Time Dilation Button
     const timeBtn = document.createElement('button');
     timeBtn.innerText = 'Toggle Time Dilation';
-    timeBtn.addEventListener('click', () => engine.timing.timeScale = engine.timing.timeScale === 1 ? 0.5 : 1);
+    timeBtn.onclick = () => {
+        engine.timing.timeScale = engine.timing.timeScale === 1 ? 0.5 : 1;
+    };
     featureButtons.appendChild(timeBtn);
-};
+}
 
-// Setup material selection and feature buttons
-setupMaterialSelector();
-setupFeatureButtons();
 
-// Handling continuous particle creation
-document.addEventListener('mousedown', (event) => {
-    if (event.target === render.canvas) {
-        const onMouseMove = (e) => {
-            const { x, y } = screenToWorld(e.clientX, e.clientY);
-            // Assuming addParticle function is defined in physics.js to handle particle creation
-            addParticle(x, y, currentMaterial); // Adjust this line to use your particle creation logic
-        };
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', () => {
-            document.removeEventListener('mousemove', onMouseMove);
-        }, { once: true });
-    }
-});
+function createParticle(x, y, materialType) {
+    const material = materials[materialType];
+    const body = Matter.Bodies.circle(x, y, material.size, {
+        density: material.density,
+        friction: material.friction || 0,
+        restitution: material.restitution || 0,
+        render: { fillStyle: material.color },
+    });
+    Matter.World.add(world, body);
+}
 
-// Integrate handling interactions between materials
-handleInteractions(engine, world);
-
-Matter.Engine.run(engine);
-Matter.Render.run(render);
