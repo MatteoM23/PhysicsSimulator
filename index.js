@@ -30,26 +30,28 @@ document.addEventListener('DOMContentLoaded', () => {
     addGroundAndWalls(world, render.options.width, render.options.height);
 
     document.addEventListener('mousedown', function(event) {
-        if (event.target.tagName === 'CANVAS') {
-            isMouseDown = true;
-            createParticleAtMouse(event);
-        }
-    });
+    if (event.target.tagName === 'CANVAS') {
+        isMouseDown = true;
+        createParticleAtMouse(event);
+    }
+});
 
-    document.addEventListener('mousemove', function(event) {
-        if (isMouseDown && event.target.tagName === 'CANVAS') {
-            createParticleAtMouse(event);
-        }
-    });
+document.addEventListener('mousemove', function(event) {
+    if (isMouseDown && event.target.tagName === 'CANVAS') {
+        createParticleAtMouse(event);
+    }
+});
 
-    document.addEventListener('mouseup', function() {
-        isMouseDown = false;
-    });
+document.addEventListener('mouseup', function() {
+    isMouseDown = false;
+});
+
 
     function createParticleAtMouse(event) {
-        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-        addParticle(x, y, materials[currentMaterial], world);
-    }
+    const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+    addParticle(x, y, materials[currentMaterial], world);
+}
+
 
     function setupMaterialSelector(materials) {
         const materialSelector = document.createElement('div');
