@@ -23,54 +23,45 @@ document.addEventListener('DOMContentLoaded', () => {
         antimatter: { label: 'Antimatter', color: '#8e44ad', density: 0.001, size: 10, friction: 0.0, restitution: 1.0 },
     };
     let currentMaterial = 'sand';
-    let isMouseDown = false;
 
     setupMaterialSelector(materials);
     setupFeatureButtons(engine);
     addGroundAndWalls(world, render.options.width, render.options.height);
 
-    document.addEventListener('mousedown', function(event) {
-    if (event.target.tagName === 'CANVAS') {
-        isMouseDown = true;
-        createParticleAtMouse(event);
+    document.addEventListener('mousedown', event => handleMouseInteraction(event, true));
+    document.addEventListener('mousemove', event => handleMouseInteraction(event, false));
+    document.addEventListener('mouseup', () => handleMouseInteraction(null, false, true));
+
+    function handleMouseInteraction(event, isMouseDown, isMouseUp = false) {
+        if (isMouseUp) {
+            render.mouse.button = -1; // Reset mouse state
+            return;
+        }
+        if (event.target.tagName === 'CANVAS' && (isMouseDown || render.mouse.button === 0)) {
+            const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+            addParticle(x, y, materials[currentMaterial], world);
+            if (isMouseDown) render.mouse.button = 0; // Mimic mouse down state
+        }
     }
-});
-
-document.addEventListener('mousemove', function(event) {
-    if (isMouseDown && event.target.tagName === 'CANVAS') {
-        createParticleAtMouse(event);
-    }
-});
-
-document.addEventListener('mouseup', function() {
-    isMouseDown = false;
-});
-
-
-    function createParticleAtMouse(event) {
-    const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-    addParticle(x, y, materials[currentMaterial], world);
-}
-
 
     function setupMaterialSelector(materials) {
         const materialSelector = document.createElement('div');
-        materialSelector.id = 'materialSelector';
-        materialSelector.style.position = 'fixed';
-        materialSelector.style.top = '20px';
-        materialSelector.style.left = '50%';
-        materialSelector.style.transform = 'translateX(-50%)';
+        materialSelector.style.position = 'absolute';
+        materialSelector.style.top = '10px';
+        materialSelector.style.left = '10px';
         document.body.appendChild(materialSelector);
 
-        Object.keys(materials).forEach(materialKey => {
+        Object.entries(materials).forEach(([key, material]) => {
             const button = document.createElement('button');
-            button.innerText = materials[materialKey].label;
-            button.onclick = (e) => {
-                e.stopPropagation();
-                currentMaterial = materialKey;
-            };
+            button.textContent = material.label;
+            button.style.margin = '0 5px';
+            button.onclick = () => setCurrentMaterial(key);
             materialSelector.appendChild(button);
         });
+    }
+
+    function setCurrentMaterial(materialKey) {
+        currentMaterial = materialKey;
     }
 
     function setupFeatureButtons(engine) {
