@@ -24,53 +24,44 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     let currentMaterial = 'sand';
     let isMouseDown = false;
-    let placementQueue = [];
+    let lastPlacedPosition = null;
 
-    // UI for selecting materials
     setupMaterialSelector(materials);
-
-    // Feature buttons like gravity inversion
     setupFeatureButtons(engine);
-
-    // Add walls around the canvas using the provided addGroundAndWalls function
     addGroundAndWalls(world, render.options.width, render.options.height);
 
-    // Mouse down event to start placing materials
     document.addEventListener('mousedown', function(event) {
         if (event.target.tagName === 'CANVAS') {
             isMouseDown = true;
-            queuePlacement(event);
+            lastPlacedPosition = null;
+            placeMaterialContinuous(event);
         }
     });
 
-    // Mouse move event to continue placing materials if mouse is down
-    document.addEventListener('mousemove', function(event) {
-        if (isMouseDown && event.target.tagName === 'CANVAS') {
-            queuePlacement(event);
-        }
-    });
+    document.addEventListener('mousemove', placeMaterialContinuous);
 
-    // Mouse up event to stop placing materials
     document.addEventListener('mouseup', function() {
         isMouseDown = false;
+        lastPlacedPosition = null;
     });
 
-    // Function to queue material placement
-    function queuePlacement(event) {
-        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-        placementQueue.push({ x, y });
-    }
-
-    // Process placement queue
-    function processPlacementQueue() {
-        while (placementQueue.length > 0) {
-            const { x, y } = placementQueue.shift();
-            addParticle(x, y, materials[currentMaterial], world);
+    function placeMaterialContinuous(event) {
+        if (isMouseDown && event.target.tagName === 'CANVAS') {
+            requestAnimationFrame(() => placeMaterial(event));
         }
     }
 
-    // Setup interval to process the placement queue
-    setInterval(processPlacementQueue, 16); // Approximately 60fps
+    function placeMaterial(event) {
+        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+        if (!lastPlacedPosition || distance(x, y, lastPlacedPosition.x, lastPlacedPosition.y) > materials[currentMaterial].size) {
+            addParticle(x, y, materials[currentMaterial], world);
+            lastPlacedPosition = { x, y };
+        }
+    }
+
+    function distance(x1, y1, x2, y2) {
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    }
 
     function setupMaterialSelector(materials) {
         const materialSelector = document.createElement('div');
