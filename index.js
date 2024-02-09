@@ -29,18 +29,24 @@ document.addEventListener('DOMContentLoaded', () => {
     addGroundAndWalls(world, render.options.width, render.options.height);
 
     render.canvas.addEventListener('mousedown', (event) => {
-        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-        addSparks(x, y, materials[currentMaterial], world);
+        createParticleAtMouse(event, true);
     });
 
     render.canvas.addEventListener('mousemove', (event) => {
-        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-        addSparks(x, y, materials[currentMaterial], world);
+        createParticleAtMouse(event);
     });
 
     render.canvas.addEventListener('mouseup', () => {
-        // Intentionally left empty; future logic could be added here if needed
+        // Intentionally left empty; additional logic for mouse up can be added here if needed.
     });
+
+    function createParticleAtMouse(event, isMouseDown = false) {
+        if (isMouseDown || render.mouse.button === 0) {
+            const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+            addSparks(x, y, materials[currentMaterial], world); // This function now handles both particle creation and sparking effects.
+            // Here you could add additional logic for particle creation if necessary.
+        }
+    }
 
     function setupMaterialSelector(materials) {
         const selector = document.createElement('div');
@@ -50,10 +56,10 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.entries(materials).forEach(([key, { label, color }]) => {
             const button = document.createElement('button');
             button.textContent = label;
-            button.style.backgroundColor = color;
+            button.style.backgroundColor = color; // Use material color for button
             button.onclick = () => {
                 currentMaterial = key;
-                // Additional UI feedback for material selection could be implemented here
+                // Update UI or other elements as necessary to reflect the current selection.
             };
             selector.appendChild(button);
         });
