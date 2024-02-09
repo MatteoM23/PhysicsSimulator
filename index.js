@@ -42,19 +42,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function createParticle(x, y, material) {
-        const position = { x, y };
-        const options = {
-            restitution: material.restitution,
-            density: material.density,
-            render: { fillStyle: material.color }
-        };
-        const particle = createNewBody(position, options);
-        Matter.World.add(world, particle);
-    }
+    const position = { x, y };
+    const options = {
+        radius: material.size / 2, // Example: Convert diameter to radius if necessary
+        restitution: material.restitution,
+        density: material.density,
+        friction: material.friction,
+        render: {
+            fillStyle: material.color,
+        },
+    };
 
-    setupMaterialSelector(materials);
-    setupFeatureButtons(engine, world);
-});
+    const particle = createNewBody(position, options);
+    Matter.World.add(engine.world, particle);
+}
+
 
 function setupMaterialSelector(materials) {
     const selector = document.createElement('div');
