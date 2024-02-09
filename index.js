@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     let currentMaterial = 'sand';
     let isMouseDown = false;
+    let placementQueue = [];
 
     // UI for selecting materials
     setupMaterialSelector(materials);
@@ -38,14 +39,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('mousedown', function(event) {
         if (event.target.tagName === 'CANVAS') {
             isMouseDown = true;
-            placeMaterial(event); // This line ensures a particle is created on click
+            queuePlacement(event);
         }
     });
 
     // Mouse move event to continue placing materials if mouse is down
     document.addEventListener('mousemove', function(event) {
         if (isMouseDown && event.target.tagName === 'CANVAS') {
-            placeMaterial(event);
+            queuePlacement(event);
         }
     });
 
@@ -54,17 +55,28 @@ document.addEventListener('DOMContentLoaded', () => {
         isMouseDown = false;
     });
 
-    // Function to place material
-    function placeMaterial(event) {
+    // Function to queue material placement
+    function queuePlacement(event) {
         const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-        addParticle(x, y, materials[currentMaterial], world);
+        placementQueue.push({ x, y });
     }
+
+    // Process placement queue
+    function processPlacementQueue() {
+        while (placementQueue.length > 0) {
+            const { x, y } = placementQueue.shift();
+            addParticle(x, y, materials[currentMaterial], world);
+        }
+    }
+
+    // Setup interval to process the placement queue
+    setInterval(processPlacementQueue, 16); // Approximately 60fps
 
     function setupMaterialSelector(materials) {
         const materialSelector = document.createElement('div');
-        materialSelector.id = 'materialSelector'; // Assign an ID for CSS and event handling
+        materialSelector.id = 'materialSelector';
         materialSelector.style.position = 'fixed';
-        materialSelector.style.bottom = '20px';
+        materialSelector.style.top = '20px';
         materialSelector.style.left = '50%';
         materialSelector.style.transform = 'translateX(-50%)';
         document.body.appendChild(materialSelector);
@@ -73,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const button = document.createElement('button');
             button.innerText = materials[materialKey].label;
             button.onclick = (e) => {
-                e.stopPropagation(); // Prevent event from bubbling to canvas
+                e.stopPropagation();
                 currentMaterial = materialKey;
             };
             materialSelector.appendChild(button);
@@ -82,9 +94,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setupFeatureButtons(engine) {
         const buttonsContainer = document.createElement('div');
-        buttonsContainer.id = 'featureButtons'; // Assign an ID for CSS and event handling
+        buttonsContainer.id = 'featureButtons';
         buttonsContainer.style.position = 'fixed';
-        buttonsContainer.style.bottom = '100px';
+        buttonsContainer.style.top = '80px';
         buttonsContainer.style.left = '50%';
         buttonsContainer.style.transform = 'translateX(-50%)';
         document.body.appendChild(buttonsContainer);
@@ -92,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const gravityButton = document.createElement('button');
         gravityButton.innerText = 'Invert Gravity';
         gravityButton.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent event from bubbling to canvas
+            e.stopPropagation();
             engine.world.gravity.y *= -1;
         });
         buttonsContainer.appendChild(gravityButton);
@@ -100,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const timeButton = document.createElement('button');
         timeButton.innerText = 'Toggle Time Dilation';
         timeButton.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent event from bubbling to canvas
+            e.stopPropagation();
             engine.timing.timeScale = engine.timing.timeScale === 1 ? 0.5 : 1;
         });
         buttonsContainer.appendChild(timeButton);
