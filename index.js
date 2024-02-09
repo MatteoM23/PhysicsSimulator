@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         antimatter: { label: 'Antimatter', color: '#8e44ad', density: 0.001, size: 10, friction: 0.0, restitution: 1.0 },
     };
     let currentMaterial = 'sand';
+    let isMouseDown = false;
 
     // UI for selecting materials
     setupMaterialSelector(materials);
@@ -33,14 +34,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add walls around the canvas using the provided addGroundAndWalls function
     addGroundAndWalls(world, render.options.width, render.options.height);
 
-    // Corrected mouse interaction for adding particles
+    // Mouse down event to start placing materials
     document.addEventListener('mousedown', function(event) {
-        // Check if the click is within the canvas area to allow material placement
         if (event.target.tagName === 'CANVAS') {
-            const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-            addParticle(x, y, materials[currentMaterial], world);
+            isMouseDown = true;
+            placeMaterial(event);
         }
     });
+
+    // Mouse move event to continue placing materials if mouse is down
+    document.addEventListener('mousemove', function(event) {
+        if (isMouseDown && event.target.tagName === 'CANVAS') {
+            placeMaterial(event);
+        }
+    });
+
+    // Mouse up event to stop placing materials
+    document.addEventListener('mouseup', function() {
+        isMouseDown = false;
+    });
+
+    // Function to place material
+    function placeMaterial(event) {
+        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+        addParticle(x, y, materials[currentMaterial], world);
+    }
 
     function setupMaterialSelector(materials) {
         const materialSelector = document.createElement('div');
