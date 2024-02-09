@@ -3,50 +3,49 @@ import { initPhysics, addParticle, addWalls } from './physics.js';
 import { screenToWorld } from './utils.js';
 import { handleInteractions } from './interactions.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-    const { engine, world, render } = initPhysics({
+let currentMaterial = 'sand'; // Default material
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const { engine, world, render } = await initPhysics({
         width: window.innerWidth,
         height: window.innerHeight,
     });
 
-    // Add walls around the canvas to contain particles.
-    addWalls(world, engine, render);
+    addWalls(engine, world);
 
     const materials = {
-        sand: { density: 0.002, friction: 0.5, color: '#f4e04d' },
-        water: { density: 0.001, friction: 0.0, color: '#3498db', isLiquid: true },
-        oil: { density: 0.0012, friction: 0.01, color: '#34495e', isLiquid: true },
-        rock: { density: 0.004, friction: 0.6, color: '#7f8c8d' },
-        lava: { density: 0.003, friction: 0.2, color: '#e74c3c', isLiquid: true, temperature: 1200 },
-        ice: { density: 0.0009, friction: 0.1, color: '#a8e0ff', restitution: 0.8 },
-        rubber: { density: 0.001, friction: 1.0, color: '#ff3b3b', restitution: 0.9 },
-        steel: { density: 0.008, friction: 0.4, color: '#8d8d8d' },
-        glass: { density: 0.0025, friction: 0.1, color: '#c4faf8', restitution: 0.5 },
-        wood: { density: 0.003, friction: 0.6, color: '#deb887' },
-        antimatter: { density: 0.0, friction: 0.0, color: '#8e44ad', restitution: 1.0, isAntimatter: true }
+        sand: { label: 'Sand', density: 0.002, friction: 0.5, color: '#f4e04d' },
+        water: { label: 'Water', density: 0.001, friction: 0.0, color: '#3498db', isLiquid: true },
+        oil: { label: 'Oil', density: 0.0012, friction: 0.01, color: '#34495e', isLiquid: true },
+        rock: { label: 'Rock', density: 0.004, friction: 0.6, color: '#7f8c8d' },
+        lava: { label: 'Lava', density: 0.003, friction: 0.2, color: '#e74c3c', isLiquid: true, temperature: 1200 },
+        ice: { label: 'Ice', density: 0.0009, friction: 0.1, color: '#a8e0ff', restitution: 0.8 },
+        rubber: { label: 'Rubber', density: 0.001, friction: 1.0, color: '#ff3b3b', restitution: 0.9 },
+        steel: { label: 'Steel', density: 0.008, friction: 0.4, color: '#8d8d8d' },
+        glass: { label: 'Glass', density: 0.0025, friction: 0.1, color: '#c4faf8', restitution: 0.5 },
+        wood: { label: 'Wood', density: 0.003, friction: 0.6, color: '#deb887' },
+        antimatter: { label: 'Antimatter', density: 0.0, friction: 0.0, color: '#8e44ad', restitution: 1.0, isAntimatter: true }
     };
 
-    let currentMaterial = 'sand';
-
     setupMaterialSelector(materials);
-    setupFeatureButtons(engine);
-    handleMouseEvents(engine, render, world, materials);
+    setupFeatureButtons(engine, world);
+    handleMouseEvents(render, materials, engine, world);
 
     Matter.Engine.run(engine);
     Matter.Render.run(render);
 });
 
 function setupMaterialSelector(materials) {
-    const materialSelector = document.getElementById('materialSelector') || document.createElement('div');
-    materialSelector.id = 'materialSelector';
-    document.body.appendChild(materialSelector);
+    const selector = document.createElement('div');
+    selector.id = 'materialSelector';
+    document.body.appendChild(selector);
 
-    Object.entries(materials).forEach(([materialKey, material]) => {
+    Object.entries(materials).forEach(([key, { label, color }]) => {
         const button = document.createElement('button');
-        button.innerText = materialKey; // Or material.label if defined
-        button.style.backgroundColor = material.color; // Style the button
-        button.onclick = () => currentMaterial = materialKey;
-        materialSelector.appendChild(button);
+        button.textContent = label;
+        button.style.backgroundColor = color;
+        button.addEventListener('click', () => currentMaterial = key);
+        selector.appendChild(button);
     });
 }
 
