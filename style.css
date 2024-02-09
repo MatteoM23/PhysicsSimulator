@@ -3,46 +3,53 @@
     --button-hover-bg-color: #34495e;
     --button-active-bg-color: #2c3f50;
     --container-bg-color: rgba(23, 32, 42, 0.85);
-    --container-accent-color: #3d5967; /* Accent color for the 3D effect */
     --text-color: #ecf0f1;
     --font-family: 'Helvetica Neue', Arial, sans-serif;
-    --gradient-start: #8e9eab;
-    --gradient-end: #eef2f3;
     --shadow-color: rgba(0, 0, 0, 0.6);
     --transition-speed: 0.3s;
-    --3d-effect-angle: 145deg; /* Angle of the 3D effect gradient */
 }
 
 .material-selector, .feature-buttons {
     position: fixed;
     padding: 10px 15px;
-    background: linear-gradient(var(--3d-effect-angle), var(--container-accent-color), var(--container-bg-color) 70%);
+    background-color: var(--container-bg-color);
     border-radius: 10px;
-    box-shadow: 0 6px 12px var(--shadow-color), 0 10px 20px var(--container-accent-color); /* Enhanced shadow for 3D depth */
+    box-shadow: 0 4px 8px var(--shadow-color);
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
     z-index: 1050;
     opacity: 0.95;
-    transition: opacity var(--transition-speed) ease, box-shadow 0.3s ease;
-    backface-visibility: hidden; /* Improves rendering for 3D transformations */
+    transition: opacity var(--transition-speed) ease;
+    /* Adding a pseudo-element to create the 3D top light effect */
+    position: relative;
 }
 
-/* Adjustments for positioning remain the same */
+.material-selector::before, .feature-buttons::before {
+    content: '';
+    position: absolute;
+    top: -2px; /* Slightly above the container to create the illusion of light */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 10px; /* Match the container's border-radius */
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
+    z-index: -1;
+}
+
 .material-selector {
     top: 20px;
-    left: 10px;
-    transform: none;
+    left: 10px; /* Align to the left, away from center */
+    transform: none; /* Remove transform for left alignment */
 }
 
 .feature-buttons {
-    top: 20px;
-    right: 10px;
-    transform: none;
+    top: 20px; /* Align to the top right */
+    right: 10px; /* Keep aligned to the right */
+    transform: none; /* Remove transform for right alignment */
 }
 
-/* Button styles remain the same */
 button {
     background-color: var(--button-bg-color);
     color: var(--text-color);
@@ -68,5 +75,5 @@ button:active {
 }
 
 .material-selector:hover, .feature-buttons:hover {
-    opacity: 1;
+    opacity: 1; /* Increase opacity on hover for better interaction feedback */
 }
