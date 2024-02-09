@@ -93,4 +93,5 @@ function setupFeatureButtons(engine, world) {
     buttonsContainer.appendChild(gravityButton);
 
     // Add more feature buttons as needed
+    });
 }
