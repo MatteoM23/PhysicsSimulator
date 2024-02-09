@@ -1,5 +1,5 @@
 import Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
-import { initPhysics, addSparks, addGroundAndWalls } from './physics.js';
+import { initPhysics, addGroundAndWalls } from './physics.js';
 import { handleInteractions } from './interactions.js';
 import { screenToWorld } from './utils.js';
 
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
         steel: { label: 'Steel', color: '#8d8d8d', density: 0.008, size: 10, friction: 0.4 },
         glass: { label: 'Glass', color: '#c4faf8', density: 0.0025, size: 5, friction: 0.1, restitution: 0.5 },
         wood: { label: 'Wood', color: '#deb887', density: 0.003, size: 8, friction: 0.6 },
-        antimatter: { label: 'Antimatter', color: '#8e44ad', density: 0.001, size: 10, friction: 0.0, restitution: 1.0 },
+        // Add more materials as needed
     };
     let currentMaterial = 'sand';
 
@@ -28,16 +28,31 @@ document.addEventListener('DOMContentLoaded', () => {
     setupFeatureButtons(engine);
     addGroundAndWalls(world, render.options.width, render.options.height);
 
-    // Track if the mouse is down
     let isMouseDown = false;
     render.canvas.addEventListener('mousedown', () => isMouseDown = true);
     window.addEventListener('mouseup', () => isMouseDown = false);
     render.canvas.addEventListener('mousemove', (event) => {
         if (isMouseDown) {
             const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-            addSparks(x, y, materials[currentMaterial], world);
+            createParticle(x, y, materials[currentMaterial]);
         }
     });
+
+    function createParticle(x, y, material) {
+        const particleOptions = {
+            isStatic: false,
+            restitution: material.restitution,
+            friction: material.friction,
+            density: material.density,
+            render: {
+                fillStyle: material.color,
+                strokeStyle: material.color,
+                lineWidth: 1
+            }
+        };
+        const particle = Matter.Bodies.circle(x, y, material.size, particleOptions);
+        Matter.World.add(world, particle);
+    }
 
     function setupMaterialSelector(materials) {
         const selector = document.createElement('div');
@@ -50,10 +65,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const button = document.createElement('button');
             button.innerText = material.label;
             button.style.backgroundColor = material.color;
-            button.style.color = 'white';
-            button.style.margin = '0 5px';
+            button.style.color = '#fff';
             button.onclick = () => {
                 currentMaterial = key;
+                document.querySelectorAll('.material-selector button').forEach(btn => btn.style.opacity = '0.5');
+                button.style.opacity = '1';
             };
             selector.appendChild(button);
         });
