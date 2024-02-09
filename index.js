@@ -31,18 +31,36 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function createParticle(x, y, material) {
-        const { x: worldX, y: worldY } = screenToWorld(x, y, render);
-        const speed = Math.sqrt((worldX - lastMousePosition.x) ** 2 + (worldY - lastMousePosition.y) ** 2);
-        const size = Math.min(material.size + speed / 20, material.size * 2);
-        const particle = Matter.Bodies.circle(worldX, worldY, size / 2, {
-            restitution: material.restitution,
-            density: material.density,
-            friction: material.friction,
-            render: { fillStyle: material.color },
-        });
-        Matter.World.add(world, particle);
-        lastMousePosition = { x, y };
-    }
+    // Convert screen coordinates to world coordinates directly
+    const point = { x: x, y: y };
+    const worldPoint = screenToWorld(point.x, point.y, render);
+
+    // Calculate the speed based on the difference between the current and last mouse position
+    const dx = worldPoint.x - lastMousePosition.x;
+    const dy = worldPoint.y - lastMousePosition.y;
+    const speed = Math.sqrt(dx * dx + dy * dy);
+
+    // Adjust the size of the particle based on the speed, ensuring it doesn't exceed a maximum size
+    const baseSize = material.size;
+    const maxSize = baseSize * 2;
+    const size = Math.min(baseSize + speed / 50, maxSize); // Adjust divisor for speed sensitivity
+
+    // Create the particle with dynamic properties based on the material and interaction
+    const particle = Matter.Bodies.circle(worldPoint.x, worldPoint.y, size / 2, {
+        restitution: material.restitution,
+        density: material.density,
+        friction: material.friction,
+        render: {
+            fillStyle: material.color
+        }
+    });
+
+    // Add the newly created particle to the Matter.js world
+    Matter.World.add(world, particle);
+
+    // Update the lastMousePosition with the current worldPoint for next calculation
+    lastMousePosition = { x: worldPoint.x, y: worldPoint.y };
+}
 
     document.addEventListener('mousedown', (event) => {
         mouseDown = true;
