@@ -1,14 +1,18 @@
 import Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
 import { initPhysics, addGroundAndWalls } from './physics.js';
 import { handleInteractions } from './interactions.js';
+import { screenToWorld } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const { engine, world, render } = initPhysics();
+    const { engine, render, world } = initPhysics();
+    let mouseDown = false;
+    let lastMousePosition = { x: 0, y: 0 };
+
     Matter.Engine.run(engine);
     Matter.Render.run(render);
     handleInteractions(engine, world);
 
-     const materials = {
+    const materials = {
         sand: { label: 'Sand', color: '#f4e04d', density: 0.002, size: 5 },
         water: { label: 'Water', color: '#3498db', density: 0.0001, size: 6, friction: 0, restitution: 0.1 },
         oil: { label: 'Oil', color: '#34495e', density: 0.0012, size: 6, friction: 0.05, restitution: 0.05 },
@@ -21,12 +25,27 @@ document.addEventListener('DOMContentLoaded', () => {
         wood: { label: 'Wood', color: '#deb887', density: 0.003, size: 8, friction: 0.6 },
         // Add more materials as needed
     };
-    let currentMaterial = 'sand';
-    let lastMousePosition = { x: 0, y: 0 };
+    let currentMaterial = 'sand'; // Default material
 
-    function screenToWorld(x, y) {
-        return { x: (x - render.canvas.offsetLeft) / render.options.pixelRatio,
-                 y: (y - render.canvas.offsetTop) / render.options.pixelRatio };
+    document.addEventListener('mousedown', startDrawing);
+    document.addEventListener('mouseup', stopDrawing);
+    document.addEventListener('mousemove', draw);
+
+    function startDrawing(e) {
+        mouseDown = true;
+        const { x, y } = screenToWorld(e.clientX, e.clientY, render);
+        lastMousePosition = { x, y };
+        createParticle(x, y, materials[currentMaterial]);
+    }
+
+    function stopDrawing() {
+        mouseDown = false;
+    }
+
+    function draw(e) {
+        if (!mouseDown) return;
+        const { x, y } = screenToWorld(e.clientX, e.clientY, render);
+        createParticle(x, y, materials[currentMaterial]);
     }
 
     function createParticle(x, y, material) {
@@ -41,6 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
         Matter.World.add(world, particle);
         lastMousePosition = { x, y };
     }
+
+    addGroundAndWalls(world, render.options.width, render.options.height);
+});
+
 
     document.body.addEventListener('mousedown', (event) => {
         render.canvas.addEventListener('mousemove', handleMouseMove);
