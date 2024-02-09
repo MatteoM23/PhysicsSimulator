@@ -1,24 +1,18 @@
 import Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
-import { engine, world, initPhysics } from './physics.js';
-import { screenToWorld } from './utils.js';
-import { handleInteractions } from './interactions.js';
+import { initPhysics, addWalls, addParticle } from './physics.js'; // Assumed exports from physics.js
+import { screenToWorld, normalizeVector } from './utils.js'; // Assumed exports from utils.js
+import { handleInteractions } from './interactions.js'; // Assumed export from interactions.js
 
-// Initialize physics environment
-initPhysics();
-
-const render = Matter.Render.create({
-    element: document.body,
-    engine: engine,
-    options: {
-        width: window.innerWidth,
-        height: window.innerHeight,
-        wireframes: false,
-    },
+// Initialize the physics environment
+const { engine, world, render } = initPhysics({
+    width: Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0),
+    height: Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
 });
 
-// Call addWalls after render is defined, assuming addWalls is a function in ./physics.js that now receives render as an argument
-addWalls(render);
+// Add boundaries to the world
+addWalls(world, render);
 
+// Material definitions
 const materials = {
     sand: { label: 'Sand', color: '#f4e04d', density: 0.002, size: 5 },
     water: { label: 'Water', color: '#3498db', density: 0.0001, size: 6, friction: 0, restitution: 0.1 },
@@ -30,74 +24,102 @@ const materials = {
 
 let currentMaterial = 'sand';
 
-setupMaterialSelector();
-setupFeatureButtons();
+// UI Setup for Material Selection
+setupMaterialSelector(materials);
 
-document.addEventListener('mousedown', (event) => {
-    if (event.target === render.canvas) {
-        const onMouseMove = (e) => {
-            const { x, y } = screenToWorld(e.clientX, e.clientY, render);
-            createParticle(x, y, currentMaterial);
-        };
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', () => {
-            document.removeEventListener('mousemove', onMouseMove);
-        }, { once: true });
-    }
-});
+// Feature Buttons Setup for Gravity Inversion and Time Dilation
+setupFeatureButtons(engine);
 
+// Handling continuous particle creation on mouse interaction
+handleMouseEvents(render, materials);
+
+// Integrate handling interactions between materials
 handleInteractions(engine, world);
 
+// Start the engine and renderer
 Matter.Engine.run(engine);
 Matter.Render.run(render);
 
-function setupMaterialSelector() {
+function setupMaterialSelector(materials) {
     const materialSelector = document.createElement('div');
     materialSelector.style.position = 'fixed';
-    materialSelector.style.bottom = '10px';
+    materialSelector.style.bottom = '20px';
     materialSelector.style.left = '50%';
     materialSelector.style.transform = 'translateX(-50%)';
     materialSelector.style.display = 'flex';
+    materialSelector.style.zIndex = '1000';
     document.body.appendChild(materialSelector);
 
-    Object.keys(materials).forEach(key => {
-        const material = materials[key];
+    Object.entries(materials).forEach(([materialKey, material]) => {
         const button = document.createElement('button');
         button.innerText = material.label;
-        button.addEventListener('click', () => {
-            currentMaterial = key;
-        });
+        button.style.margin = '0 5px';
+        button.onclick = () => {
+            currentMaterial = materialKey;
+        };
         materialSelector.appendChild(button);
     });
 }
 
-function setupFeatureButtons() {
+
+function setupFeatureButtons(engine) {
     const featureButtons = document.createElement('div');
     featureButtons.style.position = 'fixed';
     featureButtons.style.bottom = '60px';
     featureButtons.style.left = '50%';
     featureButtons.style.transform = 'translateX(-50%)';
     featureButtons.style.display = 'flex';
+    featureButtons.style.zIndex = '1000';
     document.body.appendChild(featureButtons);
 
+    // Gravity Inversion Button
     const gravityBtn = document.createElement('button');
     gravityBtn.innerText = 'Invert Gravity';
-    gravityBtn.addEventListener('click', () => engine.world.gravity.y *= -1);
+    gravityBtn.style.margin = '0 5px';
+    gravityBtn.onclick = () => {
+        engine.world.gravity.y *= -1;
+    };
     featureButtons.appendChild(gravityBtn);
 
+    // Time Dilation Button
     const timeBtn = document.createElement('button');
     timeBtn.innerText = 'Toggle Time Dilation';
-    timeBtn.addEventListener('click', () => engine.timing.timeScale = engine.timing.timeScale === 1 ? 0.5 : 1);
+    timeBtn.style.margin = '0 5px';
+    timeBtn.onclick = () => {
+        engine.timing.timeScale = engine.timing.timeScale === 1 ? 0.5 : 1;
+    };
     featureButtons.appendChild(timeBtn);
 }
 
-function createParticle(x, y, materialType) {
-    const material = materials[materialType];
-    const body = Matter.Bodies.circle(x, y, material.size, {
-        density: material.density,
-        friction: material.friction || 0,
-        restitution: material.restitution || 0,
-        render: { fillStyle: material.color },
+
+function handleMouseEvents(render, materials) {
+    let isMouseDown = false;
+
+    document.addEventListener('mousedown', event => {
+        if (event.target === render.canvas) {
+            isMouseDown = true;
+            createParticle(event, materials);
+        }
     });
-    Matter.World.add(world, body);
+
+    document.addEventListener('mousemove', event => {
+        if (isMouseDown && event.target === render.canvas) {
+            createParticle(event, materials);
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isMouseDown = false;
+    });
+
+    function createParticle(event, materials) {
+        const bounds = render.canvas.getBoundingClientRect();
+        const x = event.clientX - bounds.left;
+        const y = event.clientY - bounds.top;
+        const material = materials[currentMaterial];
+        
+        // Assuming addParticle is defined in your physics.js to accept these parameters
+        addParticle(x, y, material);
+    }
 }
+
