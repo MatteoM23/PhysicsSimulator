@@ -37,7 +37,7 @@ setupMaterialSelector(materialProperties);
 setupFeatureButtons(engine);
 
 // Handling continuous particle creation on mouse interaction
-handleMouseEvents(render, materials);
+handleMouseEvents(render, materialProperties);
 
 // Integrate handling interactions between materials
 handleInteractions(engine, world);
