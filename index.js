@@ -30,6 +30,12 @@ function initPhysics() {
         },
     });
 
+    // Add floor and walls
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 40, { isStatic: true });
+    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 40, window.innerHeight, { isStatic: true });
+    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 40, window.innerHeight, { isStatic: true });
+    Matter.World.add(engine.world, [ground, leftWall, rightWall]);
+
     Matter.Engine.run(engine);
     Matter.Render.run(render);
 
@@ -64,9 +70,23 @@ function createNewBody(position, materialKey, world) {
 document.addEventListener('DOMContentLoaded', () => {
     const { engine, render, world } = initPhysics();
 
+    // Mouse event for continuous particle creation
+    let isMouseDown = false;
     document.body.addEventListener('mousedown', event => {
+        isMouseDown = true;
         const { x, y } = screenToWorld(event.clientX, event.clientY, render);
         createNewBody({ x, y }, currentMaterial, world);
+    });
+
+    document.body.addEventListener('mouseup', () => {
+        isMouseDown = false;
+    });
+
+    document.body.addEventListener('mousemove', event => {
+        if (isMouseDown) {
+            const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+            createNewBody({ x, y }, currentMaterial, world);
+        }
     });
 
     setupMaterialSelector(materials);
@@ -109,6 +129,4 @@ function setupFeatureButtons(engine, world) {
     clearButton.innerText = 'Clear World';
     clearButton.onclick = () => Matter.World.clear(world, false); // Keep static bodies
     buttonsContainer.appendChild(clearButton);
-
-    // Add more feature buttons as needed
 }
