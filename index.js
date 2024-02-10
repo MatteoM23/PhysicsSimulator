@@ -31,9 +31,9 @@ function initPhysics() {
     });
 
     // Add floor and walls
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 40, { isStatic: true });
-    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 40, window.innerHeight, { isStatic: true });
-    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 40, window.innerHeight, { isStatic: true });
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 40, { isStatic: true, render: { fillStyle: '#776e65' } });
+    const leftWall = Matter.Bodies.rectangle(20, window.innerHeight / 2, 40, window.innerHeight, { isStatic: true, render: { fillStyle: '#776e65' } });
+    const rightWall = Matter.Bodies.rectangle(window.innerWidth - 20, window.innerHeight / 2, 40, window.innerHeight, { isStatic: true, render: { fillStyle: '#776e65' } });
     Matter.World.add(engine.world, [ground, leftWall, rightWall]);
 
     Matter.Engine.run(engine);
@@ -66,11 +66,19 @@ function createNewBody(position, materialKey, world) {
     return body;
 }
 
+// Function to clear non-static bodies
+function clearDynamicBodies(world) {
+    Matter.Composite.allBodies(world).forEach(body => {
+        if (!body.isStatic) {
+            Matter.Composite.remove(world, body);
+        }
+    });
+}
+
 // Main initialization function
 document.addEventListener('DOMContentLoaded', () => {
     const { engine, render, world } = initPhysics();
 
-    // Mouse event for continuous particle creation
     let isMouseDown = false;
     document.body.addEventListener('mousedown', event => {
         isMouseDown = true;
@@ -99,10 +107,10 @@ function setupMaterialSelector(materials) {
     selector.className = 'material-selector';
     document.body.appendChild(selector);
 
-    Object.entries(materials).forEach(([key, material]) => {
+    Object.entries(materials).forEach(([key, { label, color }]) => {
         const button = document.createElement('button');
-        button.innerText = material.label;
-        button.style.backgroundColor = material.color;
+        button.innerText = label;
+        button.style.backgroundColor = color;
         button.onclick = () => {
             currentMaterial = key;
             document.querySelectorAll('.material-selector button').forEach(btn => btn.classList.remove('selected'));
@@ -118,15 +126,15 @@ function setupFeatureButtons(engine, world) {
     buttonsContainer.className = 'feature-buttons';
     document.body.appendChild(buttonsContainer);
 
-    // Invert Gravity Button
     const gravityButton = document.createElement('button');
     gravityButton.innerText = 'Invert Gravity';
-    gravityButton.onclick = () => engine.world.gravity.y = -engine.world.gravity.y;
+    gravityButton.onclick = () => {
+        engine.world.gravity.y = -engine.world.gravity.y;
+    };
     buttonsContainer.appendChild(gravityButton);
 
-    // Clear World Button
     const clearButton = document.createElement('button');
     clearButton.innerText = 'Clear World';
-    clearButton.onclick = () => Matter.World.clear(world, false); // Keep static bodies
+    clearButton.onclick = () => clearDynamicBodies(engine.world);
     buttonsContainer.appendChild(clearButton);
 }
