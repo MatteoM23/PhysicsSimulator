@@ -1,11 +1,6 @@
 // Importing Matter.js from a CDN
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
-// Importing local modules
-import { initPhysics } from './physics.js';
-import { handleInteractions, createNewBody } from './interactions.js';
-import { screenToWorld } from './utils.js';
-
 // Materials definition with properties
 const materials = {
     sand: { label: 'Sand', color: '#f4e04d', density: 0.002, size: 5 },
@@ -17,59 +12,68 @@ const materials = {
     rubber: { label: 'Rubber', color: '#ff3b3b', density: 0.001, size: 7, friction: 1.0, restitution: 0.9 },
     steel: { label: 'Steel', color: '#8d8d8d', density: 0.008, size: 10, friction: 0.4, restitution: 0 },
     glass: { label: 'Glass', color: '#c4faf8', density: 0.0025, size: 5, friction: 0.1, restitution: 0.5 },
-    wood: { label: 'Wood', color: '#deb887', density: 0.003, size: 8, friction: 0.6, restitution: 0 }
+    wood: { label: 'Wood', color: '#deb887', density: 0.003, size: 8, friction: 0.6, restitution: 0 },
 };
 
 let currentMaterial = 'sand';
 
+// Initialize Physics Engine and Renderer
+function initPhysics() {
+    const engine = Matter.Engine.create();
+    const render = Matter.Render.create({
+        element: document.body,
+        engine: engine,
+        options: {
+            width: window.innerWidth,
+            height: window.innerHeight,
+            wireframes: false,
+        },
+    });
+
+    Matter.Engine.run(engine);
+    Matter.Render.run(render);
+
+    return { engine, render, world: engine.world };
+}
+
+// Convert screen coordinates to world coordinates
+function screenToWorld(clientX, clientY, render) {
+    const bounds = render.canvas.getBoundingClientRect();
+    const scaleX = render.canvas.width / bounds.width;
+    const scaleY = render.canvas.height / bounds.height;
+    return { x: (clientX - bounds.left) * scaleX, y: (clientY - bounds.top) * scaleY };
+}
+
+// Create a new body with given material properties and add it to the world
+function createNewBody(position, materialKey, world) {
+    const material = materials[materialKey];
+    const options = {
+        density: material.density,
+        friction: material.friction ?? 0.1,
+        restitution: material.restitution ?? 0.1,
+        render: {
+            fillStyle: material.color,
+        },
+    };
+    const body = Matter.Bodies.circle(position.x, position.y, material.size, options);
+    Matter.World.add(world, body);
+    return body;
+}
+
 // Main initialization function
 document.addEventListener('DOMContentLoaded', () => {
     const { engine, render, world } = initPhysics();
-    Matter.Render.run(render);
 
-    handleInteractions(engine, world);
+    document.body.addEventListener('mousedown', event => {
+        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+        createNewBody({ x, y }, currentMaterial, world);
+    });
 
-    // Setup event listeners for material selection and particle creation
     setupMaterialSelector(materials);
-    setupParticleCreation(engine, world, render);
-
-    // Setup additional feature buttons if needed
     setupFeatureButtons(engine, world);
 });
 
-function setupParticleCreation(engine, world, render) {
-    document.body.addEventListener('mousedown', event => {
-        createParticleAtMousePosition(event, render, world, engine);
-    });
-
-    document.body.addEventListener('mousemove', event => {
-        if (event.buttons === 1) { // Check if left mouse button is pressed
-            createParticleAtMousePosition(event, render, world, engine);
-        }
-    });
-}
-
-function createParticleAtMousePosition(event, render, world, engine) {
-    const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-    createParticle(x, y, currentMaterial, world, engine);
-}
-
-function createParticle(x, y, materialKey, world, engine) {
-    const material = materials[materialKey];
-    const options = {
-        restitution: material.restitution ?? 0.1, // Provide default values
-        density: material.density,
-        friction: material.friction ?? 0.5,
-        render: {
-            fillStyle: material.color, // Ensure visual properties are passed
-        },
-    };
-    // Ensure radius is explicitly passed
-    const particle = createNewBody({ x, y }, material.size, options);
-    Matter.World.add(world, particle);
-}
-
-
+// Setup material selector
 function setupMaterialSelector(materials) {
     const selector = document.createElement('div');
     selector.className = 'material-selector';
@@ -88,17 +92,23 @@ function setupMaterialSelector(materials) {
     });
 }
 
+// Setup feature buttons for additional physics effects
 function setupFeatureButtons(engine, world) {
     const buttonsContainer = document.createElement('div');
     buttonsContainer.className = 'feature-buttons';
     document.body.appendChild(buttonsContainer);
 
+    // Invert Gravity Button
     const gravityButton = document.createElement('button');
     gravityButton.innerText = 'Invert Gravity';
-    gravityButton.onclick = () => {
-        engine.world.gravity.y = -engine.world.gravity.y;
-    };
+    gravityButton.onclick = () => engine.world.gravity.y = -engine.world.gravity.y;
     buttonsContainer.appendChild(gravityButton);
 
-    // Additional feature buttons can be added here
+    // Clear World Button
+    const clearButton = document.createElement('button');
+    clearButton.innerText = 'Clear World';
+    clearButton.onclick = () => Matter.World.clear(world, false); // Keep static bodies
+    buttonsContainer.appendChild(clearButton);
+
+    // Add more feature buttons as needed
 }
