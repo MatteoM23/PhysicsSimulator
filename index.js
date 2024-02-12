@@ -1,6 +1,9 @@
 // Importing Matter.js from a CDN
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
+import { handleInteractions } from './interactions.js';
+
+
 // Materials definition with properties
 const materials = {
     sand: { label: 'Sand', color: '#f4e04d', density: 0.002, size: 5 },
@@ -39,6 +42,9 @@ function initPhysics() {
     Matter.Engine.run(engine);
     Matter.Render.run(render);
 
+    handleInteractions(engine, engine.world);
+
+    
     return { engine, render, world: engine.world };
 }
 
