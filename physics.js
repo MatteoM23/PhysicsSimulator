@@ -1,4 +1,3 @@
-// physics.js
 import Matter from 'https://cdn.skypack.dev/pin/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
 
 export function initPhysics() {
@@ -41,9 +40,7 @@ export function initPhysics() {
     Matter.World.add(engine.world, [ground, leftWall, rightWall]);
 
     Matter.Render.run(render);
+    Matter.Runner.run(engine); // Fix for deprecated Engine.run
+
     return { engine, render, world: engine.world };
 }
-
-
-
-
