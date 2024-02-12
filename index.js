@@ -43,8 +43,6 @@ function initPhysics() {
     Matter.Engine.run(engine);
     Matter.Render.run(render);
 
-    // Add interactions
-    handleInteractions(engine, engine.world);
 
     return { engine, render, world: engine.world };
 }
