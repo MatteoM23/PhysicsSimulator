@@ -1,6 +1,6 @@
 
-import * as Matter from 'matter-js';
-
+// Importing Matter.js from a CDN
+import Matter from 'https://cdn.skypack.dev/matter-js';
 
 
 // Materials definition with properties
