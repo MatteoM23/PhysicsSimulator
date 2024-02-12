@@ -1,4 +1,4 @@
-// Import Matter.js from a CDN
+p// Import Matter.js from a CDN
 import Matter from 'https://cdn.skypack.dev/pin/matter-js@0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
 
 // Function to create a new body with given properties
@@ -57,7 +57,7 @@ export function simulateExplosion(centerPosition, world, explosionOptions) {
 }
 
 // Interaction rules for different material combinations
-const interactionRules = {
+export const interactionRules = {
     // Interaction rule for oil + lava (simulated explosion)
     'oil+lava': (bodyA, bodyB, world) => {
         simulateExplosion(bodyA.position, world, {
