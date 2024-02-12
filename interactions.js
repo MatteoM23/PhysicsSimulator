@@ -90,15 +90,19 @@ export function handleInteractions(engine, world) {
     const interactionsHandled = new Set(); // Keep track of handled interactions
 
     Matter.Events.on(engine, 'collisionStart', (event) => {
+        console.log("Collision detected");
         event.pairs.forEach((pair) => {
             const bodyA = pair.bodyA;
             const bodyB = pair.bodyB;
             const materials = [bodyA.label, bodyB.label].sort().join('+');
 
+            console.log("Collision pair:", materials);
+
             // Check if the interaction has already been handled
             if (!interactionsHandled.has(materials)) {
                 const interactionHandler = interactionRules[materials];
                 if (interactionHandler) {
+                    console.log("Handling interaction:", materials);
                     interactionHandler(bodyA, bodyB, world);
                     interactionsHandled.add(materials);
                 }
@@ -120,4 +124,5 @@ export function handleInteractions(engine, world) {
         });
     });
 }
+
 
