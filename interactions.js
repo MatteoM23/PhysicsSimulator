@@ -44,7 +44,7 @@ function handleInteractions(engine, world) {
     });
 }
 
-// Update the simulateExplosion function to use Matter.js functions directly
+// Define a function to simulate explosions and handle interactions
 function simulateExplosion(centerPosition, world, explosionOptions) {
     const { numberOfParticles, spread, color, forceScale } = explosionOptions;
 
@@ -67,6 +67,24 @@ function simulateExplosion(centerPosition, world, explosionOptions) {
 
         Matter.World.add(world, particle);
         Matter.Body.applyForce(particle, particle.position, forceDirection);
+
+        // Handle interactions between particles and existing bodies
+        Matter.Events.on(world, 'collisionStart', (event) => {
+            event.pairs.forEach((pair) => {
+                const bodyA = pair.bodyA;
+                const bodyB = pair.bodyB;
+
+                // Check for interactions between particles and other bodies
+                if ((bodyA === particle && bodyB !== particle) || (bodyA !== particle && bodyB === particle)) {
+                    const materials = [bodyA.label, bodyB.label].sort().join('+');
+                    const interactionHandler = interactionRules[materials];
+                    if (interactionHandler) {
+                        interactionHandler(bodyA, bodyB, world);
+                    }
+                }
+            });
+        });
+
         Matter.Events.on(world.engine, 'beforeUpdate', function fadeOut() {
             if (particle.render.opacity > 0) {
                 particle.render.opacity -= 0.005;
@@ -77,3 +95,4 @@ function simulateExplosion(centerPosition, world, explosionOptions) {
         });
     }
 }
+
