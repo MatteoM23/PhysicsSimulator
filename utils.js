@@ -1,5 +1,5 @@
 // Import the required namespaces from Matter.js directly
-import Matter, * as MatterImports from '/-/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/dist=es2020,mode=imports/optimized/matter-js.js';
+import Matter from 'https://cdn.skypack.dev/matter-js';
 
 // Destructure necessary components from Matter for convenience
 const { Body, Vertices } = Matter;
