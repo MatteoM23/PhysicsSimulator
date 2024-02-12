@@ -1,5 +1,5 @@
 // Import Matter.js library
-import Matter from './matter-js'; // Assuming matter-js.js is in the same directory
+import Matter from './matter.js'; // Assuming matter-js.js is in the same directory
 
 // Import interactionRules from interactions.js
 import { interactionRules } from './interactions.js';
