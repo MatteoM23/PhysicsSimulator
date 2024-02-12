@@ -1,5 +1,5 @@
 // Import Matter.js library
-import Matter from './matter.js'; // Assuming matter-js.js is in the same directory
+import Matter from 'https://cdn.skypack.dev/pin/matter-js@0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js'; // Assuming matter-js.js is in the same directory
 
 // Import interactionRules from interactions.js
 import { interactionRules } from './interactions.js';
