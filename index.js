@@ -1,5 +1,5 @@
 // Import Matter.js library
-import Matter, * as MatterImports from '/-/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/dist=es2020,mode=imports/optimized/matter-js.js';
+import Matter from 'https://cdn.skypack.dev/pin/matter-js@0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
 
 // Now you can use Matter and any other exports from MatterImports
 
