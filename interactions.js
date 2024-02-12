@@ -1,5 +1,5 @@
 p// Import Matter.js from a CDN
-import Matter from 'https://cdn.skypack.dev/pin/matter-js@0.19.0-Our0SQaqYsMskgmyGYb4/mode=imports/optimized/matter-js.js';
+import Matter, * as MatterImports from '/-/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/dist=es2020,mode=imports/optimized/matter-js.js';
 
 // Function to create a new body with given properties
 export function createNewBody(position, radius, options) {
