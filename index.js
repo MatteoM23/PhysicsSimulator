@@ -1,5 +1,5 @@
 // Importing Matter.js from a CDN
-import Matter from 'https://cdn.skypack.dev/matter-js';
+import * as Matter from 'matter-js';
 
 // Import the handleInteractions function from interactions.js
 import { handleInteractions } from './interactions.js';
