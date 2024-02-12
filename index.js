@@ -1,5 +1,5 @@
-// Importing Matter.js from a CDN
-import Matter from 'https://cdn.skypack.dev/matter-js';
+// Import Matter.js library
+import Matter from './matter-js'; // Assuming matter-js.js is in the same directory
 
 // Import interactionRules from interactions.js
 import { interactionRules } from './interactions.js';
@@ -21,7 +21,6 @@ const materials = {
 let currentMaterial = 'sand';
 
 // Initialize Physics Engine and Renderer
-// Initialize Physics Engine and Renderer
 function initPhysics() {
     const engine = Matter.Engine.create();
     const render = Matter.Render.create({
@@ -42,7 +41,6 @@ function initPhysics() {
 
     Matter.Engine.run(engine);
     Matter.Render.run(render);
-
 
     return { engine, render, world: engine.world };
 }
@@ -81,7 +79,6 @@ function handleInteractions(engine, world) {
         });
     });
 }
-
 
 // Convert screen coordinates to world coordinates
 function screenToWorld(clientX, clientY, render) {
@@ -138,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    handleInteractions(engine, world); // Call handleInteractions to set up collision handling
     setupMaterialSelector(materials);
     setupFeatureButtons(engine, world);
 });
