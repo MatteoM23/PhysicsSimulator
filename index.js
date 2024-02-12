@@ -1,9 +1,5 @@
 // Importing Matter.js from a CDN
-import * as Matter from 'matter-js';
-
-// Import the handleInteractions function from interactions.js
-import { handleInteractions } from './interactions.js';
-
+import Matter from 'https://cdn.skypack.dev/matter-js';
 
 // Materials definition with properties
 const materials = {
@@ -21,6 +17,7 @@ const materials = {
 
 let currentMaterial = 'sand';
 
+// Initialize Physics Engine and Renderer
 function initPhysics() {
     const engine = Matter.Engine.create();
     const render = Matter.Render.create({
@@ -41,9 +38,6 @@ function initPhysics() {
 
     Matter.Engine.run(engine);
     Matter.Render.run(render);
-
-    // Attach collision event handling
-    handleInteractions(engine, engine.world);
 
     return { engine, render, world: engine.world };
 }
