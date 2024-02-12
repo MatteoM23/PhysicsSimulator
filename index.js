@@ -1,7 +1,8 @@
-
 // Importing Matter.js from a CDN
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
+// Import interactionRules from interactions.js
+import { interactionRules } from './interactions.js';
 
 // Materials definition with properties
 const materials = {
