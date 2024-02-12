@@ -1,10 +1,5 @@
-// Import Matter.js library
-import Matter, * as MatterImports from '/-/matter-js@v0.19.0-Our0SQaqYsMskgmyGYb4/dist=es2020,mode=imports/optimized/matter-js.js';
-
-// Now you can use Matter and any other exports from MatterImports
-
-// Import interactionRules from interactions.js
-import { interactionRules } from './interactions.js';
+// Importing Matter.js from a CDN
+import Matter from 'https://cdn.skypack.dev/matter-js';
 
 // Materials definition with properties
 const materials = {
@@ -45,41 +40,6 @@ function initPhysics() {
     Matter.Render.run(render);
 
     return { engine, render, world: engine.world };
-}
-
-// Handle interactions between bodies
-function handleInteractions(engine, world) {
-    // Set of handled interactions to avoid duplicate processing
-    const interactionsHandled = new Set();
-
-    // Detect collision start
-    Matter.Events.on(engine, 'collisionStart', (event) => {
-        event.pairs.forEach((pair) => {
-            const bodyA = pair.bodyA;
-            const bodyB = pair.bodyB;
-            const materials = [bodyA.label, bodyB.label].sort().join('+');
-            
-            if (!interactionsHandled.has(materials)) {
-                const interactionHandler = interactionRules[materials];
-                if (interactionHandler) {
-                    interactionHandler(bodyA, bodyB, world);
-                    interactionsHandled.add(materials);
-                }
-            }
-        });
-    });
-
-    // Clear handled interactions on collision end
-    Matter.Events.on(engine, 'collisionEnd', (event) => {
-        event.pairs.forEach((pair) => {
-            const bodyA = pair.bodyA;
-            const bodyB = pair.bodyB;
-            const materials = [bodyA.label, bodyB.label].sort().join('+');
-            if (world.bodies.includes(bodyA) && world.bodies.includes(bodyB)) {
-                interactionsHandled.delete(materials);
-            }
-        });
-    });
 }
 
 // Convert screen coordinates to world coordinates
@@ -137,7 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    handleInteractions(engine, world); // Call handleInteractions to set up collision handling
     setupMaterialSelector(materials);
     setupFeatureButtons(engine, world);
 });
