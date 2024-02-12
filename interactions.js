@@ -12,7 +12,6 @@ export function createNewBody(position, radius, options) {
     return Matter.Bodies.circle(position.x, position.y, radius, bodyOptions);
 }
 
-
 export function simulateExplosion(centerPosition, world, explosionOptions) {
     const { numberOfParticles, spread, color, forceScale } = explosionOptions;
     for (let i = 0; i < numberOfParticles; i++) {
@@ -36,7 +35,7 @@ export function simulateExplosion(centerPosition, world, explosionOptions) {
                 lineWidth: 1,
             },
         };
-        const particle = createNewBody(position, particleOptions);
+        const particle = createNewBody(position, radius, particleOptions);
         Matter.World.add(world, particle);
 
         // Apply an initial force to each particle to simulate explosion effect
@@ -65,19 +64,60 @@ const interactionRules = {
         });
         Matter.World.remove(world, [bodyA, bodyB]);
     },
-    // Add more interactions as needed
+    // Interaction rule for water + lava (produces stone)
+    'water+lava': (bodyA, bodyB, world) => {
+        simulateExplosion(bodyA.position, world, {
+            numberOfParticles: 30, // Number of stone particles
+            spread: 50, // Spread of stone particles
+            color: '#808080', // Stone color
+            forceScale: 0.002, // Scale of the initial force applied to particles
+        });
+        Matter.World.remove(world, [bodyA, bodyB]);
+    },
+    // Interaction rule for lava + water (produces obsidian)
+    'lava+water': (bodyA, bodyB, world) => {
+        simulateExplosion(bodyA.position, world, {
+            numberOfParticles: 20, // Number of obsidian particles
+            spread: 40, // Spread of obsidian particles
+            color: '#333', // Obsidian color
+            forceScale: 0.003, // Scale of the initial force applied to particles
+        });
+        Matter.World.remove(world, [bodyA, bodyB]);
+    },
 };
 
 export function handleInteractions(engine, world) {
+    const interactionsHandled = new Set(); // Keep track of handled interactions
+
     Matter.Events.on(engine, 'collisionStart', (event) => {
         event.pairs.forEach((pair) => {
             const bodyA = pair.bodyA;
             const bodyB = pair.bodyB;
             const materials = [bodyA.label, bodyB.label].sort().join('+');
-            const interactionHandler = interactionRules[materials];
-            if (interactionHandler) {
-                interactionHandler(bodyA, bodyB, world);
+
+            // Check if the interaction has already been handled
+            if (!interactionsHandled.has(materials)) {
+                const interactionHandler = interactionRules[materials];
+                if (interactionHandler) {
+                    interactionHandler(bodyA, bodyB, world);
+                    interactionsHandled.add(materials);
+                }
+            }
+        });
+    });
+
+    // Clear handled interactions on collision end
+    Matter.Events.on(engine, 'collisionEnd', (event) => {
+        event.pairs.forEach((pair) => {
+            const bodyA = pair.bodyA;
+            const bodyB = pair.bodyB;
+            const materials = [bodyA.label, bodyB.label].sort().join('+');
+
+            // Remove interaction from handled set if both bodies are still present
+            if (world.bodies.includes(bodyA) && world.bodies.includes(bodyB)) {
+                interactionsHandled.delete(materials);
             }
         });
     });
 }
+
