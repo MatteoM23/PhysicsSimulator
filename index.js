@@ -45,7 +45,6 @@ function initPhysics() {
     return { engine, render, world: engine.world };
 }
 
-
 // Convert screen coordinates to world coordinates
 function screenToWorld(clientX, clientY, render) {
     const bounds = render.canvas.getBoundingClientRect();
@@ -143,9 +142,8 @@ function setupFeatureButtons(engine, world) {
     buttonsContainer.appendChild(clearButton);
 }
 
-
-    // Interaction rules for different material combinations
- const interactionRules = {
+// Interaction rules for different material combinations
+const interactionRules = {
     // Interaction rule for oil + lava (simulated explosion)
     'oil+lava': (bodyA, bodyB, world) => {
         simulateExplosion(bodyA.position, world, {
@@ -170,7 +168,7 @@ function setupFeatureButtons(engine, world) {
                 fillStyle: '#808080',
             },
         };
-        const obsidian = createNewBody(centerPosition, 10, obsidianOptions);
+        const obsidian = createNewBody(centerPosition, 'rock', obsidianOptions); // Fixed material key to 'rock'
         Matter.World.add(world, obsidian);
         Matter.World.remove(world, [bodyA, bodyB]);
     },
@@ -188,7 +186,7 @@ function setupFeatureButtons(engine, world) {
                 fillStyle: '#333',
             },
         };
-        const stone = createNewBody(centerPosition, 10, stoneOptions);
+        const stone = createNewBody(centerPosition, 'rock', stoneOptions); // Fixed material key to 'rock'
         Matter.World.add(world, stone);
         Matter.World.remove(world, [bodyA, bodyB]);
     },
@@ -214,22 +212,6 @@ function handleInteractions(engine, world) {
             }
         });
     });
-
-    // Clear handled interactions on collision end
-    Matter.Events.on(engine, 'collisionEnd', (event) => {
-        event.pairs.forEach((pair) => {
-            const bodyA = pair.bodyA;
-            const bodyB = pair.bodyB;
-            const materials = [bodyA.label, bodyB.label].sort().join('+');
-
-            // Remove interaction from handled set if both bodies are still present
-            if (world.bodies.includes(bodyA) && world.bodies.includes(bodyB)) {
-                interactionsHandled.delete(materials);
-            }
-        });
-    });
-}
-
 
     // Clear handled interactions on collision end
     Matter.Events.on(engine, 'collisionEnd', (event) => {
