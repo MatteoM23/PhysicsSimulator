@@ -2,17 +2,18 @@ import Matter from 'https://cdn.skypack.dev/matter-js';
 
 // Materials definition with properties
 const materials = {
-    sand: { label: 'Sand', color: '#f4e04d', density: 0.002, size: 5 },
-    water: { label: 'Water', color: '#3498db', density: 0.0001, size: 6, friction: 0, restitution: 0.1 },
-    oil: { label: 'Oil', color: '#34495e', density: 0.0012, size: 6, friction: 0.05, restitution: 0.05 },
-    rock: { label: 'Rock', color: '#7f8c8d', density: 0.004, size: 8, friction: 0.6, restitution: 0.1 },
-    lava: { label: 'Lava', color: '#e74c3c', density: 0.003, size: 7, friction: 0.2, restitution: 0.4 },
-    ice: { label: 'Ice', color: '#a8e0ff', density: 0.0009, size: 6, friction: 0.1, restitution: 0.8 },
-    rubber: { label: 'Rubber', color: '#ff3b3b', density: 0.001, size: 7, friction: 1.0, restitution: 0.9 },
-    steel: { label: 'Steel', color: '#8d8d8d', density: 0.008, size: 10, friction: 0.4, restitution: 0 },
-    glass: { label: 'Glass', color: '#c4faf8', density: 0.0025, size: 5, friction: 0.1, restitution: 0.5 },
-    wood: { label: 'Wood', color: '#deb887', density: 0.003, size: 8, friction: 0.6, restitution: 0 },
+    sand: { label: 'Sand', color: '#f4e04d', density: 0.0025, size: 5, friction: 0.5, restitution: 0.3 },
+    water: { label: 'Water', color: '#3498db', density: 0.001, size: 6, friction: 0.02, restitution: 0.9 },
+    oil: { label: 'Oil', color: '#34495e', density: 0.0008, size: 6, friction: 0.05, restitution: 0.05 },
+    rock: { label: 'Rock', color: '#7f8c8d', density: 0.005, size: 8, friction: 0.8, restitution: 0.2 },
+    lava: { label: 'Lava', color: '#e74c3c', density: 0.004, size: 7, friction: 0.4, restitution: 0.6 },
+    ice: { label: 'Ice', color: '#a8e0ff', density: 0.0008, size: 6, friction: 0.01, restitution: 0.95 },
+    rubber: { label: 'Rubber', color: '#ff3b3b', density: 0.0012, size: 7, friction: 0.9, restitution: 0.8 },
+    steel: { label: 'Steel', color: '#8d8d8d', density: 0.008, size: 10, friction: 0.6, restitution: 0.1 },
+    glass: { label: 'Glass', color: '#c4faf8', density: 0.002, size: 5, friction: 0.4, restitution: 0.7 },
+    wood: { label: 'Wood', color: '#deb887', density: 0.003, size: 8, friction: 0.6, restitution: 0.3 },
 };
+
 
 let currentMaterial = 'sand';
 
