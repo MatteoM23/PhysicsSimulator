@@ -162,6 +162,59 @@ function handleInteractions(engine, world) {
         });
     });
 
+
+    // Interaction rules for different material combinations
+export const interactionRules = {
+    // Interaction rule for oil + lava (simulated explosion)
+    'oil+lava': (bodyA, bodyB, world) => {
+        simulateExplosion(bodyA.position, world, {
+            numberOfParticles: 50,
+            spread: 100,
+            color: '#FFA500',
+            forceScale: 0.005,
+        });
+        Matter.World.remove(world, [bodyA, bodyB]);
+    },
+    // Interaction rule for water + lava (produces obsidian)
+    'water+lava': (bodyA, bodyB, world) => {
+        const centerPosition = {
+            x: (bodyA.position.x + bodyB.position.x) / 2,
+            y: (bodyA.position.y + bodyB.position.y) / 2,
+        };
+        const obsidianOptions = {
+            restitution: 0.1,
+            density: 0.004,
+            friction: 0.6,
+            render: {
+                fillStyle: '#808080',
+            },
+        };
+        const obsidian = createNewBody(centerPosition, 10, obsidianOptions);
+        Matter.World.add(world, obsidian);
+        Matter.World.remove(world, [bodyA, bodyB]);
+    },
+    // Interaction rule for lava + water (produces stone)
+    'lava+water': (bodyA, bodyB, world) => {
+        const centerPosition = {
+            x: (bodyA.position.x + bodyB.position.x) / 2,
+            y: (bodyA.position.y + bodyB.position.y) / 2,
+        };
+        const stoneOptions = {
+            restitution: 0.1,
+            density: 0.004,
+            friction: 0.6,
+            render: {
+                fillStyle: '#333',
+            },
+        };
+        const stone = createNewBody(centerPosition, 10, stoneOptions);
+        Matter.World.add(world, stone);
+        Matter.World.remove(world, [bodyA, bodyB]);
+    },
+    // Add more interaction rules for other material combinations here
+};
+
+
     // Clear handled interactions on collision end
     Matter.Events.on(engine, 'collisionEnd', (event) => {
         event.pairs.forEach((pair) => {
