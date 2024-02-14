@@ -4,21 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>Physics Simulation</title>
+    <title>Physics Particle Simulation</title>
 </head>
 <body>
     <!-- Container for UI elements like material selection and feature buttons -->
     <div id="uiContainer">
-        <div id="materialSelector"></div>
-        <!-- Placeholder for feature buttons, dynamically inserted via JavaScript -->
-        <div id="featureButtons"></div>
+        <!-- Material Selector -->
+        <div id="materialSelector" class="uiElement">
+            <h2>Select Material</h2>
+            <!-- Material buttons will be dynamically inserted here -->
+        </div>
+        
+        <!-- Feature Buttons -->
+        <div id="featureButtons" class="uiElement">
+            <h2>Features</h2>
+            <!-- Feature buttons will be dynamically inserted here -->
+        </div>
     </div>
 
     <!-- Main script entry point -->
     <script type="module" src="index.js"></script>
-
-     <script type="module" src="physics.js"></script> 
-     <script type="module" src="utils.js"></script> 
-     <script type="module" src="interactions.js"></script> 
+    <!-- Additional JavaScript modules -->
+    <script type="module" src="physics.js"></script> 
+    <script type="module" src="utils.js"></script> 
 </body>
 </html>
