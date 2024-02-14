@@ -77,62 +77,6 @@ function clearDynamicBodies(world) {
     });
 }
 
-// Interaction rules for different material combinations
-const interactionRules = {
-    // Interaction rule for oil + lava (simulated explosion)
-    'oil+lava': (bodyA, bodyB, world) => {
-        console.log('Interaction: oil + lava');
-        Matter.World.remove(world, [bodyA, bodyB]);
-    },
-    // Interaction rule for water + lava (produces obsidian)
-    'water+lava': (bodyA, bodyB, world) => {
-        console.log('Interaction: water + lava');
-        Matter.World.remove(world, [bodyA, bodyB]);
-    },
-    // Interaction rule for lava + water (produces stone)
-    'lava+water': (bodyA, bodyB, world) => {
-        console.log('Interaction: lava + water');
-        Matter.World.remove(world, [bodyA, bodyB]);
-    },
-    // Add more interaction rules for other material combinations here
-};
-
-// Function to handle interactions between bodies
-function handleInteractions(engine, world) {
-    const interactionsHandled = new Set(); // Keep track of handled interactions
-
-    Matter.Events.on(engine, 'collisionStart', (event) => {
-        event.pairs.forEach((pair) => {
-            const bodyA = pair.bodyA;
-            const bodyB = pair.bodyB;
-            const materials = [bodyA.label, bodyB.label].sort().join('+');
-
-            // Check if the interaction has already been handled
-            if (!interactionsHandled.has(materials)) {
-                const interactionHandler = interactionRules[materials];
-                if (interactionHandler) {
-                    interactionHandler(bodyA, bodyB, world);
-                    interactionsHandled.add(materials);
-                }
-            }
-        });
-    });
-
-    // Clear handled interactions on collision end
-    Matter.Events.on(engine, 'collisionEnd', (event) => {
-        event.pairs.forEach((pair) => {
-            const bodyA = pair.bodyA;
-            const bodyB = pair.bodyB;
-            const materials = [bodyA.label, bodyB.label].sort().join('+');
-
-            // Remove interaction from handled set if both bodies are still present
-            if (world.bodies.includes(bodyA) && world.bodies.includes(bodyB)) {
-                interactionsHandled.delete(materials);
-            }
-        });
-    });
-}
-
 // Main initialization function
 document.addEventListener('DOMContentLoaded', () => {
     const { engine, render, world } = initPhysics();
@@ -195,4 +139,40 @@ function setupFeatureButtons(engine, world) {
     clearButton.innerText = 'Clear World';
     clearButton.onclick = () => clearDynamicBodies(engine.world);
     buttonsContainer.appendChild(clearButton);
+}
+
+// Function to handle interactions between bodies
+function handleInteractions(engine, world) {
+    const interactionsHandled = new Set(); // Keep track of handled interactions
+
+    Matter.Events.on(engine, 'collisionStart', (event) => {
+        event.pairs.forEach((pair) => {
+            const bodyA = pair.bodyA;
+            const bodyB = pair.bodyB;
+            const materials = [bodyA.label, bodyB.label].sort().join('+');
+
+            // Check if the interaction has already been handled
+            if (!interactionsHandled.has(materials)) {
+                const interactionHandler = interactionRules[materials];
+                if (interactionHandler) {
+                    interactionHandler(bodyA, bodyB, world);
+                    interactionsHandled.add(materials);
+                }
+            }
+        });
+    });
+
+    // Clear handled interactions on collision end
+    Matter.Events.on(engine, 'collisionEnd', (event) => {
+        event.pairs.forEach((pair) => {
+            const bodyA = pair.bodyA;
+            const bodyB = pair.bodyB;
+            const materials = [bodyA.label, bodyB.label].sort().join('+');
+
+            // Remove interaction from handled set if both bodies are still present
+            if (world.bodies.includes(bodyA) && world.bodies.includes(bodyB)) {
+                interactionsHandled.delete(materials);
+            }
+        });
+    });
 }
