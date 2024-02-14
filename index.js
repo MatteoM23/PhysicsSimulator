@@ -30,16 +30,45 @@ function initPhysics() {
     });
 
     // Add floor and walls
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 40, { isStatic: true, render: { fillStyle: '#776e65' } });
-    const leftWall = Matter.Bodies.rectangle(20, window.innerHeight / 2, 40, window.innerHeight, { isStatic: true, render: { fillStyle: '#776e65' } });
-    const rightWall = Matter.Bodies.rectangle(window.innerWidth - 20, window.innerHeight / 2, 40, window.innerHeight, { isStatic: true, render: { fillStyle: '#776e65' } });
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 20, { isStatic: true, render: { fillStyle: '#776e65' } });
+    const leftWall = Matter.Bodies.rectangle(20, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: '#776e65' } });
+    const rightWall = Matter.Bodies.rectangle(window.innerWidth - 20, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: '#776e65' } });
     Matter.World.add(engine.world, [ground, leftWall, rightWall]);
 
-    Matter.Runner.run(engine); // Updated line
+    // Add collision events
+    Matter.Events.on(engine, 'collisionStart', function(event) {
+        const pairs = event.pairs;
+        for (let i = 0; i < pairs.length; i++) {
+            const pair = pairs[i];
+            handleCollision(pair.bodyA, pair.bodyB);
+        }
+    });
 
+    Matter.Runner.run(engine);
     Matter.Render.run(render);
 
     return { engine, render, world: engine.world };
+}
+
+// Handle collision between two bodies
+function handleCollision(bodyA, bodyB) {
+    const materialA = materials[bodyA.material];
+    const materialB = materials[bodyB.material];
+    if (materialA && materialB) {
+        // Implement interaction logic based on the materials
+        const interactionKey = [materialA.label.toLowerCase(), materialB.label.toLowerCase()].sort().join('+');
+        switch (interactionKey) {
+            case 'sand+water':
+                // Example interaction: Sand and water form mud
+                console.log('Mud is formed!');
+                break;
+            case 'oil+lava':
+                // Example interaction: Oil and lava create explosion
+                console.log('Explosion!');
+                break;
+            // Add more interaction cases for other materials
+        }
+    }
 }
 
 // Convert screen coordinates to world coordinates
@@ -48,31 +77,6 @@ function screenToWorld(clientX, clientY, render) {
     const scaleX = render.canvas.width / bounds.width;
     const scaleY = render.canvas.height / bounds.height;
     return { x: (clientX - bounds.left) * scaleX, y: (clientY - bounds.top) * scaleY };
-}
-
-// Create a new body with given material properties and add it to the world
-function createNewBody(position, materialKey, world) {
-    const material = materials[materialKey];
-    const options = {
-        density: material.density,
-        friction: material.friction ?? 0.1,
-        restitution: material.restitution ?? 0.1,
-        render: {
-            fillStyle: material.color,
-        },
-    };
-    const body = Matter.Bodies.circle(position.x, position.y, material.size, options);
-    Matter.World.add(world, body);
-    return body;
-}
-
-// Function to clear non-static bodies
-function clearDynamicBodies(world) {
-    Matter.Composite.allBodies(world).forEach(body => {
-        if (!body.isStatic) {
-            Matter.Composite.remove(world, body);
-        }
-    });
 }
 
 // Main initialization function
@@ -100,6 +104,32 @@ document.addEventListener('DOMContentLoaded', () => {
     setupMaterialSelector(materials);
     setupFeatureButtons(engine, world);
 });
+
+// Create a new body with given material properties and add it to the world
+function createNewBody(position, materialKey, world) {
+    const material = materials[materialKey];
+    const options = {
+        density: material.density,
+        friction: material.friction ?? 0.1,
+        restitution: material.restitution ?? 0.1,
+        render: {
+            fillStyle: material.color,
+        },
+    };
+    const body = Matter.Bodies.circle(position.x, position.y, material.size, options);
+    body.material = materialKey; // Store material key in body for collision handling
+    Matter.World.add(world, body);
+    return body;
+}
+
+// Function to clear non-static bodies
+function clearDynamicBodies(world) {
+    Matter.Composite.allBodies(world).forEach(body => {
+        if (!body.isStatic) {
+            Matter.Composite.remove(world, body);
+        }
+    });
+}
 
 // Setup material selector
 function setupMaterialSelector(materials) {
