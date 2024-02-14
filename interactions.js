@@ -39,15 +39,20 @@ export function handleCollisions(particles) {
         for (let j = i + 1; j < particles.length; j++) {
             const particleB = particles[j];
             if (areParticlesColliding(particleA, particleB)) {
+                console.log(`Collision detected between ${particleA.type} and ${particleB.type}`);
                 const interactionKey = [particleA.type, particleB.type].sort().join('+');
                 const interactionHandler = interactionRules[interactionKey];
                 if (interactionHandler) {
                     interactionHandler(particleA, particleB, particles);
+                    console.log(`Interaction handled between ${particleA.type} and ${particleB.type}`);
+                } else {
+                    console.log(`No interaction handler found between ${particleA.type} and ${particleB.type}`);
                 }
             }
         }
     }
 }
+
 
 // Check if two particles are colliding
 export function areParticlesColliding(particleA, particleB) {
