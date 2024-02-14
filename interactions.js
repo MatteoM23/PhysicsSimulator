@@ -1,4 +1,4 @@
-p// Import Matter.js from a CDN
+// Import Matter.js from a CDN
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
 // Function to create a new body with given properties
