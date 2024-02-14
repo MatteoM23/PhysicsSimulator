@@ -143,27 +143,6 @@ function setupFeatureButtons(engine, world) {
     buttonsContainer.appendChild(clearButton);
 }
 
-// Function to handle interactions between bodies
-function handleInteractions(engine, world) {
-    const interactionsHandled = new Set(); // Keep track of handled interactions
-
-    Matter.Events.on(engine, 'collisionStart', (event) => {
-        event.pairs.forEach((pair) => {
-            const bodyA = pair.bodyA;
-            const bodyB = pair.bodyB;
-            const materials = [bodyA.label, bodyB.label].sort().join('+');
-
-            // Check if the interaction has already been handled
-            if (!interactionsHandled.has(materials)) {
-                const interactionHandler = interactionRules[materials];
-                if (interactionHandler) {
-                    interactionHandler(bodyA, bodyB, world);
-                    interactionsHandled.add(materials);
-                }
-            }
-        });
-    });
-
 
     // Interaction rules for different material combinations
  const interactionRules = {
@@ -215,6 +194,41 @@ function handleInteractions(engine, world) {
     },
     // Add more interaction rules for other material combinations here
 };
+
+function handleInteractions(engine, world) {
+    const interactionsHandled = new Set(); // Keep track of handled interactions
+
+    Matter.Events.on(engine, 'collisionStart', (event) => {
+        event.pairs.forEach((pair) => {
+            const bodyA = pair.bodyA;
+            const bodyB = pair.bodyB;
+            const materials = [bodyA.label, bodyB.label].sort().join('+');
+
+            // Check if the interaction has already been handled
+            if (!interactionsHandled.has(materials)) {
+                const interactionHandler = interactionRules[materials];
+                if (interactionHandler) {
+                    interactionHandler(bodyA, bodyB, world);
+                    interactionsHandled.add(materials);
+                }
+            }
+        });
+    });
+
+    // Clear handled interactions on collision end
+    Matter.Events.on(engine, 'collisionEnd', (event) => {
+        event.pairs.forEach((pair) => {
+            const bodyA = pair.bodyA;
+            const bodyB = pair.bodyB;
+            const materials = [bodyA.label, bodyB.label].sort().join('+');
+
+            // Remove interaction from handled set if both bodies are still present
+            if (world.bodies.includes(bodyA) && world.bodies.includes(bodyB)) {
+                interactionsHandled.delete(materials);
+            }
+        });
+    });
+}
 
 
     // Clear handled interactions on collision end
