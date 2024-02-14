@@ -35,6 +35,9 @@ function initPhysics() {
     const rightWall = Matter.Bodies.rectangle(window.innerWidth - 20, window.innerHeight / 2, 40, window.innerHeight, { isStatic: true, render: { fillStyle: '#776e65' } });
     Matter.World.add(engine.world, [ground, leftWall, rightWall]);
 
+    // Call function to handle interactions between materials
+    handleInteractions(engine, engine.world);
+
     Matter.Engine.run(engine);
     Matter.Render.run(render);
 
@@ -75,7 +78,7 @@ function clearDynamicBodies(world) {
 }
 
 // Interaction rules for different material combinations
-export const interactionRules = {
+const interactionRules = {
     // Interaction rule for oil + lava (simulated explosion)
     'oil+lava': (bodyA, bodyB, world) => {
         console.log('Interaction: oil + lava');
@@ -95,7 +98,7 @@ export const interactionRules = {
 };
 
 // Function to handle interactions between bodies
-export function handleInteractions(engine, world) {
+function handleInteractions(engine, world) {
     const interactionsHandled = new Set(); // Keep track of handled interactions
 
     Matter.Events.on(engine, 'collisionStart', (event) => {
