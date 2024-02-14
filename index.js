@@ -1,4 +1,5 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
+import { interactionRules, handleCollisions } from './interactions.js'; // Assuming interactions.js is in the same directory
 
 // Materials definition with properties
 const materials = {
@@ -57,16 +58,9 @@ function handleCollision(bodyA, bodyB) {
     if (materialA && materialB) {
         // Implement interaction logic based on the materials
         const interactionKey = [materialA.label.toLowerCase(), materialB.label.toLowerCase()].sort().join('+');
-        switch (interactionKey) {
-            case 'sand+water':
-                // Example interaction: Sand and water form mud
-                console.log('Mud is formed!');
-                break;
-            case 'oil+lava':
-                // Example interaction: Oil and lava create explosion
-                console.log('Explosion!');
-                break;
-            // Add more interaction cases for other materials
+        const interactionHandler = interactionRules[interactionKey];
+        if (interactionHandler) {
+            interactionHandler(bodyA, bodyB, engine.world.bodies);
         }
     }
 }
