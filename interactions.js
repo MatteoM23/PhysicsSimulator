@@ -1,5 +1,5 @@
 // Interaction rules
-const interactionRules = {
+export const interactionRules = {
     'oil+lava': (oilParticle, lavaParticle, particles) => {
         // Simulate explosion by creating additional particles
         for (let i = 0; i < 50; i++) {
@@ -53,9 +53,8 @@ const interactionRules = {
     // Add more interaction rules for other material combinations
 };
 
-
 // Handle particle collisions
-function handleCollisions(particles) {
+export function handleCollisions(particles) {
     for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
             const particleA = particles[i];
@@ -72,7 +71,7 @@ function handleCollisions(particles) {
 }
 
 // Check if two particles are colliding
-function areParticlesColliding(particleA, particleB) {
+export function areParticlesColliding(particleA, particleB) {
     // Implement collision detection logic (e.g., based on distance between particles)
     const distance = Math.sqrt(Math.pow(particleB.position.x - particleA.position.x, 2) + Math.pow(particleB.position.y - particleA.position.y, 2));
     return distance < particleA.radius + particleB.radius;
