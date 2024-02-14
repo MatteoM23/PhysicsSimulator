@@ -195,6 +195,7 @@ const interactionRules = {
 };
 
 
+
 function handleInteractions(engine, world) {
     const interactionsHandled = new Set(); // Keep track of handled interactions
 
