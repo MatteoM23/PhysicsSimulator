@@ -3,16 +3,16 @@ import { interactionRules, handleCollisions, areParticlesColliding } from './int
 
 // Materials definition with properties
 const materials = {
-    sand: { label: 'Sand', color: '#f4e04d', density: 0.0025, size: 5, friction: 0.5, restitution: 0.3 },
-    water: { label: 'Water', color: '#3498db', density: 0.001, size: 6, friction: 0.02, restitution: 0.9 },
-    oil: { label: 'Oil', color: '#34495e', density: 0.0008, size: 6, friction: 0.05, restitution: 0.05 },
-    rock: { label: 'Rock', color: '#7f8c8d', density: 0.005, size: 8, friction: 0.8, restitution: 0.2 },
-    lava: { label: 'Lava', color: '#e74c3c', density: 0.004, size: 7, friction: 0.4, restitution: 0.6 },
-    ice: { label: 'Ice', color: '#a8e0ff', density: 0.0008, size: 6, friction: 0.01, restitution: 0.95 },
-    rubber: { label: 'Rubber', color: '#ff3b3b', density: 0.0012, size: 7, friction: 0.9, restitution: 0.8 },
-    steel: { label: 'Steel', color: '#8d8d8d', density: 0.008, size: 10, friction: 0.6, restitution: 0.1 },
-    glass: { label: 'Glass', color: '#c4faf8', density: 0.002, size: 5, friction: 0.4, restitution: 0.7 },
-    wood: { label: 'Wood', color: '#deb887', density: 0.003, size: 8, friction: 0.6, restitution: 0.3 },
+    sand: { label: 'Sand', color: '#f4e04d', density: 0.0025, size: 20, friction: 0.5, restitution: 0.3 },
+    water: { label: 'Water', color: '#3498db', density: 0.001, size: 30, friction: 0.02, restitution: 0.9 },
+    oil: { label: 'Oil', color: '#34495e', density: 0.0008, size: 30, friction: 0.05, restitution: 0.05 },
+    rock: { label: 'Rock', color: '#7f8c8d', density: 0.005, size: 40, friction: 0.8, restitution: 0.2 },
+    lava: { label: 'Lava', color: '#e74c3c', density: 0.004, size: 35, friction: 0.4, restitution: 0.6 },
+    ice: { label: 'Ice', color: '#a8e0ff', density: 0.0008, size: 30, friction: 0.01, restitution: 0.95 },
+    rubber: { label: 'Rubber', color: '#ff3b3b', density: 0.0012, size: 35, friction: 0.9, restitution: 0.8 },
+    steel: { label: 'Steel', color: '#8d8d8d', density: 0.008, size: 50, friction: 0.6, restitution: 0.1 },
+    glass: { label: 'Glass', color: '#c4faf8', density: 0.002, size: 20, friction: 0.4, restitution: 0.7 },
+    wood: { label: 'Wood', color: '#deb887', density: 0.003, size: 40, friction: 0.6, restitution: 0.3 },
 };
 
 let currentMaterial = 'sand';
@@ -27,13 +27,14 @@ function initPhysics() {
             width: window.innerWidth,
             height: window.innerHeight,
             wireframes: false,
+            background: 'transparent' // Set background to transparent to remove the gap
         },
     });
 
     // Add floor and walls
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 20, { isStatic: true, render: { fillStyle: '#776e65' } });
-    const leftWall = Matter.Bodies.rectangle(20, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: '#776e65' } });
-    const rightWall = Matter.Bodies.rectangle(window.innerWidth - 20, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: '#776e65' } });
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 40, { isStatic: true, render: { fillStyle: '#776e65' } });
+    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 40, window.innerHeight, { isStatic: true, render: { fillStyle: '#776e65' } });
+    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 40, window.innerHeight, { isStatic: true, render: { fillStyle: '#776e65' } });
     Matter.World.add(engine.world, [ground, leftWall, rightWall]);
 
     // Add collision events
@@ -41,7 +42,7 @@ function initPhysics() {
         const pairs = event.pairs;
         for (let i = 0; i < pairs.length; i++) {
             const pair = pairs[i];
-            handleCollision(pair.bodyA, pair.bodyB);
+            handleCollisions(pair.bodyA, pair.bodyB); // Fixed function name here
         }
     });
 
@@ -49,27 +50,6 @@ function initPhysics() {
     Matter.Render.run(render);
 
     return { engine, render, world: engine.world };
-}
-
-// Handle collision between two bodies
-function handleCollision(bodyA, bodyB) {
-    const materialA = materials[bodyA.material];
-    const materialB = materials[bodyB.material];
-    if (materialA && materialB) {
-        // Implement interaction logic based on the materials
-        const interactionKey = [materialA.label.toLowerCase(), materialB.label.toLowerCase()].sort().join('+');
-        switch (interactionKey) {
-            case 'sand+water':
-                // Example interaction: Sand and water form mud
-                console.log('Mud is formed!');
-                break;
-            case 'oil+lava':
-                // Example interaction: Oil and lava create explosion
-                console.log('Explosion!');
-                break;
-            // Add more interaction cases for other materials
-        }
-    }
 }
 
 // Convert screen coordinates to world coordinates
