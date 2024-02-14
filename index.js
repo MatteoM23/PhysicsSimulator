@@ -38,11 +38,13 @@ function initPhysics() {
     // Call function to handle interactions between materials
     handleInteractions(engine, engine.world);
 
-    Matter.Engine.run(engine);
+    Matter.Runner.run(engine); // Updated line
+
     Matter.Render.run(render);
 
     return { engine, render, world: engine.world };
 }
+
 
 // Convert screen coordinates to world coordinates
 function screenToWorld(clientX, clientY, render) {
