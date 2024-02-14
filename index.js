@@ -164,7 +164,7 @@ function handleInteractions(engine, world) {
 
 
     // Interaction rules for different material combinations
-export const interactionRules = {
+ const interactionRules = {
     // Interaction rule for oil + lava (simulated explosion)
     'oil+lava': (bodyA, bodyB, world) => {
         simulateExplosion(bodyA.position, world, {
