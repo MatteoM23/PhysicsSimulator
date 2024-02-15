@@ -93,8 +93,22 @@ body, html {
     border-width: var(--arrow-size) var(--arrow-size) 0 var(--arrow-size);
 }
 
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: var(--dropdown-bg-color);
+    min-width: 160px;
+    box-shadow: var(--dropdown-shadow);
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    z-index: 1;
+}
+
 .show {
     display: block;
+    opacity: 1;
+    transform: translateY(0);
 }
 
 /* Additional styles for feature buttons if needed */
