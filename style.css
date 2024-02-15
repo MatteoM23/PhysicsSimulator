@@ -32,12 +32,13 @@ body, html {
     border-radius: 10px; /* Softened edges for a modern, app-like appearance */
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8); /* Deeper shadow for standout contrast */
     display: flex;
-    flex-direction: column; /* Align items vertically */
+    flex-direction: row; /* Align items horizontally */
     gap: 8px; /* Increased gap for better visual separation */
     z-index: 1050;
     opacity: 0.98; /* Slightly higher opacity for better readability */
     transition: all var(--transition-speed) ease; /* Unified transition for smooth effects */
 }
+
 
 .feature-buttons {
     position: fixed;
