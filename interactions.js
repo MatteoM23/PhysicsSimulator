@@ -1,30 +1,5 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
-document.addEventListener('DOMContentLoaded', function() {
-    const materials = {
-        sand: { label: 'Sand', color: '#f4e04d' },
-        water: { label: 'Water', color: '#3498db' },
-        oil: { label: 'Oil', color: '#34495e' },
-        rock: { label: 'Rock', color: '#7f8c8d' },
-        lava: { label: 'Lava', color: '#e74c3c' },
-        ice: { label: 'Ice', color: '#a8e0ff' },
-        rubber: { label: 'Rubber', color: '#ff3b3b' },
-        steel: { label: 'Steel', color: '#8d8d8d' },
-        glass: { label: 'Glass', color: '#c4faf8' },
-        wood: { label: 'Wood', color: '#deb887' },
-        antimatter: { label: 'Antimatter', color: '#ff4081' },
-        darkMatter: { label: 'Dark Matter', color: '#6200ea' },
-        neutronium: { label: 'Neutronium', color: '#5c5c8a' },
-        quantumFoam: { label: 'Quantum Foam', color: '#ffec8b' },
-        exoticMatter: { label: 'Exotic Matter', color: '#fa8072' },
-        plasmaCrystal: { label: 'Plasma Crystal', color: '#00ced1' },
-        voidEssence: { label: 'Void Essence', color: '#000080' },
-        ether: { label: 'Ether', color: '#b19cd9' },
-        solarFlare: { label: 'Solar Flare', color: '#ffae42' },
-        cosmicDust: { label: 'Cosmic Dust', color: '#6c7b8b' },
-        magneticField: { label: 'Magnetic Field', color: '#1e90ff' },
-        photonGel: { label: 'Photon Gel', color: '#ffa07a' }
-    };
     const selector = document.getElementById('material-Selector'); // Ensure this ID matches your HTML
 
     if (!selector) {
