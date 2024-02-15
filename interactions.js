@@ -1,63 +1,76 @@
-// Interaction rules
-export const interactionRules = {
-    'water+lava': (waterParticle, lavaParticle, particles) => {
-        // Steam effect: convert water into steam
-        waterParticle.type = 'steam';
-        waterParticle.color = '#CCCCCC';
-        // Apply upward force to simulate steam
-        waterParticle.velocity.y -= 5;
-        // Remove lava particle
-        particles.splice(particles.indexOf(lavaParticle), 1);
-    },
-    'ice+lava': (iceParticle, lavaParticle, particles) => {
-        // Cooling effect: convert lava into rock
-        lavaParticle.type = 'rock';
-        lavaParticle.color = '#7f8c8d'; // Change color to gray for rock
-        // Remove ice particle
-        particles.splice(particles.indexOf(iceParticle), 1);
-    },
-    'oil+lava': (oilParticle, lavaParticle, particles) => {
-        // Simulate explosion by creating additional particles
-        for (let i = 0; i < 50; i++) {
-            const explosionParticle = new Particle(oilParticle.position.x, oilParticle.position.y, 'explosion');
-            // Apply random force to simulate explosion effect
-            explosionParticle.velocity.x = Math.random() * 10 - 5;
-            explosionParticle.velocity.y = Math.random() * 10 - 5;
-            particles.push(explosionParticle);
-        }
-        // Remove oil and lava particles
-        particles.splice(particles.indexOf(oilParticle), 1);
-        particles.splice(particles.indexOf(lavaParticle), 1);
-    },
+import Matter from 'https://cdn.skypack.dev/matter-js';
+
+// Revised interaction rules with Matter.js integration
+export const interactionRules = (bodyA, bodyB, engine) => {
+    const typeA = bodyA.material;
+    const typeB = bodyB.material;
+    const interactionKey = [typeA, typeB].sort().join('+');
+
+    switch (interactionKey) {
+        case 'water+lava':
+            // Steam effect: convert water into steam
+            if (typeA === 'water') {
+                bodyA.render.fillStyle = '#CCCCCC'; // Change color to simulate steam
+                Matter.Body.applyForce(bodyA, bodyA.position, { x: 0, y: -0.05 }); // Simulate upward force
+            } else {
+                bodyB.render.fillStyle = '#CCCCCC';
+                Matter.Body.applyForce(bodyB, bodyB.position, { x: 0, y: -0.05 });
+            }
+            break;
+        case 'ice+lava':
+            // Cooling effect: convert lava into rock
+            if (typeA === 'lava') {
+                bodyA.render.fillStyle = '#7f8c8d'; // Change color to gray for rock
+            } else {
+                bodyB.render.fillStyle = '#7f8c8d';
+            }
+            break;
+        case 'oil+lava':
+            simulateExplosion(bodyA, bodyB, engine.world);
+            break;
+    }
 };
 
-// Handle particle collisions
-export function handleCollisions(particles) {
-    // Using a more efficient collision detection algorithm
-    for (let i = 0; i < particles.length; i++) {
-        const particleA = particles[i];
-        for (let j = i + 1; j < particles.length; j++) {
-            const particleB = particles[j];
-            if (areParticlesColliding(particleA, particleB)) {
-                console.log(`Collision detected between ${particleA.type} and ${particleB.type}`);
-                const interactionKey = [particleA.type, particleB.type].sort().join('+');
-                const interactionHandler = interactionRules[interactionKey];
-                if (interactionHandler) {
-                    interactionHandler(particleA, particleB, particles);
-                    console.log(`Interaction handled between ${particleA.type} and ${particleB.type}`);
-                } else {
-                    console.log(`No interaction handler found between ${particleA.type} and ${particleB.type}`);
-                }
-            }
+function simulateExplosion(bodyA, bodyB, world) {
+    const explosionCenter = {
+        x: (bodyA.position.x + bodyB.position.x) / 2,
+        y: (bodyA.position.y + bodyB.position.y) / 2,
+    };
+    const explosionRadius = 100; // Define the radius of the explosion effect
+    const explosionForce = 0.05; // Define the strength of the explosion
+
+    Matter.Composite.allBodies(world).forEach(body => {
+        if (body.isStatic) return; // Ignore static bodies
+
+        const dx = body.position.x - explosionCenter.x;
+        const dy = body.position.y - explosionCenter.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < explosionRadius) {
+            const forceMagnitude = explosionForce * (1 - distance / explosionRadius);
+            const forceDirection = { x: dx / distance, y: dy / distance };
+            Matter.Body.applyForce(body, body.position, {
+                x: forceDirection.x * forceMagnitude,
+                y: forceDirection.y * forceMagnitude,
+            });
         }
+    });
+
+    // Optionally remove the interacting bodies to simulate consumption in the explosion
+    Matter.World.remove(world, [bodyA, bodyB]);
+}
+
+// Example of integrating interactionRules within the Matter.js collision event handling
+export function handleCollisions(event, engine) {
+    const pairs = event.pairs;
+    
+    for (let i = 0; i < pairs.length; i++) {
+        const pair = pairs[i];
+        const bodyA = pair.bodyA;
+        const bodyB = pair.bodyB;
+        
+        interactionRules(bodyA, bodyB, engine);
     }
 }
 
-
-// Check if two particles are colliding
-export function areParticlesColliding(particleA, particleB) {
-    // Implement optimized collision detection logic (e.g., based on distance between particles)
-    const distance = Math.sqrt(Math.pow(particleB.position.x - particleA.position.x, 2) + Math.pow(particleB.position.y - particleA.position.y, 2));
-    // Consider particles to be colliding if their distance is less than or equal to the sum of their radii
-    return distance <= (particleA.size / 2 + particleB.size / 2);
-}
+// The areParticlesColliding function is not needed when using Matter.js collision events
