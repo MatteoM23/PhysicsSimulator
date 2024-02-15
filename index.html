@@ -13,6 +13,30 @@
             <div id="materialGrid" class="material-grid">
                 <!-- Materials buttons will be dynamically inserted here -->
             </div>
+            <div class="dropdown-content">
+                <a href="#">Sand</a>
+                <a href="#">Water</a>
+                <a href="#">Oil</a>
+                <a href="#">Rock</a>
+                <a href="#">Lava</a>
+                <a href="#">Ice</a>
+                <a href="#">Rubber</a>
+                <a href="#">Steel</a>
+                <a href="#">Glass</a>
+                <a href="#">Wood</a>
+                <a href="#">Antimatter</a>
+                <a href="#">Dark Matter</a>
+                <a href="#">Neutronium</a>
+                <a href="#">Quantum Foam</a>
+                <a href="#">Exotic Matter</a>
+                <a href="#">Plasma Crystal</a>
+                <a href="#">Void Essence</a>
+                <a href="#">Ether</a>
+                <a href="#">Solar Flare</a>
+                <a href="#">Cosmic Dust</a>
+                <a href="#">Magnetic Field</a>
+                <a href="#">Photon Gel</a>
+            </div>
         </div>
         
         <div id="featureButtons" class="uiElement">
@@ -23,27 +47,5 @@
     <script type="module" src="index.js"></script>
     <script type="module" src="interactions.js"></script>
     <script type="module" src="utils.js"></script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const materials = ["Sand", "Water", "Oil", "Rock", "Lava", "Ice", "Rubber", "Steel", "Glass", "Wood", "Antimatter", "Dark Matter", "Neutronium", "Quantum Foam", "Exotic Matter", "Plasma Crystal", "Void Essence", "Ether", "Solar Flare", "Cosmic Dust", "Magnetic Field", "Photon Gel"];
-            const grid = document.getElementById('materialGrid');
-
-            materials.forEach(material => {
-                const button = document.createElement('button');
-                button.textContent = material;
-                button.className = 'material-button';
-                grid.appendChild(button);
-            });
-
-            const toggleButton = document.getElementById('toggleMaterials');
-            toggleButton.addEventListener('click', function() {
-                grid.classList.toggle('expanded');
-                this.querySelector('i.arrow').classList.toggle('up', grid.classList.contains('expanded'));
-                this.querySelector('i.arrow').classList.toggle('down', !grid.classList.contains('expanded'));
-                this.textContent = grid.classList.contains('expanded') ? "Less Materials" : "More Materials";
-            });
-        });
-    </script>
 </body>
 </html>
