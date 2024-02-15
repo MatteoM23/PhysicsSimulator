@@ -42,18 +42,52 @@ document.addEventListener('DOMContentLoaded', function() {
     const toggleButton = document.getElementById('toggleMaterials');
     const dropdown = document.getElementById('materialDropdown');
 
+    // Populate the dropdown and setup event listeners
+    populateDropdown();
+
     toggleButton.addEventListener('click', function(event) {
-        event.stopPropagation(); // Prevent event from bubbling up
+        event.stopPropagation();
         dropdown.classList.toggle('show');
+        this.classList.toggle('show'); // Toggle arrow direction
     });
 
-    // Close the dropdown if the user clicks outside of it
+    // Close the dropdown if clicking outside of it
     window.addEventListener('click', function() {
         if (dropdown.classList.contains('show')) {
             dropdown.classList.remove('show');
+            toggleButton.classList.remove('show'); // Ensure arrow direction is reset
         }
     });
+
+    // Prevent the dropdown from closing when clicking inside it
+    dropdown.addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
 });
+
+// Assuming this function is within interactions.js or appropriately imported
+function selectMaterial(material) {
+    console.log(`${material} selected`);
+    // Update Matter.js properties or application state here
+    // For example, set the current material to the selected one
+    currentMaterial = material; // Make sure this variable is properly initialized and used in your application
+}
+
+function populateDropdown() {
+    const materials = ["Sand", "Water", "Oil", "Rock", "Lava", "Ice", "Rubber", "Steel", "Glass", "Wood", "Antimatter", "Dark Matter", "Neutronium", "Quantum Foam", "Exotic Matter", "Plasma Crystal", "Void Essence", "Ether", "Solar Flare", "Cosmic Dust", "Magnetic Field", "Photon Gel"];
+    const dropdown = document.getElementById('materialDropdown');
+    materials.forEach(material => {
+        const link = document.createElement('a');
+        link.textContent = material;
+        link.href = '#';
+        link.addEventListener('click', function() {
+            selectMaterial(material); // Call the material selection function
+            dropdown.classList.remove('show'); // Close the dropdown after selection
+            document.getElementById('toggleMaterials').classList.remove('show'); // Reset arrow direction
+        });
+        dropdown.appendChild(link);
+    });
+}
 
 
 function initPhysics() {
