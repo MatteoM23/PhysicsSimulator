@@ -1,38 +1,8 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
 import { interactionRules, handleCollisions } from './interactions.js';
 
-// Define global variables for the engine and renderer
-let engine, render;
-
-function initPhysicsEngine() {
-    // Create engine
-    engine = Matter.Engine.create();
-
-    // Create renderer
-    render = Matter.Render.create({
-        element: document.body,
-        engine: engine,
-        options: {
-            width: window.innerWidth,
-            height: window.innerHeight,
-            wireframeBackground: '#0f0f13',
-            wireframes: false,
-            background: 'linear-gradient(135deg, #333333, #1b2838)',
-        },
-    });
-
-    // Add ground and walls
-    addStaticBodies();
-
-    // Run engine and renderer
-    Matter.Runner.run(engine);
-    Matter.Render.run(render);
-
-    // Handle window resizing
-    window.addEventListener('resize', handleResize);
-}
-
 const materials = {
+    // Existing materials
     sand: { label: 'Sand', color: '#f4e04d', density: 0.0025, size: 22.5, friction: 0.5, restitution: 0.3 },
     water: { label: 'Water', color: '#3498db', density: 0.001, size: 27, friction: 0.02, restitution: 0.9 },
     oil: { label: 'Oil', color: '#34495e', density: 0.0008, size: 27, friction: 0.05, restitution: 0.05 },
@@ -54,135 +24,130 @@ const materials = {
     solarFlare: { label: 'Solar Flare', color: '#ffae42', density: 0.001, size: 35, friction: 0.1, restitution: 0.8 },
     cosmicDust: { label: 'Cosmic Dust', color: '#6c7b8b', density: 0.002, size: 20, friction: 0.7, restitution: 0.3 },
     magneticField: { label: 'Magnetic Field', color: '#1e90ff', density: 0.0001, size: 40, friction: 0.0, restitution: 1.05 },
-    photonGel: { label: 'Photon Gel', color: '#ffa07a', density: 0.0008, size: 25, friction: 0.05, restitution: 0.9 }
+    photonGel: { label: 'Photon Gel', color: '#ffa07a', density: 0.0008, size: 25, friction: 0.05, restitution: 0.9 },
 };
 
-let currentMaterial = 'sand'; // Default material
+
+let currentMaterial = 'sand';
+
+
+
+
+function initPhysics() {
+    const engine = Matter.Engine.create();
+    const render = Matter.Render.create({
+        element: document.body,
+        engine: engine,
+        options: {
+            width: window.innerWidth,
+            height: window.innerHeight,
+            wireframes: false,
+            background: 'linear-gradient(135deg, #333333, #1b2838)'
+        },
+    });
+
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - 20, window.innerWidth, 20, { isStatic: true, render: { fillStyle: 'transparent' } });
+    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: 'transparent' } });
+    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: 'transparent' } });
+    Matter.World.add(engine.world, [ground, leftWall, rightWall]);
+
+    Matter.Events.on(engine, 'collisionStart', function(event) {
+        handleCollisions(event, engine);
+    });
+
+    Matter.Runner.run(engine);
+    Matter.Render.run(render);
+
+    return { engine, render, world: engine.world };
+}
+
+function screenToWorld(clientX, clientY, render) {
+    const bounds = render.canvas.getBoundingClientRect();
+    const scaleX = render.canvas.width / bounds.width;
+    const scaleY = render.canvas.height / bounds.height;
+    return { x: (clientX - bounds.left) * scaleX, y: (clientY - bounds.top) * scaleY };
+}
 
 document.addEventListener('DOMContentLoaded', () => {
-    initPhysicsEngine();
-    setupMaterialDropdown();
-    setupFeatureButtons();
+    const { engine, render, world } = initPhysics();
+
+    let isMouseDown = false;
+    document.body.addEventListener('mousedown', event => {
+        isMouseDown = true;
+        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+        createNewBody({ x, y }, currentMaterial, world);
+    });
+
+    document.body.addEventListener('mouseup', () => {
+        isMouseDown = false;
+    });
+
+    document.body.addEventListener('mousemove', event => {
+        if (isMouseDown) {
+            const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+            createNewBody({ x, y }, currentMaterial, world);
+        }
+    });
+
+    setupMaterialSelector(materials);
+    setupFeatureButtons(engine, world);
 });
 
-function setupMaterialDropdown() {
-    const dropdown = document.getElementById('materialDropdown');
-    const toggleButton = document.getElementById('toggleMaterials');
-
-    toggleButton.addEventListener('click', () => {
-        dropdown.classList.toggle('show');
-    });
-
-    Object.entries(materials).forEach(([key, material]) => {
-        const option = document.createElement('a');
-        option.textContent = material.label;
-        option.href = '#';
-        option.addEventListener('click', (event) => {
-            event.preventDefault();
-            currentMaterial = key;
-            console.log(`${materials[currentMaterial].label} selected`);
-            dropdown.classList.remove('show'); // Optionally close the dropdown
-        });
-        dropdown.appendChild(option);
-    });
-}
-
-function addStaticBodies() {
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - 10, window.innerWidth, 20, { isStatic: true, render: { fillStyle: '#868e96' }});
-    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true });
-    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true });
-    Matter.World.add(engine.world, [ground, leftWall, rightWall]);
-}
-
-function handleResize() {
-    Matter.Render.lookAt(render, {
-        min: { x: 0, y: 0 },
-        max: { x: window.innerWidth, y: window.innerHeight }
-    });
-}
-
-function setupFeatureButtons() {
-    const featuresDiv = document.getElementById('featureButtons');
-    const buttons = [
-        { id: 'invertGravity', title: 'Invert Gravity', action: invertGravity },
-        { id: 'clearWorld', title: 'Clear World', action: () => clearWorld(false) }, // false to keep static bodies
-        { id: 'createBlackHole', title: 'Create Black Hole', action: createBlackHole },
-        // Define other buttons here
-    ];
-
-    buttons.forEach(({ id, title, action }) => {
-        let button = document.createElement('button');
-        button.id = id;
-        button.innerText = title;
-        button.addEventListener('click', action);
-        featuresDiv.appendChild(button);
-    });
-}
-
-function invertGravity() {
-    engine.world.gravity.y = -engine.world.gravity.y;
-}
-
-function clearWorld(keepStatic) {
-    Matter.Composite.allBodies(engine.world).forEach(body => {
-        if (!body.isStatic || !keepStatic) {
-            Matter.World.remove(engine.world, body);
-        }
-    });
-}
-
-function createBlackHole() {
-    const blackHole = Matter.Bodies.circle(window.innerWidth / 2, window.innerHeight / 2, 50, {
-        isStatic: true,
+function createNewBody(position, materialKey, world) {
+    const material = materials[materialKey];
+    const options = {
+        density: material.density,
+        friction: material.friction ?? 0.1,
+        restitution: material.restitution ?? 0.1,
         render: {
-            sprite: {
-                texture: 'path/to/blackhole.png',
-                xScale: 1,
-                yScale: 1
-            }
+            fillStyle: material.color,
+        },
+    };
+    const body = Matter.Bodies.circle(position.x, position.y, material.size / 2, options);
+    body.material = materialKey;
+    Matter.World.add(world, body);
+}
+
+function clearDynamicBodies(world) {
+    Matter.Composite.allBodies(world).forEach(body => {
+        if (!body.isStatic) {
+            Matter.Composite.remove(world, body);
         }
     });
-    Matter.World.add(engine.world, blackHole);
+}
 
-    // Add gravitational attraction
-    Matter.Events.on(engine, 'beforeUpdate', function() {
-        attractBodiesToBlackHole(blackHole);
+function setupMaterialSelector(materials) {
+    const selector = document.createElement('div');
+    selector.className = 'material-selector';
+    document.body.appendChild(selector);
+
+    Object.entries(materials).forEach(([key, { label, color }]) => {
+        const button = document.createElement('button');
+        button.innerText = label;
+        button.style.backgroundColor = color;
+        button.onclick = () => {
+            currentMaterial = key;
+            document.querySelectorAll('.material-selector button').forEach(btn => btn.classList.remove('selected'));
+            button.classList.add('selected');
+        };
+        selector.appendChild(button);
     });
 }
 
-function attractBodiesToBlackHole(blackHole) {
-    const forceMagnitude = 1e-4; // Adjust based on desired strength
-    Matter.Composite.allBodies(engine.world).forEach(body => {
-        if (body === blackHole || body.isStatic) return;
-        const dx = blackHole.position.x - body.position.x;
-        const dy = blackHole.position.y - body.position.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const force = { x: (dx / distance) * forceMagnitude, y: (dy / distance) * forceMagnitude };
-        Matter.Body.applyForce(body, body.position, force);
-    });
-}
+function setupFeatureButtons(engine, world) {
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.className = 'feature-buttons';
+    document.body.appendChild(buttonsContainer);
 
-document.addEventListener('mousedown', handleMouseDown);
-document.addEventListener('mouseup', handleMouseUp);
+    const gravityButton = document.createElement('button');
+    gravityButton.innerText = 'Invert Gravity';
+    gravityButton.onclick = () => {
+        engine.world.gravity.y = -engine.world.gravity.y;
+    };
+    buttonsContainer.appendChild(gravityButton);
 
-function handleMouseDown(event) {
-    createParticle(event.clientX, event.clientY);
-    document.addEventListener('mousemove', handleMouseMove);
-}
-
-function handleMouseMove(event) {
-    createParticle(event.clientX, event.clientY);
-}
-
-function handleMouseUp() {
-    document.removeEventListener('mousemove', handleMouseMove);
-}
-
-function createParticle(x, y) {
-    const material = materials[currentMaterial];
-    const particle = Matter.Bodies.circle(x, y, material.size, {
-        render: { fillStyle: material.color },
-        ...material
-    });
-    Matter.World.add(engine.world, particle);
+    const clearButton = document.createElement('button');
+    clearButton.innerText = 'Clear World';
+    clearButton.onclick = () => clearDynamicBodies(engine.world);
+    buttonsContainer.appendChild(clearButton);
 }
