@@ -59,6 +59,7 @@ function initPhysics() {
     return { engine, render, world: engine.world };
 }
 
+
 function screenToWorld(clientX, clientY, render) {
     const bounds = render.canvas.getBoundingClientRect();
     const scaleX = render.canvas.width / bounds.width;
