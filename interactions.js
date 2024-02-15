@@ -65,21 +65,25 @@ function convertLavaToRockRemoveIce(bodyA, bodyB, engine) {
 }
 
 function simulateExplosion(bodyA, bodyB, world, radius, force) {
-    // Apply a force outward from the midpoint between bodyA and bodyB to simulate an explosion
     const explosionPoint = { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 };
     Matter.Composite.allBodies(world).forEach(body => {
-        const dx = body.position.x - explosionPoint.x;
-        const dy = body.position.y - explosionPoint.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < radius) {
-            const forceMagnitude = force * (1 - distance / radius);
-            Matter.Body.applyForce(body, body.position, {
-                x: dx * forceMagnitude,
-                y: dy * forceMagnitude,
-            });
+        if (!body.isStatic) {
+            const dx = body.position.x - explosionPoint.x;
+            const dy = body.position.y - explosionPoint.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance < radius) {
+                const forceMagnitude = (force * (1 - distance / radius)) / distance; // Adjust for more realistic fall-off
+                Matter.Body.applyForce(body, body.position, {
+                    x: dx * forceMagnitude,
+                    y: dy * forceMagnitude,
+                });
+            }
         }
     });
 }
+
+
+
 
 function createMud(bodyA, bodyB, engine) {
     // Determine the collision point. For simplicity, we'll just use the midpoint between the two bodies.
@@ -128,7 +132,7 @@ function shatterGlass(bodyA, bodyB, engine) {
     Matter.World.remove(engine.world, glassBody);
 
     // Calculate points for particles around the glass body's position
-    const numberOfParticles = 10; // Adjust based on the desired effect
+    const numberOfParticles = 3; // Adjust based on the desired effect
     for (let i = 0; i < numberOfParticles; i++) {
         const angle = (2 * Math.PI) / numberOfParticles * i;
         const radius = 5; // Small radius for glass particles
@@ -156,14 +160,13 @@ function shatterGlass(bodyA, bodyB, engine) {
 
 
 function gravitationalPull(bodyA, bodyB, engine) {
-    // Apply a force towards the dark matter body from all other bodies
     const darkMatterBody = bodyA.material === 'darkMatter' ? bodyA : bodyB;
     Matter.Composite.allBodies(engine.world).forEach(body => {
-        if (body !== darkMatterBody) {
+        if (body !== darkMatterBody && !body.isStatic) {
             const dx = darkMatterBody.position.x - body.position.x;
             const dy = darkMatterBody.position.y - body.position.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
-            const forceMagnitude = 0.0001 * (1 / distance);
+            const forceMagnitude = 0.0005 / (distance * distance); // Adjust gravitational constant as needed
             Matter.Body.applyForce(body, body.position, {
                 x: dx * forceMagnitude,
                 y: dy * forceMagnitude,
@@ -171,6 +174,7 @@ function gravitationalPull(bodyA, bodyB, engine) {
         }
     });
 }
+
 
 function igniteWood(bodyA, bodyB, engine) {
     // Identify the wood body
@@ -230,12 +234,51 @@ function igniteWood(bodyA, bodyB, engine) {
 }
 
 
+function handleAntimatterInteractions(pair, engine) {
+    const { bodyA, bodyB } = pair;
+    let antimatterBody, otherBody;
+
+    if (bodyA.material === 'antimatter') {
+        antimatterBody = bodyA;
+        otherBody = bodyB;
+    } else if (bodyB.material === 'antimatter') {
+        antimatterBody = bodyB;
+        otherBody = bodyA;
+    } else {
+        return; // No antimatter involved
+    }
+
+    // Check for dark matter interaction
+    if (otherBody.material === 'darkMatter') {
+        simulateDarkMatterAntimatterInteraction(antimatterBody, otherBody, engine.world);
+    } else if (!otherBody.isStatic) {
+        // Destroy the other body, excluding walls and floors
+        Matter.World.remove(engine.world, otherBody);
+    }
+}
+
+function simulateDarkMatterAntimatterInteraction(antimatterBody, darkMatterBody, world) {
+    // Example: Trigger a unique effect, like a significant explosion or a unique visual effect
+    simulateExplosion(antimatterBody, darkMatterBody, world, 300, 0.5); // Larger radius and force for dramatic effect
+
+    // Optionally, remove both antimatter and dark matter bodies
+    Matter.World.remove(world, antimatterBody);
+    Matter.World.remove(world, darkMatterBody);
+}
+
+
+
 export function handleCollisions(event, engine) {
     const pairs = event.pairs;
 
     pairs.forEach(pair => {
         const bodyA = pair.bodyA;
         const bodyB = pair.bodyB;
+
+        // Handle general material interactions
         interactionRules(bodyA, bodyB, engine);
+
+        // Additional handling for antimatter interactions, including special cases with dark matter
+        handleAntimatterInteractions(pair, engine);
     });
 }
