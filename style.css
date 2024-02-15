@@ -2,10 +2,13 @@
     --button-bg-color: #34495e;
     --button-hover-bg-color: #4a6572;
     --button-active-bg-color: #1c2833;
+    --dropdown-bg-color: #2c3e50;
     --container-bg-color: rgba(34, 40, 49, 0.95);
     --text-color: #f5f6fa;
     --font-family: 'Helvetica Neue', Arial, sans-serif;
     --transition-speed: 0.4s; /* Smoother transition for a fluid experience */
+    --dropdown-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    --arrow-size: 8px;
 }
 
 body, html {
@@ -23,73 +26,82 @@ body, html {
     user-select: none; /* Enhanced user experience by preventing text selection */
 }
 
-#material-Selector {
+#materialDropdownContainer {
     position: fixed;
     top: 20px;
-    left: 20px; /* Increased spacing from the edge for balanced positioning */
-    padding: 10px; /* Adjusted padding for a more compact appearance */
+    left: 20px;
     background-color: var(--container-bg-color);
-    border-radius: 10px; /* Slightly softened edges */
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2); /* Lighter shadow for subtlety */
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: var(--dropdown-shadow);
     z-index: 1050;
-    opacity: 0.98; /* Slightly higher opacity for better readability */
-    transition: all var(--transition-speed) ease; /* Unified transition for smooth effects */
+    transition: opacity var(--transition-speed) ease;
+    opacity: 0.98;
 }
 
-#material-Selector:hover {
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover for depth */
-}
-
-#material-Selector button {
+#toggleMaterials {
     background-color: var(--button-bg-color);
     color: var(--text-color);
-    border: none;
-    padding: 8px 16px; /* Smaller padding for a more compact button */
-    font-size: 14px; /* Slightly smaller font size */
+    padding: 8px 16px;
+    font-size: 16px;
     cursor: pointer;
-    border-radius: 6px; /* Rounded edges */
-    transition: all var(--transition-speed) ease; /* Unified transition for cohesive interaction */
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5); /* Refined shadow for subtle depth */
-    display: block; /* Ensure buttons stack vertically */
-    margin-bottom: 10px; /* Space between buttons */
+    border: none;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%; /* Ensures the button fills its container */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+    transition: background-color var(--transition-speed);
 }
 
-#material-Selector button:hover {
+#toggleMaterials:hover {
     background-color: var(--button-hover-bg-color);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover for depth */
 }
 
-#material-Selector button:active {
-    background-color: var(--button-active-bg-color);
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4); /* Softened shadow for a pressed look */
+#materialDropdown {
+    display: none;
+    background-color: var(--dropdown-bg-color);
+    border-radius: 8px;
+    margin-top: 8px;
+    box-shadow: var(--dropdown-shadow);
+    overflow: hidden; /* Ensures a clean border radius cut */
 }
 
+#materialDropdown a {
+    color: var(--text-color);
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+    transition: background-color var(--transition-speed);
+}
+
+#materialDropdown a:hover {
+    background-color: var(--button-hover-bg-color);
+}
+
+.toggle .arrow {
+    border: solid var(--text-color);
+    border-width: 0 var(--arrow-size) var(--arrow-size) var(--arrow-size);
+    display: inline-block;
+    margin-left: 10px;
+}
+
+/* Rotate arrow when dropdown is shown */
+.up .arrow {
+    transform: rotate(180deg);
+    border-width: var(--arrow-size) var(--arrow-size) 0 var(--arrow-size);
+}
+
+.show {
+    display: block;
+}
+
+/* Additional styles for feature buttons if needed */
 #featureButtons {
     position: fixed;
-    bottom: 20px; /* Consistent spacing for symmetrical aesthetics */
+    bottom: 20px;
     right: 20px;
 }
 
-#featureButtons button {
-    background-color: var(--button-bg-color);
-    color: var(--text-color);
-    border: none;
-    padding: 8px 16px; /* Smaller padding for a more compact button */
-    font-size: 14px; /* Slightly smaller font size */
-    cursor: pointer;
-    border-radius: 6px; /* Rounded edges */
-    transition: all var(--transition-speed) ease; /* Unified transition for cohesive interaction */
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5); /* Refined shadow for subtle depth */
-    display: block; /* Ensure buttons stack vertically */
-    margin-bottom: 10px; /* Space between buttons */
-}
-
-#featureButtons button:hover {
-    background-color: var(--button-hover-bg-color);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover for depth */
-}
-
-#featureButtons button:active {
-    background-color: var(--button-active-bg-color);
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4); /* Softened shadow for a pressed look */
-}
+/* You can replicate the button styles from #toggleMaterials as needed for consistency */
