@@ -105,13 +105,13 @@ function setupFeatureButtons() {
     // Clear World Button
     const clearWorldButton = document.createElement('button');
     clearWorldButton.innerText = 'Clear World';
-    clearWorldButton.onclick = () => {
-        Matter.World.clear(engine.world);
-        Matter.Engine.clear(engine);
-        initPhysics(); // You may need to adjust this based on your setup
-    };
-    featuresDiv.appendChild(clearWorldButton);
-}
+    clearWorldButton.addEventListener('click', () => {
+    // Only clear Matter.js entities; do not affect HTML elements
+    Matter.World.clear(engine.world);
+    // Re-initialize or re-add any essential entities like the ground, walls, etc.
+    initPhysicsEntities(); // You may need to create this function
+});
+
 
 document.body.addEventListener('mousedown', mouseControl);
 document.body.addEventListener('mousemove', mouseControl);
