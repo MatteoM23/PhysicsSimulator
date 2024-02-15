@@ -30,6 +30,23 @@ const materials = {
 
 let currentMaterial = 'sand';
 
+
+document.querySelector('.dropbtn').addEventListener('click', function() {
+  this.classList.toggle("active");
+  var content = this.nextElementSibling;
+  if (content.style.display === "block") {
+    content.style.display = "none";
+    this.querySelector('.arrow').classList.remove('up');
+    this.querySelector('.arrow').classList.add('down');
+  } else {
+    content.style.display = "block";
+    this.querySelector('.arrow').classList.remove('down');
+    this.querySelector('.arrow').classList.add('up');
+  }
+});
+
+
+
 function initPhysics() {
     const engine = Matter.Engine.create();
     const render = Matter.Render.create({
