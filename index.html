@@ -8,10 +8,12 @@
 </head>
 <body>
     <div id="uiContainer">
-        <div id="materialSelector" class="uiElement">
-            <button id="toggleMaterials" class="dropbtn">More Materials <i class="arrow down"></i></button>
-            <div id="materialGrid" class="material-grid">
-                <!-- Materials buttons will be dynamically inserted here -->
+        <div class="uiElement">
+            <div class="dropdown">
+                <button id="toggleMaterials" class="dropbtn">Materials <i class="arrow down"></i></button>
+                <div id="materialDropdown" class="dropdown-content">
+                    <!-- Materials will be dynamically inserted here -->
+                </div>
             </div>
         </div>
         
