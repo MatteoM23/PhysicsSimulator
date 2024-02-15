@@ -28,7 +28,7 @@ function initPhysics() {
             width: window.innerWidth,
             height: window.innerHeight,
             wireframes: false,
-            background: 'linear-gradient(to bottom, #3498db, #ffffff)',
+            background: 'linear-gradient(135deg, #333333, #1b2838)'
         },
     });
 
