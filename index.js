@@ -93,24 +93,38 @@ function setupMaterialSelector() {
 
 
 function setupFeatureButtons() {
-    const featuresDiv = document.getElementById('featureButtons'); // Adjust this ID based on your HTML
-    if (!featuresDiv) return; // Guard clause if featuresDiv doesn't exist
+    const featuresDiv = document.getElementById('featureButtons'); // Ensure this ID matches your HTML
+    if (!featuresDiv) return; // Check if featuresDiv exists to prevent errors
 
     // Invert Gravity Button
     const invertGravityButton = document.createElement('button');
     invertGravityButton.innerText = 'Invert Gravity';
-    invertGravityButton.onclick = () => engine.world.gravity.y *= -1;
+    invertGravityButton.addEventListener('click', () => {
+        engine.world.gravity.y = -engine.world.gravity.y;
+    });
     featuresDiv.appendChild(invertGravityButton);
 
     // Clear World Button
     const clearWorldButton = document.createElement('button');
     clearWorldButton.innerText = 'Clear World';
     clearWorldButton.addEventListener('click', () => {
-    // Only clear Matter.js entities; do not affect HTML elements
-    Matter.World.clear(engine.world);
-    // Re-initialize or re-add any essential entities like the ground, walls, etc.
-    initPhysicsEntities(); // You may need to create this function
-});
+        Matter.World.clear(engine.world, false); // Clear the world without removing the renderer
+        reinitializePhysicsWorld(); // Adjusted to call a corrected reinitialization function
+    });
+    featuresDiv.appendChild(clearWorldButton);
+}
+
+// Reinitialize the physics entities without clearing the HTML UI elements
+function reinitializePhysicsWorld() {
+    // Add back essential entities like ground and walls
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 20, { isStatic: true });
+    const walls = [
+        Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true }),
+        Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true })
+    ];
+    Matter.World.add(engine.world, [ground, ...walls]);
+}
+
 
 
 document.body.addEventListener('mousedown', mouseControl);
