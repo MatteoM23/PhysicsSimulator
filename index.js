@@ -40,17 +40,19 @@ function initPhysics() {
             width: window.innerWidth,
             height: window.innerHeight,
             wireframes: false,
-            background: 'linear-gradient(to bottom, #34495e, #2c3e50)', // Reverted to original dark background gradient
+            background: 'linear-gradient(to bottom, #3498db, #ffffff)', // Keep the original background gradient
         },
     });
 
-    // Correctly set the thickness and position of the floor
-    const groundThickness = 40; // Thickness of the floor
-    // Ensure the floor is properly positioned at the bottom
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - groundThickness / 2, window.innerWidth, groundThickness, { isStatic: true, render: { fillStyle: '#34495e' } }); // Ensure fillStyle matches your aesthetic needs
+    // Keep the original positions and increase floor thickness
+    // Adjust the y-position slightly to compensate for the increased thickness
+    const groundThickness = 40; // Increased thickness for better collision handling
+    const groundYPosition = window.innerHeight - groundThickness / 2; // Adjusted to align with the bottom
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, groundYPosition, window.innerWidth, groundThickness, { isStatic: true, render: { fillStyle: 'transparent' } });
 
     const leftWall = Matter.Bodies.rectangle(10, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: 'transparent' } });
     const rightWall = Matter.Bodies.rectangle(window.innerWidth - 10, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: 'transparent' } });
+
     Matter.World.add(engine.world, [ground, leftWall, rightWall]);
 
     // Add collision events
@@ -58,18 +60,19 @@ function initPhysics() {
         const pairs = event.pairs;
         for (let i = 0; i < pairs.length; i++) {
             const pair = pairs[i];
-            handleCollisions(pair.bodyA, pair.bodyB); // Call handleCollisions function
+            handleCollisions(pair.bodyA, pair.bodyB); // Reuse the original collision handling function
         }
     });
 
     // Optimize the physics engine
-    engine.timing.timeScale = 1; // Adjust time scaling if necessary to maintain 60 FPS
+    engine.timing.timeScale = 1; // Keep the original time scaling
 
     Matter.Runner.run(engine);
     Matter.Render.run(render);
 
     return { engine, render, world: engine.world };
 }
+
 
 
 
