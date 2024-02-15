@@ -65,23 +65,23 @@ function initPhysics() {
 
 function setupMaterialSelector() {
     const dropdown = document.getElementById('materialDropdown');
-    dropdown.innerHTML = ''; // Clear the dropdown first
+    dropdown.innerHTML = ''; // Ensure the dropdown is empty before populating
 
-    Object.keys(materials).forEach(materialKey => {
-        const material = materials[materialKey];
+    Object.entries(materials).forEach(([key, value]) => {
         const option = document.createElement('a');
-        option.textContent = material.label; // Use label for display
-        option.href = 'javascript:void(0);';
-        option.dataset.material = materialKey;
-        option.addEventListener('click', () => {
-            selectMaterial(materialKey);
-            // Close the dropdown & reset arrow direction if needed here
+        option.textContent = value.label;
+        option.href = '#';
+        option.addEventListener('click', (e) => {
+            e.preventDefault(); // Prevent default link action
+            currentMaterial = key; // Update current material
+            // Additional code to visually update the selected material indicator
+            console.log(`${value.label} selected`);
+            // Close dropdown here if needed
         });
         dropdown.appendChild(option);
     });
-
-    // Additional code to manage the dropdown display and arrow direction
 }
+
 
 
 
@@ -120,43 +120,41 @@ function clearWorld() {
 }
 
 
-function toggleDayNightMode() {
-    const isNight = document.body.style.background.includes('1b2838');
-    document.body.style.background = isNight ? 'linear-gradient(145deg, #FFD700, #F0E68C)' : 'linear-gradient(145deg, #333333, #1b2838)';
-}
-
+let blackHole;
+let blackHoleRadius = 20;
+let growing = true;
 
 function createBlackHole() {
-    const blackHole = Matter.Bodies.circle(engine.render.options.width / 2, engine.render.options.height / 2, 20, {
+    // Create a static circle body in the center of the canvas as the black hole
+    blackHole = Matter.Bodies.circle(engine.render.options.width / 2, engine.render.options.height / 2, blackHoleRadius, {
         isStatic: true,
-        render: { fillStyle: '#000' }
-    });
+        render: {
+            fillStyle: '#000',
+            strokeStyle: '#FFF',
+            lineWidth: 3
+        }
+    }, 100);
     Matter.World.add(engine.world, blackHole);
 
-    Matter.Events.on(engine, 'beforeUpdate', function(event) {
-        Matter.Composite.allBodies(engine.world).forEach(body => {
-            if (body !== blackHole && !body.isStatic) {
-                const dx = blackHole.position.x - body.position.x;
-                const dy = blackHole.position.y - body.position.y;
-                const distanceSquared = dx * dx + dy * dy;
-                const forceDirection = { x: dx, y: dy };
-                const forceMagnitude = 0.0005 / distanceSquared;
-                const force = Matter.Vector.normalise(forceDirection);
-                
-                Matter.Body.applyForce(body, body.position, { 
-                    x: force.x * forceMagnitude, 
-                    y: force.y * forceMagnitude 
-                });
-
-                // Check if the body is close enough to be consumed by the black hole
-                if (Math.sqrt(distanceSquared) < 50) {
-                    Matter.World.remove(engine.world, body);
-                }
-            }
-        });
-    });
+    animateBlackHole();
 }
 
+function animateBlackHole() {
+    Matter.Events.on(engine, 'beforeUpdate', function() {
+        if (blackHole) {
+            const maxRadius = 30;
+            const minRadius = 20;
+            if (blackHole.circleRadius >= maxRadius || blackHole.circleRadius <= minRadius) {
+                growing = !growing; // Reverse the direction of growth/shrink
+            }
+            blackHole.circleRadius += growing ? 0.2 : -0.2;
+
+            // Update render properties for a cool visual effect
+            blackHole.render.lineWidth = growing ? 2 : 4;
+            blackHole.render.strokeStyle = growing ? '#FFF' : '#F00';
+        }
+    });
+}
 
 
 function materialRain() {
