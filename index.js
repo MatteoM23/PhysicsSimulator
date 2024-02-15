@@ -65,20 +65,24 @@ function initPhysics() {
 
 function setupMaterialSelector() {
     const dropdown = document.getElementById('materialDropdown');
-    dropdown.innerHTML = ''; // Clear existing options
+    dropdown.innerHTML = ''; // Clear the dropdown first
 
-    Object.entries(materials).forEach(([key, material]) => {
+    Object.keys(materials).forEach(materialKey => {
+        const material = materials[materialKey];
         const option = document.createElement('a');
-        option.textContent = material.label;
-        option.href = '#';
-        option.dataset.material = key; // Use key for easier reference
-        option.addEventListener('click', function(event) {
-            event.preventDefault();
-            selectMaterial(key);
+        option.textContent = material.label; // Use label for display
+        option.href = 'javascript:void(0);';
+        option.dataset.material = materialKey;
+        option.addEventListener('click', () => {
+            selectMaterial(materialKey);
+            // Close the dropdown & reset arrow direction if needed here
         });
         dropdown.appendChild(option);
     });
+
+    // Additional code to manage the dropdown display and arrow direction
 }
+
 
 
 function setupFeatureButtons() {
@@ -108,9 +112,13 @@ function setupFeatureButtons() {
 }
 
 function clearWorld() {
-    Matter.World.clear(engine.world);
-    initPhysics(); // Reinitialize physics world with initial setup
+    Matter.Composite.allBodies(engine.world).forEach(body => {
+        if (!body.isStatic) { // Check if the body is not static
+            Matter.Composite.remove(engine.world, body);
+        }
+    });
 }
+
 
 function toggleDayNightMode() {
     const isNight = document.body.style.background.includes('1b2838');
@@ -125,22 +133,30 @@ function createBlackHole() {
     });
     Matter.World.add(engine.world, blackHole);
 
-    Matter.Events.on(engine, 'beforeUpdate', () => {
+    Matter.Events.on(engine, 'beforeUpdate', function(event) {
         Matter.Composite.allBodies(engine.world).forEach(body => {
             if (body !== blackHole && !body.isStatic) {
                 const dx = blackHole.position.x - body.position.x;
                 const dy = blackHole.position.y - body.position.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance < 50) { // Threshold for destruction
+                const distanceSquared = dx * dx + dy * dy;
+                const forceDirection = { x: dx, y: dy };
+                const forceMagnitude = 0.0005 / distanceSquared;
+                const force = Matter.Vector.normalise(forceDirection);
+                
+                Matter.Body.applyForce(body, body.position, { 
+                    x: force.x * forceMagnitude, 
+                    y: force.y * forceMagnitude 
+                });
+
+                // Check if the body is close enough to be consumed by the black hole
+                if (Math.sqrt(distanceSquared) < 50) {
                     Matter.World.remove(engine.world, body);
-                } else {
-                    const forceMagnitude = 1e-6 * (blackHole.mass * body.mass) / (distance * distance);
-                    Matter.Body.applyForce(body, body.position, { x: dx * forceMagnitude, y: dy * forceMagnitude });
                 }
             }
         });
     });
 }
+
 
 
 function materialRain() {
