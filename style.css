@@ -74,6 +74,11 @@ button:active {
 }
 
 /* Dropdown Styles */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
 .dropbtn {
     background-color: var(--button-bg-color);
     color: white;
@@ -101,6 +106,10 @@ button:active {
 
 .dropdown-content a:hover {
     background-color: #f1f1f1;
+}
+
+.material-selector:hover .dropdown-content {
+    display: block;
 }
 
 .material-selector .dropbtn:focus + .dropdown-content,
