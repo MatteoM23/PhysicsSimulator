@@ -38,22 +38,18 @@ import Matter from 'https://cdn.skypack.dev/matter-js';
     };
 
     Object.entries(materials).forEach(([key, { label, color }]) => {
-        // Create a new button for each material
         const button = document.createElement('button');
         button.textContent = label;
         button.style.backgroundColor = color;
         button.className = 'material-button';
-
-        // Event listener for button click
         button.addEventListener('click', () => {
             console.log(`${label} selected`);
-            // Here you would handle the material selection logic
-            // For example, updating currentMaterial or any relevant state
         });
 
         selector.appendChild(button);
     });
 });
+
 
 
 
