@@ -2,20 +2,23 @@ import Matter from 'https://cdn.skypack.dev/matter-js';
 
 document.addEventListener('DOMContentLoaded', function() {
     const materials = ["Sand", "Water", "Oil", "Rock", "Lava", "Ice", "Rubber", "Steel", "Glass", "Wood", "Antimatter", "Dark Matter", "Neutronium", "Quantum Foam", "Exotic Matter", "Plasma Crystal", "Void Essence", "Ether", "Solar Flare", "Cosmic Dust", "Magnetic Field", "Photon Gel"];
-    const dropdown = document.getElementById('materialDropdown');
+    const selector = document.getElementById('material-Selector'); // Corrected ID to match your HTML
 
-    materials.forEach(material => {
-        const link = document.createElement('a');
-        link.textContent = material;
-        dropdown.appendChild(link);
-    });
-
-    const toggleButton = document.getElementById('toggleMaterials');
-    toggleButton.addEventListener('click', function() {
-        dropdown.classList.toggle('show');
-        this.querySelector('.arrow').classList.toggle('up');
-        this.querySelector('.arrow').classList.toggle('down');
-    });
+    if (selector) { // Check if the element exists to avoid null errors
+        materials.forEach(material => {
+            const button = document.createElement('button');
+            button.textContent = material;
+            button.className = 'material-button'; // Ensure your CSS targets this class correctly
+            button.addEventListener('click', () => {
+                // Implementation to handle material selection
+                console.log(`${material} selected`); // Placeholder logic
+                // Update currentMaterial or any other relevant state here
+            });
+            selector.appendChild(button);
+        });
+    } else {
+        console.error("Material selector not found in the DOM.");
+    }
 });
 
 
