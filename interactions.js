@@ -32,6 +32,9 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
+    // Clear existing content in the selector to prevent duplication
+    selector.innerHTML = '';
+
     Object.entries(materials).forEach(([key, { label, color }]) => {
         const button = document.createElement('button');
         button.textContent = label; // Set button text to material label
@@ -44,6 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
         selector.appendChild(button);
     });
 });
+
 
 
 // Define new material interactions with advanced effects
