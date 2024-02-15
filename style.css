@@ -28,7 +28,7 @@ body, html {
     top: 20px;
     left: 20px; /* Increased spacing from the edge for balanced positioning */
     padding: 12px 18px; /* Slightly larger padding for better spacing */
-    background-color: rgba(34, 40, 49, 0.95);
+    background-color: var(--container-bg-color);
     border-radius: 12px; /* Softened edges for a modern, app-like appearance */
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8); /* Deeper shadow for standout contrast */
     display: flex;
@@ -99,7 +99,9 @@ button:active {
     display: block;
 }
 
-.dropdown-content a:hover {background-color: #f1f1f1}
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
 
 .material-selector .dropbtn:focus + .dropdown-content,
 .material-selector .dropbtn.active + .dropdown-content {
