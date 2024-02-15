@@ -31,8 +31,7 @@ const materials = {
 let currentMaterial = 'sand';
 
 
-
-
+// Initialize Physics Engine and Renderer
 function initPhysics() {
     const engine = Matter.Engine.create();
     const render = Matter.Render.create({
@@ -42,24 +41,36 @@ function initPhysics() {
             width: window.innerWidth,
             height: window.innerHeight,
             wireframes: false,
-            background: 'linear-gradient(135deg, #333333, #1b2838)'
+            background: 'linear-gradient(to bottom, #3498db, #ffffff)', // Background gradient
         },
     });
 
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - 20, window.innerWidth, 20, { isStatic: true, render: { fillStyle: 'transparent' } });
+    // Increase the thickness of the floor here
+    const groundThickness = 40; // Set a thicker value for the floor
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - groundThickness / 2, window.innerWidth, groundThickness, { isStatic: true, render: { fillStyle: 'transparent' } });
+
     const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: 'transparent' } });
     const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: 'transparent' } });
     Matter.World.add(engine.world, [ground, leftWall, rightWall]);
 
+    // Add collision events
     Matter.Events.on(engine, 'collisionStart', function(event) {
-        handleCollisions(event, engine);
+        const pairs = event.pairs;
+        for (let i = 0; i < pairs.length; i++) {
+            const pair = pairs[i];
+            handleCollisions(pair.bodyA, pair.bodyB); // Call handleCollisions function
+        }
     });
+
+    // Optimize the physics engine
+    engine.timing.timeScale = 1; // Adjust time scaling if necessary to maintain 60 FPS
 
     Matter.Runner.run(engine);
     Matter.Render.run(render);
 
     return { engine, render, world: engine.world };
 }
+
 
 function screenToWorld(clientX, clientY, render) {
     const bounds = render.canvas.getBoundingClientRect();
