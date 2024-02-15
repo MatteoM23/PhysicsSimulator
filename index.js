@@ -31,7 +31,6 @@ const materials = {
 let currentMaterial = 'sand';
 
 
-// Initialize Physics Engine and Renderer
 function initPhysics() {
     const engine = Matter.Engine.create();
     const render = Matter.Render.create({
@@ -41,33 +40,52 @@ function initPhysics() {
             width: window.innerWidth,
             height: window.innerHeight,
             wireframes: false,
-            background: 'linear-gradient(to bottom, #3498db, #ffffff)', // Background gradient
+            background: 'linear-gradient(to bottom, #2c3e50, #34495e)', // Dark space grey gradient background
         },
     });
 
-    // Add floor and walls
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - 20, window.innerWidth, 20, { isStatic: true, render: { fillStyle: 'transparent' } });
-    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: 'transparent' } });
-    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: 'transparent' } });
+    // Define floor and walls with visible styles and ensure particles cannot go through them
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - 10, window.innerWidth, 20, {
+        isStatic: true,
+        render: {
+            fillStyle: '#34495e' // Visible floor color
+        }
+    });
+    const leftWall = Matter.Bodies.rectangle(10, window.innerHeight / 2, 20, window.innerHeight, {
+        isStatic: true,
+        render: {
+            fillStyle: '#34495e' // Visible wall color
+        }
+    });
+    const rightWall = Matter.Bodies.rectangle(window.innerWidth - 10, window.innerHeight / 2, 20, window.innerHeight, {
+        isStatic: true,
+        render: {
+            fillStyle: '#34495e' // Visible wall color
+        }
+    });
+
+    // Add the floor and walls to the world
     Matter.World.add(engine.world, [ground, leftWall, rightWall]);
 
-    // Add collision events
+    // Setup collision event handling
     Matter.Events.on(engine, 'collisionStart', function(event) {
         const pairs = event.pairs;
         for (let i = 0; i < pairs.length; i++) {
             const pair = pairs[i];
-            handleCollisions(pair.bodyA, pair.bodyB); // Call handleCollisions function
+            handleCollisions(pair.bodyA, pair.bodyB); // Use your existing collision handling
         }
     });
 
-    // Optimize the physics engine
-    engine.timing.timeScale = 1; // Adjust time scaling if necessary to maintain 60 FPS
+    // Maintain optimal physics simulation performance
+    engine.timing.timeScale = 1;
 
+    // Start the engine and renderer
     Matter.Runner.run(engine);
     Matter.Render.run(render);
 
     return { engine, render, world: engine.world };
 }
+
 
 
 
