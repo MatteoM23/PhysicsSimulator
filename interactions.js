@@ -1,24 +1,48 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
 document.addEventListener('DOMContentLoaded', function() {
-    const materials = ["Sand", "Water", "Oil", "Rock", "Lava", "Ice", "Rubber", "Steel", "Glass", "Wood", "Antimatter", "Dark Matter", "Neutronium", "Quantum Foam", "Exotic Matter", "Plasma Crystal", "Void Essence", "Ether", "Solar Flare", "Cosmic Dust", "Magnetic Field", "Photon Gel"];
-    const selector = document.getElementById('material-Selector'); // Corrected ID to match your HTML
+    const materials = {
+        sand: { label: 'Sand', color: '#f4e04d' },
+        water: { label: 'Water', color: '#3498db' },
+        oil: { label: 'Oil', color: '#34495e' },
+        rock: { label: 'Rock', color: '#7f8c8d' },
+        lava: { label: 'Lava', color: '#e74c3c' },
+        ice: { label: 'Ice', color: '#a8e0ff' },
+        rubber: { label: 'Rubber', color: '#ff3b3b' },
+        steel: { label: 'Steel', color: '#8d8d8d' },
+        glass: { label: 'Glass', color: '#c4faf8' },
+        wood: { label: 'Wood', color: '#deb887' },
+        antimatter: { label: 'Antimatter', color: '#ff4081' },
+        darkMatter: { label: 'Dark Matter', color: '#6200ea' },
+        neutronium: { label: 'Neutronium', color: '#5c5c8a' },
+        quantumFoam: { label: 'Quantum Foam', color: '#ffec8b' },
+        exoticMatter: { label: 'Exotic Matter', color: '#fa8072' },
+        plasmaCrystal: { label: 'Plasma Crystal', color: '#00ced1' },
+        voidEssence: { label: 'Void Essence', color: '#000080' },
+        ether: { label: 'Ether', color: '#b19cd9' },
+        solarFlare: { label: 'Solar Flare', color: '#ffae42' },
+        cosmicDust: { label: 'Cosmic Dust', color: '#6c7b8b' },
+        magneticField: { label: 'Magnetic Field', color: '#1e90ff' },
+        photonGel: { label: 'Photon Gel', color: '#ffa07a' }
+    };
+    const selector = document.getElementById('material-Selector'); // Ensure this ID matches your HTML
 
-    if (selector) { // Check if the element exists to avoid null errors
-        materials.forEach(material => {
-            const button = document.createElement('button');
-            button.textContent = material;
-            button.className = 'material-button'; // Ensure your CSS targets this class correctly
-            button.addEventListener('click', () => {
-                // Implementation to handle material selection
-                console.log(`${material} selected`); // Placeholder logic
-                // Update currentMaterial or any other relevant state here
-            });
-            selector.appendChild(button);
-        });
-    } else {
+    if (!selector) {
         console.error("Material selector not found in the DOM.");
+        return;
     }
+
+    Object.entries(materials).forEach(([key, { label, color }]) => {
+        const button = document.createElement('button');
+        button.textContent = label; // Set button text to material label
+        button.style.backgroundColor = color; // Set button background color
+        button.className = 'material-button'; // Assign class for styling
+        button.addEventListener('click', () => {
+            console.log(`${label} selected`); // Placeholder for selection logic
+            // Here you could update the currentMaterial variable or perform other actions
+        });
+        selector.appendChild(button);
+    });
 });
 
 
