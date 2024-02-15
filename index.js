@@ -31,7 +31,6 @@ const materials = {
 let currentMaterial = 'sand';
 
 
-// Initialize Physics Engine and Renderer
 function initPhysics() {
     const engine = Matter.Engine.create();
     const render = Matter.Render.create({
@@ -41,16 +40,17 @@ function initPhysics() {
             width: window.innerWidth,
             height: window.innerHeight,
             wireframes: false,
-            background: 'linear-gradient(to bottom, #3498db, #ffffff)', // Background gradient
+            background: 'linear-gradient(to bottom, #34495e, #2c3e50)', // Reverted to original dark background gradient
         },
     });
 
-    // Increase the thickness of the floor here
-    const groundThickness = 40; // Set a thicker value for the floor
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - groundThickness / 2, window.innerWidth, groundThickness, { isStatic: true, render: { fillStyle: 'transparent' } });
+    // Correctly set the thickness and position of the floor
+    const groundThickness = 40; // Thickness of the floor
+    // Ensure the floor is properly positioned at the bottom
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - groundThickness / 2, window.innerWidth, groundThickness, { isStatic: true, render: { fillStyle: '#34495e' } }); // Ensure fillStyle matches your aesthetic needs
 
-    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: 'transparent' } });
-    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: 'transparent' } });
+    const leftWall = Matter.Bodies.rectangle(10, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: 'transparent' } });
+    const rightWall = Matter.Bodies.rectangle(window.innerWidth - 10, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: 'transparent' } });
     Matter.World.add(engine.world, [ground, leftWall, rightWall]);
 
     // Add collision events
@@ -70,6 +70,7 @@ function initPhysics() {
 
     return { engine, render, world: engine.world };
 }
+
 
 
 function screenToWorld(clientX, clientY, render) {
