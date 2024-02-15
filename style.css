@@ -1,13 +1,13 @@
 :root {
-    --button-bg-color: #2c3e50;
-    --button-hover-bg-color: #34495e;
-    --button-active-bg-color: #2c3f50;
-    --container-bg-color: rgba(23, 32, 42, 0.85);
-    --text-color: #ecf0f1;
+    --button-bg-color: #34495e;
+    --button-hover-bg-color: #4a6572;
+    --button-active-bg-color: #1c2833;
+    --container-bg-color: rgba(34, 40, 49, 0.9);
+    --text-color: #f5f6fa;
     --font-family: 'Helvetica Neue', Arial, sans-serif;
-    --gradient-start: #8e9eab;
-    --gradient-end: #eef2f3;
-    --shadow-color: rgba(0, 0, 0, 0.6);
+    --gradient-start: #485563; /* Darker gradient start */
+    --gradient-end: #29323c;  /* Darker gradient end */
+    --shadow-color: rgba(0, 0, 0, 0.7);
     --transition-speed: 0.3s;
 }
 
@@ -43,16 +43,13 @@ body, html {
 
 .material-selector {
     top: 20px;
-    left: 10px; /* Align to the left, away from center */
-    transform: none; /* Remove transform for left alignment */
+    left: 10px;
 }
 
 .feature-buttons {
-    top: 20px; /* Align to the top for clear separation */
-    right: 10px; /* Keep aligned to the right */
-    transform: none; /* Remove transform for right alignment */
+    bottom: 20px; /* Updated for better UI separation and modern feel */
+    right: 10px;
 }
-
 
 button {
     background-color: var(--button-bg-color);
@@ -79,5 +76,5 @@ button:active {
 }
 
 .material-selector:hover, .feature-buttons:hover {
-    opacity: 1; /* Increase opacity on hover for better interaction feedback */
+    opacity: 1; /* Ensures elements are fully opaque when interacted with for better visibility */
 }
