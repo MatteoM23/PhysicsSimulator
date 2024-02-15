@@ -1,54 +1,44 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
     document.addEventListener('DOMContentLoaded', function() {
-    const selector = document.getElementById('material-Selector');
-    if (!selector) {
-        console.error("Material selector not found in the DOM.");
-        return;
+    const materials = ["Sand", "Water", "Oil", "Rock", "Lava", "Ice", "Rubber", "Steel", "Glass", "Wood", "Antimatter", "Dark Matter", "Neutronium", "Quantum Foam", "Exotic Matter", "Plasma Crystal", "Void Essence", "Ether", "Solar Flare", "Cosmic Dust", "Magnetic Field", "Photon Gel"];
+    const dropdown = document.getElementById('materialDropdown');
+
+    // Function to clear the dropdown to prevent duplicates
+    function clearDropdown() {
+        while (dropdown.firstChild) {
+            dropdown.removeChild(dropdown.firstChild);
+        }
     }
 
-    // Clear previously generated buttons to avoid duplication
-    while (selector.firstChild) {
-        selector.removeChild(selector.firstChild);
-    }
-
-    const materials = {
-        sand: { label: 'Sand', color: '#f4e04d' },
-        water: { label: 'Water', color: '#3498db' },
-        oil: { label: 'Oil', color: '#34495e' },
-        rock: { label: 'Rock', color: '#7f8c8d' },
-        lava: { label: 'Lava', color: '#e74c3c' },
-        ice: { label: 'Ice', color: '#a8e0ff' },
-        rubber: { label: 'Rubber', color: '#ff3b3b' },
-        steel: { label: 'Steel', color: '#8d8d8d' },
-        glass: { label: 'Glass', color: '#c4faf8' },
-        wood: { label: 'Wood', color: '#deb887' },
-        antimatter: { label: 'Antimatter', color: '#ff4081' },
-        darkMatter: { label: 'Dark Matter', color: '#6200ea' },
-        neutronium: { label: 'Neutronium', color: '#5c5c8a' },
-        quantumFoam: { label: 'Quantum Foam', color: '#ffec8b' },
-        exoticMatter: { label: 'Exotic Matter', color: '#fa8072' },
-        plasmaCrystal: { label: 'Plasma Crystal', color: '#00ced1' },
-        voidEssence: { label: 'Void Essence', color: '#000080' },
-        ether: { label: 'Ether', color: '#b19cd9' },
-        solarFlare: { label: 'Solar Flare', color: '#ffae42' },
-        cosmicDust: { label: 'Cosmic Dust', color: '#6c7b8b' },
-        magneticField: { label: 'Magnetic Field', color: '#1e90ff' },
-        photonGel: { label: 'Photon Gel', color: '#ffa07a' }
-    };
-
-    Object.entries(materials).forEach(([key, { label, color }]) => {
-        const button = document.createElement('button');
-        button.textContent = label;
-        button.style.backgroundColor = color;
-        button.className = 'material-button';
-        button.addEventListener('click', () => {
-            console.log(`${label} selected`);
+    // Populate the dropdown with materials
+    function populateDropdown() {
+        materials.forEach(material => {
+            const link = document.createElement('a');
+            link.textContent = material;
+            // Optionally, you could set href for the link if it needs to navigate or perform an action
+            // link.href = '#!';
+            link.addEventListener('click', function() {
+                // Here you could handle the material selection, e.g., update a state or perform an action
+                console.log(`${material} selected`);
+            });
+            dropdown.appendChild(link);
         });
+    }
 
-        selector.appendChild(button);
+    // Ensure the dropdown is cleared before populating to avoid duplicates
+    clearDropdown();
+    populateDropdown();
+
+    const toggleButton = document.getElementById('toggleMaterials');
+    toggleButton.addEventListener('click', function() {
+        dropdown.classList.toggle('show');
+        // Assuming you have an element with the class 'arrow' for indicating dropdown direction
+        this.querySelector('.arrow').classList.toggle('up');
+        this.querySelector('.arrow').classList.toggle('down');
     });
 });
+
 
 
 
