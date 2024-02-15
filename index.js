@@ -53,6 +53,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+function adjustPerformanceBasedOnOS(engine) {
+    const platform = navigator.platform.toLowerCase();
+    if (platform.includes('mac')) {
+        engine.timing.timeScale = 0.8; // Adjust timeScale for macOS
+    } else if (platform.includes('win')) {
+        engine.timing.timeScale = 1; // Default timeScale for Windows
+    }
+    // Add additional conditions if needed for other OS
+}
+
+
+
 
 function initPhysics() {
     const engine = Matter.Engine.create();
@@ -84,35 +96,34 @@ function initPhysics() {
 
 function screenToWorld(clientX, clientY, render) {
     const bounds = render.canvas.getBoundingClientRect();
-    const scaleX = render.canvas.width / bounds.width;
-    const scaleY = render.canvas.height / bounds.height;
-    return { x: (clientX - bounds.left) * scaleX, y: (clientY - bounds.top) * scaleY };
+    return {
+        x: (clientX - bounds.left) * (render.canvas.width / bounds.width),
+        y: (clientY - bounds.top) * (render.canvas.height / bounds.height)
+    };
 }
 
+
+let isMouseDown = false;
+
 document.addEventListener('DOMContentLoaded', () => {
-    const { engine, render, world } = initPhysics();
-
-    let isMouseDown = false;
-    document.body.addEventListener('mousedown', event => {
+    document.body.addEventListener('mousedown', function(event) {
         isMouseDown = true;
-        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-        createNewBody({ x, y }, currentMaterial, world);
+        const position = screenToWorld(event.clientX, event.clientY, render);
+        createNewBody(position, currentMaterial, engine.world);
     });
 
-    document.body.addEventListener('mouseup', () => {
-        isMouseDown = false;
-    });
-
-    document.body.addEventListener('mousemove', event => {
+    document.body.addEventListener('mousemove', function(event) {
         if (isMouseDown) {
-            const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-            createNewBody({ x, y }, currentMaterial, world);
+            const position = screenToWorld(event.clientX, event.clientY, render);
+            createNewBody(position, currentMaterial, engine.world);
         }
     });
 
-    setupMaterialSelector(materials);
-    setupFeatureButtons(engine, world);
+    document.body.addEventListener('mouseup', function() {
+        isMouseDown = false;
+    });
 });
+
 
 function createNewBody(position, materialKey, world) {
     const material = materials[materialKey];
@@ -137,38 +148,40 @@ function clearDynamicBodies(world) {
     });
 }
 
-function setupMaterialSelector(materials) {
-    const selector = document.createElement('div');
-    selector.className = 'material-selector';
-    document.body.appendChild(selector);
-
+function setupMaterialSelector() {
+    const selector = document.getElementById('material-Selector'); // Ensure this ID matches your HTML
     Object.entries(materials).forEach(([key, { label, color }]) => {
         const button = document.createElement('button');
         button.innerText = label;
         button.style.backgroundColor = color;
-        button.onclick = () => {
+        button.addEventListener('click', () => {
             currentMaterial = key;
-            document.querySelectorAll('.material-selector button').forEach(btn => btn.classList.remove('selected'));
+            document.querySelectorAll('#material-Selector button').forEach(btn => btn.classList.remove('selected'));
             button.classList.add('selected');
-        };
+        });
         selector.appendChild(button);
     });
 }
 
-function setupFeatureButtons(engine, world) {
-    const buttonsContainer = document.createElement('div');
-    buttonsContainer.className = 'feature-buttons';
-    document.body.appendChild(buttonsContainer);
 
-    const gravityButton = document.createElement('button');
-    gravityButton.innerText = 'Invert Gravity';
-    gravityButton.onclick = () => {
+function setupFeatureButtons(engine) {
+    const featuresDiv = document.getElementById('featureButtons'); // Ensure this ID matches your HTML
+
+    // Invert Gravity Button
+    const invertGravityButton = document.createElement('button');
+    invertGravityButton.innerText = 'Invert Gravity';
+    invertGravityButton.addEventListener('click', () => {
         engine.world.gravity.y = -engine.world.gravity.y;
-    };
-    buttonsContainer.appendChild(gravityButton);
+    });
+    featuresDiv.appendChild(invertGravityButton);
 
-    const clearButton = document.createElement('button');
-    clearButton.innerText = 'Clear World';
-    clearButton.onclick = () => clearDynamicBodies(engine.world);
-    buttonsContainer.appendChild(clearButton);
+    // Clear World Button
+    const clearWorldButton = document.createElement('button');
+    clearWorldButton.innerText = 'Clear World';
+    clearWorldButton.addEventListener('click', () => {
+        Matter.World.clear(engine.world, false); // The 'false' argument prevents removing the renderer
+        initPhysics(); // Reinitialize or specifically re-add walls/ground if not handled in initPhysics
+    });
+    featuresDiv.appendChild(clearWorldButton);
 }
+
