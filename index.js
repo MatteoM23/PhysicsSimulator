@@ -66,12 +66,38 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Assuming this function is within interactions.js or appropriately imported
-function selectMaterial(material) {
-    console.log(`${material} selected`);
-    // Update Matter.js properties or application state here
-    // For example, set the current material to the selected one
-    currentMaterial = material; // Make sure this variable is properly initialized and used in your application
+function selectMaterial(materialKey) {
+    currentMaterial = materialKey.toLowerCase(); // Ensure this matches keys in the `materials` object
+    console.log(`${currentMaterial} selected`);
+
+    // Update UI to reflect the current selection
+    const materialLinks = document.querySelectorAll('#materialDropdown a');
+    const rootStyle = getComputedStyle(document.documentElement);
+    const activeBgColor = rootStyle.getPropertyValue('--button-active-bg-color').trim(); // Correct way to access CSS var
+    const textColor = rootStyle.getPropertyValue('--text-color').trim(); // Accessing text color var
+
+    materialLinks.forEach(link => {
+        if (link.textContent.toLowerCase() === currentMaterial) {
+            link.style.backgroundColor = activeBgColor; // Highlight the selected material
+            link.style.color = textColor;
+        } else {
+            link.style.backgroundColor = ''; // Reset other links
+            link.style.color = textColor;
+        }
+    });
+
+    // Update the dropdown to close it and reset the toggle button's state
+    const dropdown = document.getElementById('materialDropdown');
+    const toggleButton = document.getElementById('toggleMaterials');
+    if (dropdown && toggleButton) {
+        dropdown.classList.remove('show');
+        toggleButton.classList.remove('show');
+        toggleButton.querySelector(':after').style.transform = ''; // Reset arrow direction if necessary
+    }
+
+    // Optionally, update other UI elements as needed
 }
+
 
 function populateDropdown() {
     const materials = ["Sand", "Water", "Oil", "Rock", "Lava", "Ice", "Rubber", "Steel", "Glass", "Wood", "Antimatter", "Dark Matter", "Neutronium", "Quantum Foam", "Exotic Matter", "Plasma Crystal", "Void Essence", "Ether", "Solar Flare", "Cosmic Dust", "Magnetic Field", "Photon Gel"];
