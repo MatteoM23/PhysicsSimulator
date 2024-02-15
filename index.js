@@ -72,20 +72,25 @@ function adjustPerformanceBasedOnOS(engine) {
 }
 
 function setupMaterialSelector() {
-    const selector = document.getElementById('materialSelector'); // Adjust this ID based on your HTML
-    if (!selector) return; // Guard clause if selector doesn't exist
+    // Correct the ID to match your HTML
+    const selector = document.getElementById('material-Selector'); 
+    if (!selector) return; // Check if the selector exists to avoid errors
+
     Object.entries(materials).forEach(([key, value]) => {
         const button = document.createElement('button');
         button.textContent = value.label;
         button.style.backgroundColor = value.color;
         button.onclick = () => {
             currentMaterial = key;
-            document.querySelectorAll('.material-button').forEach(btn => btn.classList.remove('selected'));
+            document.querySelectorAll('#material-Selector button').forEach(btn => {
+                btn.classList.remove('selected');
+            });
             button.classList.add('selected');
         };
         selector.appendChild(button);
     });
 }
+
 
 function setupFeatureButtons() {
     const featuresDiv = document.getElementById('featureButtons'); // Adjust this ID based on your HTML
