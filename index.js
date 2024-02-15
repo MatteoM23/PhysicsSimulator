@@ -1,6 +1,5 @@
-// Assuming import statements are at the top of your script file
 import Matter from 'https://cdn.skypack.dev/matter-js';
-import { interactionRules, handleCollisions } from './interactions.js';
+import { handleCollisions } from './interactions.js';
 
 const materials = {
     // Existing materials
@@ -28,93 +27,15 @@ const materials = {
     photonGel: { label: 'Photon Gel', color: '#ffa07a', density: 0.0008, size: 25, friction: 0.05, restitution: 0.9 },
 };
 
-let currentMaterial = 'sand';
-let engine, render; // Define engine and render at a higher scope for access
+
+let engine, render, currentMaterial = 'sand';
 
 document.addEventListener('DOMContentLoaded', function() {
     initPhysics();
     setupMaterialSelector();
     setupFeatureButtons();
+    setupMaterialDropdown();
 });
-
-
-document.addEventListener('DOMContentLoaded', function() {
-    const toggleButton = document.getElementById('toggleMaterials');
-    const dropdown = document.getElementById('materialDropdown');
-
-    // Populate the dropdown and setup event listeners
-    populateDropdown();
-
-    toggleButton.addEventListener('click', function(event) {
-        event.stopPropagation();
-        dropdown.classList.toggle('show');
-        this.classList.toggle('show'); // Toggle arrow direction
-    });
-
-    // Close the dropdown if clicking outside of it
-    window.addEventListener('click', function() {
-        if (dropdown.classList.contains('show')) {
-            dropdown.classList.remove('show');
-            toggleButton.classList.remove('show'); // Ensure arrow direction is reset
-        }
-    });
-
-    // Prevent the dropdown from closing when clicking inside it
-    dropdown.addEventListener('click', function(event) {
-        event.stopPropagation();
-    });
-});
-
-// Assuming this function is within interactions.js or appropriately imported
-function selectMaterial(materialKey) {
-    currentMaterial = materialKey.toLowerCase(); // Ensure this matches keys in the `materials` object
-    console.log(`${currentMaterial} selected`);
-
-    // Update UI to reflect the current selection
-    const materialLinks = document.querySelectorAll('#materialDropdown a');
-    const rootStyle = getComputedStyle(document.documentElement);
-    const activeBgColor = rootStyle.getPropertyValue('--button-active-bg-color').trim(); // Correct way to access CSS var
-    const textColor = rootStyle.getPropertyValue('--text-color').trim(); // Accessing text color var
-
-    materialLinks.forEach(link => {
-        if (link.textContent.toLowerCase() === currentMaterial) {
-            link.style.backgroundColor = activeBgColor; // Highlight the selected material
-            link.style.color = textColor;
-        } else {
-            link.style.backgroundColor = ''; // Reset other links
-            link.style.color = textColor;
-        }
-    });
-
-    // Update the dropdown to close it and reset the toggle button's state
-    const dropdown = document.getElementById('materialDropdown');
-    const toggleButton = document.getElementById('toggleMaterials');
-    if (dropdown && toggleButton) {
-        dropdown.classList.remove('show');
-        toggleButton.classList.remove('show');
-        toggleButton.querySelector(':after').style.transform = ''; // Reset arrow direction if necessary
-    }
-
-    // Optionally, update other UI elements as needed
-}
-
-
-function populateDropdown() {
-    const materials = ["Sand", "Water", "Oil", "Rock", "Lava", "Ice", "Rubber", "Steel", "Glass", "Wood", "Antimatter", "Dark Matter", "Neutronium", "Quantum Foam", "Exotic Matter", "Plasma Crystal", "Void Essence", "Ether", "Solar Flare", "Cosmic Dust", "Magnetic Field", "Photon Gel"];
-    const dropdown = document.getElementById('materialDropdown');
-    materials.forEach(material => {
-        const link = document.createElement('a');
-        link.textContent = material;
-        link.href = '#';
-        link.addEventListener('click', function() {
-            selectMaterial(material); // Call the material selection function
-            dropdown.classList.remove('show'); // Close the dropdown after selection
-            document.getElementById('toggleMaterials').classList.remove('show'); // Reset arrow direction
-        });
-        dropdown.appendChild(link);
-    });
-}
-
 
 function initPhysics() {
     engine = Matter.Engine.create();
@@ -126,7 +47,7 @@ function initPhysics() {
             height: window.innerHeight,
             wireframes: false,
             background: 'linear-gradient(135deg, #333333, #1b2838)'
-        },
+        }
     });
 
     const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 20, { isStatic: true });
@@ -134,82 +55,155 @@ function initPhysics() {
         Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true }),
         Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true })
     ];
+
     Matter.World.add(engine.world, [ground, ...walls]);
     Matter.Events.on(engine, 'collisionStart', handleCollisions);
-    adjustPerformanceBasedOnOS(engine);
+
     Matter.Runner.run(engine);
     Matter.Render.run(render);
 }
 
-function adjustPerformanceBasedOnOS(engine) {
-    const platform = navigator.platform.toLowerCase();
-    if (platform.includes('mac')) {
-        engine.timing.timeScale = 0.8;
-    } else if (platform.includes('win')) {
-        engine.timing.timeScale = 1;
-    }
-}
-
 function setupMaterialSelector() {
-    // Correct the ID to match your HTML
-    const selector = document.getElementById('material-Selector'); 
-    if (!selector) return; // Check if the selector exists to avoid errors
+    const dropdown = document.getElementById('materialDropdown');
+    dropdown.innerHTML = ''; // Clear existing options
 
-    Object.entries(materials).forEach(([key, value]) => {
-        const button = document.createElement('button');
-        button.textContent = value.label;
-        button.style.backgroundColor = value.color;
-        button.onclick = () => {
-            currentMaterial = key;
-            document.querySelectorAll('#material-Selector button').forEach(btn => {
-                btn.classList.remove('selected');
-            });
-            button.classList.add('selected');
-        };
-        selector.appendChild(button);
+    Object.entries(materials).forEach(([key, material]) => {
+        const option = document.createElement('a');
+        option.textContent = material.label;
+        option.href = '#';
+        option.dataset.material = key; // Use key for easier reference
+        option.addEventListener('click', function(event) {
+            event.preventDefault();
+            selectMaterial(key);
+        });
+        dropdown.appendChild(option);
     });
 }
 
 
 function setupFeatureButtons() {
-    const featuresDiv = document.getElementById('featureButtons'); // Ensure this ID matches your HTML
-    if (!featuresDiv) return; // Check if featuresDiv exists to prevent errors
+    const featuresDiv = document.getElementById('featureButtons');
+    if (!featuresDiv) return;
 
-    // Invert Gravity Button
-    const invertGravityButton = document.createElement('button');
-    invertGravityButton.innerText = 'Invert Gravity';
-    invertGravityButton.addEventListener('click', () => {
-        engine.world.gravity.y = -engine.world.gravity.y;
-    });
-    featuresDiv.appendChild(invertGravityButton);
+    // Clear existing buttons for reinitialization
+    featuresDiv.innerHTML = '';
 
-    // Clear World Button
-    const clearWorldButton = document.createElement('button');
-    clearWorldButton.innerText = 'Clear World';
-    clearWorldButton.addEventListener('click', () => {
-        Matter.World.clear(engine.world, false); // Clear the world without removing the renderer
-        reinitializePhysicsWorld(); // Adjusted to call a corrected reinitialization function
-    });
-    featuresDiv.appendChild(clearWorldButton);
-}
-
-// Reinitialize the physics entities without clearing the HTML UI elements
-function reinitializePhysicsWorld() {
-    // Add back essential entities like ground and walls
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 20, { isStatic: true });
-    const walls = [
-        Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true }),
-        Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true })
+    const buttonConfigs = [
+        { title: 'Invert Gravity', action: () => engine.world.gravity.y *= -1 },
+        { title: 'Clear World', action: clearWorld },
+        { title: 'Toggle Day/Night Mode', action: toggleDayNightMode },
+        { title: 'Create Black Hole', action: createBlackHole },
+        { title: 'Random Gravity', action: () => { engine.world.gravity.x = Math.random() - 0.5; engine.world.gravity.y = Math.random() - 0.5; }},
+        { title: 'Material Rain', action: materialRain },
+        { title: 'Freeze Time', action: () => { engine.timing.timeScale = engine.timing.timeScale === 0 ? 1 : 0; }},
+        { title: 'Add Walls', action: toggleWalls }
     ];
-    Matter.World.add(engine.world, [ground, ...walls]);
+
+    buttonConfigs.forEach(config => {
+        const button = document.createElement('button');
+        button.innerText = config.title;
+        button.onclick = config.action;
+        featuresDiv.appendChild(button);
+    });
+}
+
+function clearWorld() {
+    Matter.World.clear(engine.world);
+    initPhysics(); // Reinitialize physics world with initial setup
+}
+
+function toggleDayNightMode() {
+    const isNight = document.body.style.background.includes('1b2838');
+    document.body.style.background = isNight ? 'linear-gradient(145deg, #FFD700, #F0E68C)' : 'linear-gradient(145deg, #333333, #1b2838)';
+}
+
+
+function createBlackHole() {
+    const blackHole = Matter.Bodies.circle(engine.render.options.width / 2, engine.render.options.height / 2, 20, {
+        isStatic: true,
+        render: { fillStyle: '#000' }
+    });
+    Matter.World.add(engine.world, blackHole);
+
+    Matter.Events.on(engine, 'beforeUpdate', () => {
+        Matter.Composite.allBodies(engine.world).forEach(body => {
+            if (body !== blackHole && !body.isStatic) {
+                const dx = blackHole.position.x - body.position.x;
+                const dy = blackHole.position.y - body.position.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < 50) { // Threshold for destruction
+                    Matter.World.remove(engine.world, body);
+                } else {
+                    const forceMagnitude = 1e-6 * (blackHole.mass * body.mass) / (distance * distance);
+                    Matter.Body.applyForce(body, body.position, { x: dx * forceMagnitude, y: dy * forceMagnitude });
+                }
+            }
+        });
+    });
+}
+
+
+function materialRain() {
+    const materialKeys = Object.keys(materials);
+    for (let i = 0; i < 20; i++) {
+        setTimeout(() => {
+            const randomMaterialKey = materialKeys[Math.floor(Math.random() * materialKeys.length)];
+            const position = { x: Math.random() * engine.render.options.width, y: 0 };
+            createNewBody(position, randomMaterialKey);
+        }, i * 100);
+    }
+}
+
+
+let wallsAdded = false;
+let walls = [];
+
+function toggleWalls() {
+    if (wallsAdded) {
+        walls.forEach(wall => Matter.World.remove(engine.world, wall));
+        walls = [];
+    } else {
+        const thickness = 50;
+        const width = engine.render.options.width;
+        const height = engine.render.options.height;
+        walls = [
+            Matter.Bodies.rectangle(width / 2, -thickness / 2, width, thickness, { isStatic: true }), // top
+            Matter.Bodies.rectangle(width / 2, height + thickness / 2, width, thickness, { isStatic: true }), // bottom
+            Matter.Bodies.rectangle(-thickness / 2, height / 2, thickness, height, { isStatic: true }), // left
+            Matter.Bodies.rectangle(width + thickness / 2, height / 2, thickness, height, { isStatic: true }) // right
+        ];
+        Matter.World.add(engine.world, walls);
+    }
+    wallsAdded = !wallsAdded;
 }
 
 
 
+function setupMaterialDropdown() {
+    const dropdown = document.getElementById('materialDropdown');
+    Object.keys(materials).forEach(materialKey => {
+        const material = materials[materialKey];
+        const option = document.createElement('a');
+        option.textContent = material.label;
+        option.href = '#';
+        option.onclick = () => selectMaterial(materialKey);
+        dropdown.appendChild(option);
+    });
 
-document.body.addEventListener('mousedown', mouseControl);
-document.body.addEventListener('mousemove', mouseControl);
-document.body.addEventListener('mouseup', () => isMouseDown = false);
+    document.getElementById('toggleMaterials').addEventListener('click', function() {
+        dropdown.classList.toggle('show');
+    });
+}
+
+function selectMaterial(materialKey) {
+    currentMaterial = materialKey;
+    console.log(`${materials[currentMaterial].label} selected`);
+    // Additional UI update logic here
+}
+
+document.addEventListener('mousedown', mouseControl);
+document.addEventListener('mousemove', mouseControl);
+document.addEventListener('mouseup', () => isMouseDown = false);
 
 let isMouseDown = false;
 function mouseControl(event) {
