@@ -1,3 +1,4 @@
+// Assuming import statements are at the top of your script file
 import Matter from 'https://cdn.skypack.dev/matter-js';
 import { interactionRules, handleCollisions } from './interactions.js';
 
@@ -27,48 +28,18 @@ const materials = {
     photonGel: { label: 'Photon Gel', color: '#ffa07a', density: 0.0008, size: 25, friction: 0.05, restitution: 0.9 },
 };
 
-
 let currentMaterial = 'sand';
-
+let engine, render; // Define engine and render at a higher scope for access
 
 document.addEventListener('DOMContentLoaded', function() {
-    const materials = ["Sand", "Water", "Oil", "Rock", "Lava", "Ice", "Rubber", "Steel", "Glass", "Wood", "Antimatter", "Dark Matter", "Neutronium", "Quantum Foam", "Exotic Matter", "Plasma Crystal", "Void Essence", "Ether", "Solar Flare", "Cosmic Dust", "Magnetic Field", "Photon Gel"];
-    const grid = document.getElementById('materialGrid');
-
-    materials.forEach(material => {
-        const button = document.createElement('button');
-        button.textContent = material;
-        button.className = 'material-button';
-        grid.appendChild(button);
-    });
-
-    const toggleButton = document.getElementById('toggleMaterials');
-    toggleButton.addEventListener('click', function() {
-        grid.classList.toggle('expanded');
-        this.querySelector('i.arrow').classList.toggle('up', grid.classList.contains('expanded'));
-        this.querySelector('i.arrow').classList.toggle('down', !grid.classList.contains('expanded'));
-        this.textContent = grid.classList.contains('expanded') ? "Less Materials" : "More Materials";
-    });
+    initPhysics();
+    setupMaterialSelector();
+    setupFeatureButtons();
 });
 
-
-
-function adjustPerformanceBasedOnOS(engine) {
-    const platform = navigator.platform.toLowerCase();
-    if (platform.includes('mac')) {
-        engine.timing.timeScale = 0.8; // Adjust timeScale for macOS
-    } else if (platform.includes('win')) {
-        engine.timing.timeScale = 1; // Default timeScale for Windows
-    }
-    // Add additional conditions if needed for other OS
-}
-
-
-
-
 function initPhysics() {
-    const engine = Matter.Engine.create();
-    const render = Matter.Render.create({
+    engine = Matter.Engine.create();
+    render = Matter.Render.create({
         element: document.body,
         engine: engine,
         options: {
@@ -79,22 +50,78 @@ function initPhysics() {
         },
     });
 
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - 20, window.innerWidth, 20, { isStatic: true, render: { fillStyle: 'transparent' } });
-    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: 'transparent' } });
-    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: 'transparent' } });
-    Matter.World.add(engine.world, [ground, leftWall, rightWall]);
-
-    Matter.Events.on(engine, 'collisionStart', function(event) {
-        handleCollisions(event, engine);
-    });
-
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 20, { isStatic: true });
+    const walls = [
+        Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true }),
+        Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true })
+    ];
+    Matter.World.add(engine.world, [ground, ...walls]);
+    Matter.Events.on(engine, 'collisionStart', handleCollisions);
+    adjustPerformanceBasedOnOS(engine);
     Matter.Runner.run(engine);
     Matter.Render.run(render);
-
-    return { engine, render, world: engine.world };
 }
 
-function screenToWorld(clientX, clientY, render) {
+function adjustPerformanceBasedOnOS(engine) {
+    const platform = navigator.platform.toLowerCase();
+    if (platform.includes('mac')) {
+        engine.timing.timeScale = 0.8;
+    } else if (platform.includes('win')) {
+        engine.timing.timeScale = 1;
+    }
+}
+
+function setupMaterialSelector() {
+    const selector = document.getElementById('materialSelector'); // Adjust this ID based on your HTML
+    if (!selector) return; // Guard clause if selector doesn't exist
+    Object.entries(materials).forEach(([key, value]) => {
+        const button = document.createElement('button');
+        button.textContent = value.label;
+        button.style.backgroundColor = value.color;
+        button.onclick = () => {
+            currentMaterial = key;
+            document.querySelectorAll('.material-button').forEach(btn => btn.classList.remove('selected'));
+            button.classList.add('selected');
+        };
+        selector.appendChild(button);
+    });
+}
+
+function setupFeatureButtons() {
+    const featuresDiv = document.getElementById('featureButtons'); // Adjust this ID based on your HTML
+    if (!featuresDiv) return; // Guard clause if featuresDiv doesn't exist
+
+    // Invert Gravity Button
+    const invertGravityButton = document.createElement('button');
+    invertGravityButton.innerText = 'Invert Gravity';
+    invertGravityButton.onclick = () => engine.world.gravity.y *= -1;
+    featuresDiv.appendChild(invertGravityButton);
+
+    // Clear World Button
+    const clearWorldButton = document.createElement('button');
+    clearWorldButton.innerText = 'Clear World';
+    clearWorldButton.onclick = () => {
+        Matter.World.clear(engine.world);
+        Matter.Engine.clear(engine);
+        initPhysics(); // You may need to adjust this based on your setup
+    };
+    featuresDiv.appendChild(clearWorldButton);
+}
+
+document.body.addEventListener('mousedown', mouseControl);
+document.body.addEventListener('mousemove', mouseControl);
+document.body.addEventListener('mouseup', () => isMouseDown = false);
+
+let isMouseDown = false;
+function mouseControl(event) {
+    if (event.type === 'mousedown') isMouseDown = true;
+    if (isMouseDown) {
+        const { x, y } = screenToWorld(event.clientX, event.clientY);
+        createNewBody({ x, y }, currentMaterial);
+    }
+}
+
+function screenToWorld(clientX, clientY) {
     const bounds = render.canvas.getBoundingClientRect();
     return {
         x: (clientX - bounds.left) * (render.canvas.width / bounds.width),
@@ -102,86 +129,13 @@ function screenToWorld(clientX, clientY, render) {
     };
 }
 
-
-let isMouseDown = false;
-
-document.addEventListener('DOMContentLoaded', () => {
-    document.body.addEventListener('mousedown', function(event) {
-        isMouseDown = true;
-        const position = screenToWorld(event.clientX, event.clientY, render);
-        createNewBody(position, currentMaterial, engine.world);
-    });
-
-    document.body.addEventListener('mousemove', function(event) {
-        if (isMouseDown) {
-            const position = screenToWorld(event.clientX, event.clientY, render);
-            createNewBody(position, currentMaterial, engine.world);
-        }
-    });
-
-    document.body.addEventListener('mouseup', function() {
-        isMouseDown = false;
-    });
-});
-
-
-function createNewBody(position, materialKey, world) {
+function createNewBody(position, materialKey) {
     const material = materials[materialKey];
-    const options = {
+    const body = Matter.Bodies.circle(position.x, position.y, material.size / 2, {
         density: material.density,
-        friction: material.friction ?? 0.1,
-        restitution: material.restitution ?? 0.1,
-        render: {
-            fillStyle: material.color,
-        },
-    };
-    const body = Matter.Bodies.circle(position.x, position.y, material.size / 2, options);
-    body.material = materialKey;
-    Matter.World.add(world, body);
-}
-
-function clearDynamicBodies(world) {
-    Matter.Composite.allBodies(world).forEach(body => {
-        if (!body.isStatic) {
-            Matter.Composite.remove(world, body);
-        }
+        friction: material.friction,
+        restitution: material.restitution,
+        render: { fillStyle: material.color }
     });
+    Matter.World.add(engine.world, body);
 }
-
-function setupMaterialSelector() {
-    const selector = document.getElementById('material-Selector'); // Ensure this ID matches your HTML
-    Object.entries(materials).forEach(([key, { label, color }]) => {
-        const button = document.createElement('button');
-        button.innerText = label;
-        button.style.backgroundColor = color;
-        button.addEventListener('click', () => {
-            currentMaterial = key;
-            document.querySelectorAll('#material-Selector button').forEach(btn => btn.classList.remove('selected'));
-            button.classList.add('selected');
-        });
-        selector.appendChild(button);
-    });
-}
-
-
-function setupFeatureButtons(engine) {
-    const featuresDiv = document.getElementById('featureButtons'); // Ensure this ID matches your HTML
-
-    // Invert Gravity Button
-    const invertGravityButton = document.createElement('button');
-    invertGravityButton.innerText = 'Invert Gravity';
-    invertGravityButton.addEventListener('click', () => {
-        engine.world.gravity.y = -engine.world.gravity.y;
-    });
-    featuresDiv.appendChild(invertGravityButton);
-
-    // Clear World Button
-    const clearWorldButton = document.createElement('button');
-    clearWorldButton.innerText = 'Clear World';
-    clearWorldButton.addEventListener('click', () => {
-        Matter.World.clear(engine.world, false); // The 'false' argument prevents removing the renderer
-        initPhysics(); // Reinitialize or specifically re-add walls/ground if not handled in initPhysics
-    });
-    featuresDiv.appendChild(clearWorldButton);
-}
-
