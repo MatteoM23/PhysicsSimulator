@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupFeatureButtons(engine, world);
 });
 
-// Create a new body with given material properties and add it to the world
+// Adjusted createNewBody function to ensure interactions are checked correctly
 function createNewBody(position, materialKey, world) {
     const material = materials[materialKey];
     const options = {
@@ -100,12 +100,12 @@ function createNewBody(position, materialKey, world) {
             fillStyle: material.color,
         },
     };
-    const body = Matter.Bodies.circle(position.x, position.y, material.size / 3, options); // Reduced size
+    const body = Matter.Bodies.circle(position.x, position.y, material.size / 2, options); // Adjust size division to /2
     body.material = materialKey; // Store material key in body for collision handling
     Matter.World.add(world, body);
 
-    // Check for collisions with other particles
-    interactionRules(world.bodies);
+    // Ensure interaction rules are applied when new bodies are created
+    checkForInteractions(world); // This function needs to be defined or adjusted to apply your interaction logic
 
     return body;
 }
