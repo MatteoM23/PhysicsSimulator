@@ -1,5 +1,29 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const materials = ["Sand", "Water", "Oil", "Rock", "Lava", "Ice", "Rubber", "Steel", "Glass", "Wood", "Antimatter", "Dark Matter", "Neutronium", "Quantum Foam", "Exotic Matter", "Plasma Crystal", "Void Essence", "Ether", "Solar Flare", "Cosmic Dust", "Magnetic Field", "Photon Gel"];
+    const grid = document.getElementById('materialGrid');
+
+    materials.forEach(material => {
+        const button = document.createElement('button');
+        button.textContent = material;
+        button.className = 'material-button';
+        grid.appendChild(button);
+    });
+
+    const toggleButton = document.getElementById('toggleMaterials');
+    toggleButton.addEventListener('click', function() {
+        grid.classList.toggle('expanded');
+        this.querySelector('i.arrow').classList.toggle('up', grid.classList.contains('expanded'));
+        this.querySelector('i.arrow').classList.toggle('down', !grid.classList.contains('expanded'));
+        this.textContent = grid.classList.contains('expanded') ? "Less Materials" : "More Materials";
+    });
+});
+
+
+
 // Define new material interactions with advanced effects
 export const interactionRules = (bodyA, bodyB, engine) => {
     const typeA = bodyA.material;
