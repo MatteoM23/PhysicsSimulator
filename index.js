@@ -31,19 +31,26 @@ const materials = {
 let currentMaterial = 'sand';
 
 
-document.querySelector('.dropbtn').addEventListener('click', function() {
-  this.classList.toggle("active");
-  var content = this.nextElementSibling;
-  if (content.style.display === "block") {
-    content.style.display = "none";
-    this.querySelector('.arrow').classList.remove('up');
-    this.querySelector('.arrow').classList.add('down');
-  } else {
-    content.style.display = "block";
-    this.querySelector('.arrow').classList.remove('down');
-    this.querySelector('.arrow').classList.add('up');
-  }
+document.addEventListener('DOMContentLoaded', function() {
+    const materials = ["Sand", "Water", "Oil", "Rock", "Lava", "Ice", "Rubber", "Steel", "Glass", "Wood", "Antimatter", "Dark Matter", "Neutronium", "Quantum Foam", "Exotic Matter", "Plasma Crystal", "Void Essence", "Ether", "Solar Flare", "Cosmic Dust", "Magnetic Field", "Photon Gel"];
+    const grid = document.getElementById('materialGrid');
+
+    materials.forEach(material => {
+        const button = document.createElement('button');
+        button.textContent = material;
+        button.className = 'material-button';
+        grid.appendChild(button);
+    });
+
+    const toggleButton = document.getElementById('toggleMaterials');
+    toggleButton.addEventListener('click', function() {
+        grid.classList.toggle('expanded');
+        this.querySelector('i.arrow').classList.toggle('up', grid.classList.contains('expanded'));
+        this.querySelector('i.arrow').classList.toggle('down', !grid.classList.contains('expanded'));
+        this.textContent = grid.classList.contains('expanded') ? "Less Materials" : "More Materials";
+    });
 });
+
 
 
 
