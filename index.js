@@ -31,6 +31,29 @@ const materials = {
 let currentMaterial = 'sand';
 
 
+document.addEventListener('DOMContentLoaded', function() {
+    const materials = ["Sand", "Water", "Oil", "Rock", "Lava", "Ice", "Rubber", "Steel", "Glass", "Wood", "Antimatter", "Dark Matter", "Neutronium", "Quantum Foam", "Exotic Matter", "Plasma Crystal", "Void Essence", "Ether", "Solar Flare", "Cosmic Dust", "Magnetic Field", "Photon Gel"];
+    const grid = document.getElementById('materialGrid');
+
+    materials.forEach(material => {
+        const button = document.createElement('button');
+        button.textContent = material;
+        button.className = 'material-button';
+        grid.appendChild(button);
+    });
+
+    const toggleButton = document.getElementById('toggleMaterials');
+    toggleButton.addEventListener('click', function() {
+        grid.classList.toggle('expanded');
+        this.querySelector('i.arrow').classList.toggle('up', grid.classList.contains('expanded'));
+        this.querySelector('i.arrow').classList.toggle('down', !grid.classList.contains('expanded'));
+        this.textContent = grid.classList.contains('expanded') ? "Less Materials" : "More Materials";
+    });
+});
+
+
+
+
 function initPhysics() {
     const engine = Matter.Engine.create();
     const render = Matter.Render.create({
@@ -40,54 +63,24 @@ function initPhysics() {
             width: window.innerWidth,
             height: window.innerHeight,
             wireframes: false,
-            background: 'linear-gradient(to bottom, #2c3e50, #34495e)', // Dark space grey gradient background
+            background: 'linear-gradient(135deg, #333333, #1b2838)'
         },
     });
 
-    // Define floor and walls with visible styles and ensure particles cannot go through them
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - 10, window.innerWidth, 20, {
-        isStatic: true,
-        render: {
-            fillStyle: '#34495e' // Visible floor color
-        }
-    });
-    const leftWall = Matter.Bodies.rectangle(10, window.innerHeight / 2, 20, window.innerHeight, {
-        isStatic: true,
-        render: {
-            fillStyle: '#34495e' // Visible wall color
-        }
-    });
-    const rightWall = Matter.Bodies.rectangle(window.innerWidth - 10, window.innerHeight / 2, 20, window.innerHeight, {
-        isStatic: true,
-        render: {
-            fillStyle: '#34495e' // Visible wall color
-        }
-    });
-
-    // Add the floor and walls to the world
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - 20, window.innerWidth, 20, { isStatic: true, render: { fillStyle: 'transparent' } });
+    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: 'transparent' } });
+    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: 'transparent' } });
     Matter.World.add(engine.world, [ground, leftWall, rightWall]);
 
-    // Setup collision event handling
     Matter.Events.on(engine, 'collisionStart', function(event) {
-        const pairs = event.pairs;
-        for (let i = 0; i < pairs.length; i++) {
-            const pair = pairs[i];
-            handleCollisions(pair.bodyA, pair.bodyB); // Use your existing collision handling
-        }
+        handleCollisions(event, engine);
     });
 
-    // Maintain optimal physics simulation performance
-    engine.timing.timeScale = 1;
-
-    // Start the engine and renderer
     Matter.Runner.run(engine);
     Matter.Render.run(render);
 
     return { engine, render, world: engine.world };
 }
-
-
-
 
 function screenToWorld(clientX, clientY, render) {
     const bounds = render.canvas.getBoundingClientRect();
