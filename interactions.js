@@ -5,20 +5,21 @@ import Matter from 'https://cdn.skypack.dev/matter-js';
     const dropdown = document.getElementById('materialDropdown');
 
     function populateDropdown() {
-        clearDropdown(); // Assume this function clears the dropdown as before
-        materials.forEach(material => {
-            const link = document.createElement('a');
-            link.textContent = material;
-            link.href = 'javascript:void(0);'; // Prevent default link behavior
-            link.addEventListener('click', function() {
-                selectMaterial(material); // Handle material selection
-            });
-            dropdown.appendChild(link);
+    const dropdown = document.getElementById('materialDropdown');
+    materials.forEach(material => {
+        const link = document.createElement('a');
+        link.textContent = material;
+        link.href = 'javascript:void(0);';
+        link.dataset.material = material; // Add this line
+        link.addEventListener('click', function() {
+            selectMaterial(material); // Call the material selection function
+            dropdown.classList.remove('show'); // Close the dropdown after selection
+            document.getElementById('toggleMaterials').classList.remove('show'); // Reset arrow direction
         });
-    }
+        dropdown.appendChild(link);
+    });
+}
 
-    populateDropdown();
-});
 
 
 
