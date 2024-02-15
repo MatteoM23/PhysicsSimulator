@@ -4,12 +4,22 @@ import Matter from 'https://cdn.skypack.dev/matter-js';
     const materials = ["Sand", "Water", "Oil", "Rock", "Lava", "Ice", "Rubber", "Steel", "Glass", "Wood", "Antimatter", "Dark Matter", "Neutronium", "Quantum Foam", "Exotic Matter", "Plasma Crystal", "Void Essence", "Ether", "Solar Flare", "Cosmic Dust", "Magnetic Field", "Photon Gel"];
     const dropdown = document.getElementById('materialDropdown');
 
-    // Function to clear the dropdown to prevent duplicates
-    function clearDropdown() {
-        while (dropdown.firstChild) {
-            dropdown.removeChild(dropdown.firstChild);
-        }
+    function populateDropdown() {
+        clearDropdown(); // Assume this function clears the dropdown as before
+        materials.forEach(material => {
+            const link = document.createElement('a');
+            link.textContent = material;
+            link.href = 'javascript:void(0);'; // Prevent default link behavior
+            link.addEventListener('click', function() {
+                selectMaterial(material); // Handle material selection
+            });
+            dropdown.appendChild(link);
+        });
     }
+
+    populateDropdown();
+});
+
 
     // Populate the dropdown with materials
     function populateDropdown() {
