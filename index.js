@@ -37,6 +37,25 @@ document.addEventListener('DOMContentLoaded', function() {
     setupFeatureButtons();
 });
 
+
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleButton = document.getElementById('toggleMaterials');
+    const dropdown = document.getElementById('materialDropdown');
+
+    toggleButton.addEventListener('click', function(event) {
+        event.stopPropagation(); // Prevent event from bubbling up
+        dropdown.classList.toggle('show');
+    });
+
+    // Close the dropdown if the user clicks outside of it
+    window.addEventListener('click', function() {
+        if (dropdown.classList.contains('show')) {
+            dropdown.classList.remove('show');
+        }
+    });
+});
+
+
 function initPhysics() {
     engine = Matter.Engine.create();
     render = Matter.Render.create({
