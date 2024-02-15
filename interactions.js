@@ -21,38 +21,6 @@ import Matter from 'https://cdn.skypack.dev/matter-js';
 });
 
 
-    // Populate the dropdown with materials
-    function populateDropdown() {
-        materials.forEach(material => {
-            const link = document.createElement('a');
-            link.textContent = material;
-            // Optionally, you could set href for the link if it needs to navigate or perform an action
-            // link.href = '#!';
-            link.addEventListener('click', function() {
-                // Here you could handle the material selection, e.g., update a state or perform an action
-                console.log(`${material} selected`);
-            });
-            dropdown.appendChild(link);
-        });
-    }
-
-    // Ensure the dropdown is cleared before populating to avoid duplicates
-    clearDropdown();
-    populateDropdown();
-
-    const toggleButton = document.getElementById('toggleMaterials');
-    toggleButton.addEventListener('click', function() {
-        dropdown.classList.toggle('show');
-        // Assuming you have an element with the class 'arrow' for indicating dropdown direction
-        this.querySelector('.arrow').classList.toggle('up');
-        this.querySelector('.arrow').classList.toggle('down');
-    });
-});
-
-
-
-
-
 
 // Define new material interactions with advanced effects
 export const interactionRules = (bodyA, bodyB, engine) => {
