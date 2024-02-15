@@ -71,9 +71,19 @@ function simulateExplosion(bodyA, bodyB, world) {
 }
 
 function simulateAnnihilation(world, bodyA, bodyB) {
-    // Simulates the annihilation effect for antimatter interactions, removing affected bodies
-    Matter.World.remove(world, [bodyA, bodyB]);
+    // Check if either body is static, and if so, do not remove
+    if (!bodyA.isStatic && !bodyB.isStatic) {
+        Matter.World.remove(world, [bodyA, bodyB]);
+    } else {
+        // If one of the bodies is static, only remove the non-static body (antimatter)
+        if (bodyA.isStatic) {
+            Matter.World.remove(world, bodyB);
+        } else if (bodyB.isStatic) {
+            Matter.World.remove(world, bodyA);
+        }
+    }
 }
+
 
 export function handleCollisions(event, engine) {
     const pairs = event.pairs;
