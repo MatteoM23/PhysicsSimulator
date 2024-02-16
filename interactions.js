@@ -298,16 +298,22 @@ function createOilSlick(engine, collisionPoint) {
     // Generate a series of particles to simulate an oil slick at the collision point
     const numberOfParticles = 10;
     const slickColor = '#8B4513'; // Brown color representing oil
+    const oilDensity = 0.0008; // Density less than water for floating effect
+    const oilFriction = 0.01; // Low friction to simulate slickness
 
     for (let i = 0; i < numberOfParticles; i++) {
         const offset = { x: Math.random() * 20 - 10, y: Math.random() * 20 - 10 };
         const particle = Matter.Bodies.circle(collisionPoint.x + offset.x, collisionPoint.y + offset.y, 3, {
-            isStatic: true,
+            isStatic: false, // Allow particles to move
             render: { fillStyle: slickColor },
+            density: oilDensity,
+            friction: oilFriction,
+            restitution: 0.5, // Slightly bouncy for dynamic interactions
         });
         Matter.World.add(engine.world, particle);
     }
 }
+
 
 function createSplashOrWaves(engine, collisionPoint) {
     // Simulate water splash or waves at the collision point with a series of particles
