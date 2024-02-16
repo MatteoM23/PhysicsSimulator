@@ -37,8 +37,30 @@ export const interactionRules = (bodyA, bodyB, engine) => {
         case 'lava+wood':
             igniteWood(bodyA, bodyB, engine);
             break;
+        case 'water+ice':
+            increaseIceSize(bodyA, bodyB);
+            break;
+        case 'oil+water':
+            createOilSlick(engine, { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 });
+            break;
+        case 'rubber+water':
+            createSplashOrWaves(engine, { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 });
+            break;
+        case 'wood+water':
+            absorbWater(bodyA, bodyB);
+            break;
+        case 'sand+lava':
+            formGlassyStructures(engine, { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 });
+            break;
+        case 'antimatter+antimatter':
+            createExplosionOrImplosion(engine, { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 });
+            break;
+        case 'darkMatter+lava':
+            createGravitationalDistortion(engine, { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 });
+            break;
     }
 };
+
 
 function convertToSteamAndObsidian(bodyA, bodyB, typeA, typeB, engine) {
     // Assume bodyA is water and bodyB is lava, or vice versa
@@ -265,6 +287,164 @@ function simulateDarkMatterAntimatterInteraction(antimatterBody, darkMatterBody,
     Matter.World.remove(world, antimatterBody);
     Matter.World.remove(world, darkMatterBody);
 }
+
+
+function increaseIceSize(bodyA, bodyB) {
+    const iceBody = bodyA.material === 'ice' ? bodyA : bodyB;
+    const sizeIncrement = 5; // Adjust the size increment as needed
+    iceBody.circleRadius += sizeIncrement;
+}
+
+function createOilSlick(engine, collisionPoint) {
+    const numberOfParticles = 10; // Adjust as needed
+    const slickColor = '#8B4513'; // Brown color for oil slicks
+
+    for (let i = 0; i < numberOfParticles; i++) {
+        const particleOptions = {
+            isStatic: true,
+            render: {
+                fillStyle: slickColor,
+            },
+            // Define other particle properties such as density, restitution, etc.
+        };
+
+        const offsetX = Math.random() * 20 - 10; // Randomize particle position around collision point
+        const offsetY = Math.random() * 20 - 10;
+        const particle = Matter.Bodies.circle(collisionPoint.x + offsetX, collisionPoint.y + offsetY, 3, particleOptions);
+        Matter.World.add(engine.world, particle);
+    }
+}
+
+function createSplashOrWaves(engine, collisionPoint) {
+    const numberOfParticles = 10; // Adjust as needed
+    const splashColor = 'blue'; // Color for water splash effects
+
+    for (let i = 0; i < numberOfParticles; i++) {
+        // Define properties for the water splash particles
+        const particleOptions = {
+            isStatic: true, // Water splash particles are typically static
+            render: {
+                fillStyle: splashColor, // Set the fill style to the splash color
+            },
+            // Define other particle properties such as density, restitution, etc.
+        };
+
+        // Generate random offsets to create particles around the collision point
+        const offsetX = Math.random() * 20 - 10; // Randomize particle position around collision point
+        const offsetY = Math.random() * 20 - 10;
+
+        // Create and add water splash particles to the world
+        const particle = Matter.Bodies.circle(collisionPoint.x + offsetX, collisionPoint.y + offsetY, 3, particleOptions);
+        Matter.World.add(engine.world, particle);
+    }
+}
+
+
+function absorbWater(bodyA, bodyB) {
+    const woodBody = bodyA.material === 'wood' ? bodyA : bodyB;
+
+    // Adjust the appearance of the wood body to indicate absorption
+    woodBody.render.fillStyle = '#8B4513'; // Change the fill style to represent wet wood
+
+    // Optionally, modify the density or position of the wood body to simulate sinking
+    woodBody.density += 0.1; // Increase density to simulate water absorption
+    woodBody.friction *= 0.8; // Reduce friction to simulate waterlogged surface
+
+    // Create water splash particles around the wood body to enhance visual effect
+    const numberOfParticles = 10; // Adjust as needed
+    const splashColor = 'blue'; // Color for water splash effects
+
+    for (let i = 0; i < numberOfParticles; i++) {
+        const angle = Math.random() * Math.PI * 2; // Random angle for particle direction
+        const speed = Math.random() * 0.5 + 0.5; // Random speed for particle movement
+
+        const particleOptions = {
+            isStatic: false,
+            render: {
+                fillStyle: splashColor,
+                opacity: 0.8 // Adjust opacity for more realistic effect
+            },
+            friction: 0.1,
+            restitution: 0.5,
+            density: 0.001,
+            force: { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed }
+        };
+
+        // Create and add water splash particles around the wood body
+        const particle = Matter.Bodies.circle(woodBody.position.x, woodBody.position.y - 10, 3, particleOptions); // Slightly above wood body position
+        Matter.World.add(engine.world, particle);
+    }
+}
+
+
+function formGlassyStructures(engine, collisionPoint) {
+    const numberOfParticles = 5; // Adjust as needed
+    const glassColor = '#FFFFFF'; // Color for glassy structures
+
+    for (let i = 0; i < numberOfParticles; i++) {
+        const angle = Math.random() * Math.PI * 2; // Random angle for particle direction
+        const distance = Math.random() * 30 + 20; // Random distance from collision point
+        const x = collisionPoint.x + Math.cos(angle) * distance; // X coordinate of particle
+        const y = collisionPoint.y + Math.sin(angle) * distance; // Y coordinate of particle
+
+        // Define properties for glassy particle structures
+        const particleOptions = {
+            isStatic: false,
+            render: {
+                fillStyle: glassColor,
+                opacity: 0.7 // Adjust opacity for more realistic effect
+            },
+            friction: 0.2,
+            restitution: 0.5,
+            density: 0.001
+        };
+
+        // Create and add glassy particle structures around the collision point
+        const particle = Matter.Bodies.rectangle(x, y, 10, 10, particleOptions);
+        Matter.World.add(engine.world, particle);
+    }
+}
+
+
+function createExplosionOrImplosion(engine, collisionPoint) {
+    const explosionForce = 0.1; // Adjust as needed
+    const explosionRadius = 100; // Adjust as needed
+
+    Matter.Composite.allBodies(engine.world).forEach(body => {
+        const dx = body.position.x - collisionPoint.x;
+        const dy = body.position.y - collisionPoint.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < explosionRadius) {
+            const forceMagnitude = explosionForce * (1 - distance / explosionRadius);
+            Matter.Body.applyForce(body, body.position, {
+                x: dx * forceMagnitude,
+                y: dy * forceMagnitude
+            });
+        }
+    });
+}
+
+
+function createGravitationalDistortion(engine, collisionPoint) {
+    const distortionRadius = 200; // Adjust as needed
+    const distortionForce = 0.0005; // Adjust as needed
+
+    Matter.Composite.allBodies(engine.world).forEach(body => {
+        const dx = body.position.x - collisionPoint.x;
+        const dy = body.position.y - collisionPoint.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < distortionRadius && !body.isStatic) {
+            const forceMagnitude = distortionForce / (distance * distance);
+            Matter.Body.applyForce(body, body.position, {
+                x: dx * forceMagnitude,
+                y: dy * forceMagnitude
+            });
+        }
+    });
+}
+
 
 
 
