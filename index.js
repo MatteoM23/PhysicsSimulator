@@ -232,3 +232,25 @@ function isFeatureButton(element) {
     return element.closest('.feature-buttons') !== null;
 }
 
+function handleMouseDown(event, render, world) {
+    // Implement the logic for handling mouse down events
+    isMouseDown = true;
+    const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+    if (!isMaterialSelectorButton(event.target) && !isFeatureButton(event.target)) {
+        createNewBody({ x, y }, currentMaterial, world);
+    }
+}
+
+function handleMouseUp() {
+    // Implement the logic for handling mouse up events
+    isMouseDown = false;
+}
+
+function handleMouseMove(event, render, world) {
+    // Implement the logic for handling mouse move events
+    if (isMouseDown && !isMaterialSelectorButton(event.target) && !isFeatureButton(event.target)) {
+        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+        createNewBody({ x, y }, currentMaterial, world);
+    }
+}
+
