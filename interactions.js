@@ -299,22 +299,28 @@ function increaseIceSize(bodyA, bodyB) {
 }
 
 function createOilSlickAndDisappear(engine, collisionPoint) {
-    const numberOfParticles = 3; // Reduced number of particles
-    const slickColor = '#8B4513'; // Color representing oil
-    const oilDensity = 0.0008; // Density for floating effect
-    const oilFriction = 0.01; // Low friction for slickness
-    const disappearDuration = 5000; // Time in milliseconds for particles to disappear
+    const numberOfParticles = 3; // Number of oil particles
+    const slickColor = '#8B4513'; // Oil color
+    const particleFadeDelay = 60000; // Delay before starting to fade out particles (1 minute)
 
     for (let i = 0; i < numberOfParticles; i++) {
         const offset = { x: Math.random() * 20 - 10, y: Math.random() * 20 - 10 };
         const particle = Matter.Bodies.circle(collisionPoint.x + offset.x, collisionPoint.y + offset.y, 3, {
             isStatic: false,
-            render: { fillStyle: slickColor },
-            density: oilDensity,
-            friction: oilFriction,
+            render: { fillStyle: slickColor, opacity: 1 },
+            density: 0.0008,
+            friction: 0.01,
             restitution: 0.5,
         });
         Matter.World.add(engine.world, particle);
+
+        // Delay the start of the fade-out process for each particle
+        setTimeout(() => {
+            fadeOutAndRemoveBody(engine, particle, 3000); // Fade out over 3 seconds after the delay
+        }, particleFadeDelay);
+    }
+}
+
 
         // Function to gradually fade out the particle
         function fadeOutParticle(particle, duration) {
