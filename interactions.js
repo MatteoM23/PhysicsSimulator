@@ -66,21 +66,35 @@ export const interactionRules = (bodyA, bodyB, engine) => {
 
 
 function convertToSteamAndObsidian(bodyA, bodyB, typeA, typeB, engine) {
+    // Determine which is water and which is lava 💧🌋
     let waterBody = typeA === 'water' ? bodyA : bodyB;
     let lavaBody = typeA === 'lava' ? bodyA : bodyB;
 
-    // Schedule water removal to simulate delay before conversion
-    setTimeout(() => {
-        // Remove water body to simulate conversion to steam
-        Matter.World.remove(engine.world, waterBody);
-    }, 1000); // Delay in milliseconds
+    // First, we'll create steam particles where the water used to be 🌬️
+    createSteamParticles(engine, waterBody.position);
 
-    // Change lava to obsidian with a slight delay
-    setTimeout(() => {
-        lavaBody.render.fillStyle = '#555'; // Set color for obsidian
-        lavaBody.material = 'obsidian';
-    }, 1500); // Delay to visualize interaction before conversion
+    // Then, we remove the water body from the world
+    Matter.World.remove(engine.world, waterBody);
+
+    // And finally, convert the lava to obsidian, with a cool new color! 🖤
+    lavaBody.render.fillStyle = '#333'; // Darker color for obsidian
+    lavaBody.material = 'obsidian';
 }
+
+function createSteamParticles(engine, position) {
+    const numberOfParticles = 10; // Let's create a few steam particles
+    for (let i = 0; i < numberOfParticles; i++) {
+        let angle = Math.random() * Math.PI * 2;
+        let radius = Math.random() * 5 + 5; // Random radius for spread
+        let particle = Matter.Bodies.circle(position.x + Math.cos(angle) * radius, position.y + Math.sin(angle) * radius, 2, {
+            isStatic: false,
+            render: { fillStyle: '#aaa' }, // Light grey for steam
+        });
+        Matter.World.add(engine.world, particle);
+        // Optional: Add logic to make the particles fade out or rise
+    }
+}
+
 
 
 function convertLavaToRockRemoveIce(bodyA, bodyB, engine) {
@@ -94,6 +108,7 @@ function convertLavaToRockRemoveIce(bodyA, bodyB, engine) {
 }
 
 function simulateExplosion(bodyA, bodyB, world, radius, force) {
+    // Find the epicenter of the explosion 💣
     const explosionPoint = { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 };
 
     Matter.Composite.allBodies(world).forEach(body => {
@@ -101,18 +116,34 @@ function simulateExplosion(bodyA, bodyB, world, radius, force) {
             const dx = body.position.x - explosionPoint.x;
             const dy = body.position.y - explosionPoint.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
-
             if (distance < radius) {
-                // Calculate force vector with direction and magnitude
-                const forceMagnitude = Math.min(force / distance, force);
-                const forceDirection = { x: dx / distance, y: dy / distance };
-                const forceVector = { x: forceDirection.x * forceMagnitude, y: forceDirection.y * forceMagnitude };
-
-                Matter.Body.applyForce(body, body.position, forceVector);
+                const forceMagnitude = (force * (1 - distance / radius)) / distance; // More realistic effect
+                Matter.Body.applyForce(body, body.position, {
+                    x: dx * forceMagnitude,
+                    y: dy * forceMagnitude,
+                });
             }
         }
     });
+
+    // Let's add some visual flair to the explosion with spark particles! ✨
+    createExplosionParticles(world, explosionPoint, radius);
 }
+
+function createExplosionParticles(world, center, radius) {
+    const numberOfParticles = 20; // More particles for a bigger boom!
+    for (let i = 0; i < numberOfParticles; i++) {
+        let angle = Math.random() * Math.PI * 2;
+        let distance = Math.random() * radius; // Spread particles within the explosion radius
+        let particle = Matter.Bodies.circle(center.x + Math.cos(angle) * distance, center.y + Math.sin(angle) * distance, 1, {
+            isStatic: false,
+            render: { fillStyle: '#ff0' }, // Bright yellow for a fiery look
+        });
+        Matter.World.add(world, particle);
+        // Optional: You might want to add logic for these particles to fade or disperse
+    }
+}
+
 
 
 function createMud(bodyA, bodyB, engine) {
