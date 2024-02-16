@@ -8,29 +8,30 @@ document.addEventListener('DOMContentLoaded', () => {
     // Assuming an object or array of materials
     const materials = {
     // Existing materials
-    sand: { label: 'Sand' },
-    water: { label: 'Water' },
-    oil: { label: 'Oil' },
-    rock: { label: 'Rock' },
-    lava: { label: 'Lava' },
-    ice: { label: 'Ice' },
-    rubber: { label: 'Rubber' },
-    steel: { label: 'Steel' },
-    glass: { label: 'Glass' },
-    wood: { label: 'Wood' },
-    antimatter: { label: 'Antimatter' },
-    darkMatter: { label: 'Dark Matter' },
-    neutronium: { label: 'Neutronium' },
-    quantumFoam: { label: 'Quantum Foam' },
-    exoticMatter: { label: 'Exotic Matter' },
-    plasmaCrystal: { label: 'Plasma Crystal' },
-    voidEssence: { label: 'Void Essence' },
-    ether: { label: 'Ether' },
-    solarFlare: { label: 'Solar Flare' },
-    cosmicDust: { label: 'Cosmic Dust' },
-    magneticField: { label: 'Magnetic Field' },
-    photonGel: { label: 'Photon Gel' }
+    sand: { label: 'Sand', color: '#f4e04d', density: 0.0025, size: 22.5, friction: 0.5, restitution: 0.3 },
+    water: { label: 'Water', color: '#3498db', density: 0.001, size: 27, friction: 0.02, restitution: 0.9 },
+    oil: { label: 'Oil', color: '#34495e', density: 0.0008, size: 27, friction: 0.05, restitution: 0.05 },
+    rock: { label: 'Rock', color: '#7f8c8d', density: 0.005, size: 37.5, friction: 0.8, restitution: 0.2 },
+    lava: { label: 'Lava', color: '#e74c3c', density: 0.004, size: 33, friction: 0.4, restitution: 0.6 },
+    ice: { label: 'Ice', color: '#a8e0ff', density: 0.0008, size: 27, friction: 0.01, restitution: 0.95 },
+    rubber: { label: 'Rubber', color: '#ff3b3b', density: 0.0012, size: 33, friction: 0.9, restitution: 0.8 },
+    steel: { label: 'Steel', color: '#8d8d8d', density: 0.008, size: 45, friction: 0.6, restitution: 0.1 },
+    glass: { label: 'Glass', color: '#c4faf8', density: 0.002, size: 22.5, friction: 0.4, restitution: 0.7 },
+    wood: { label: 'Wood', color: '#deb887', density: 0.003, size: 37.5, friction: 0.6, restitution: 0.3 },
+    antimatter: { label: 'Antimatter', color: '#ff4081', density: 0.001, size: 22.5, friction: 0.01, restitution: 0.99 },
+    darkMatter: { label: 'Dark Matter', color: '#6200ea', density: 0.0005, size: 22.5, friction: 0.0, restitution: 1.0 },
+    neutronium: { label: 'Neutronium', color: '#5c5c8a', density: 0.02, size: 30, friction: 0.5, restitution: 0.1 },
+    quantumFoam: { label: 'Quantum Foam', color: '#ffec8b', density: 0.0001, size: 25, friction: 0.0, restitution: 0.98 },
+    exoticMatter: { label: 'Exotic Matter', color: '#fa8072', density: -0.001, size: 22.5, friction: 0.01, restitution: 1.1 },
+    plasmaCrystal: { label: 'Plasma Crystal', color: '#00ced1', density: 0.003, size: 20, friction: 0.2, restitution: 0.5 },
+    voidEssence: { label: 'Void Essence', color: '#000080', density: 0.0005, size: 25, friction: 0.0, restitution: 1.0 },
+    ether: { label: 'Ether', color: '#b19cd9', density: 0.0002, size: 30, friction: 0.01, restitution: 0.95 },
+    solarFlare: { label: 'Solar Flare', color: '#ffae42', density: 0.001, size: 35, friction: 0.1, restitution: 0.8 },
+    cosmicDust: { label: 'Cosmic Dust', color: '#6c7b8b', density: 0.002, size: 20, friction: 0.7, restitution: 0.3 },
+    magneticField: { label: 'Magnetic Field', color: '#1e90ff', density: 0.0001, size: 40, friction: 0.0, restitution: 1.05 },
+    photonGel: { label: 'Photon Gel', color: '#ffa07a', density: 0.0008, size: 25, friction: 0.05, restitution: 0.9 },
 };
+
 
     // Initially display only the first 6 materials
     Object.entries(materials).slice(0, 6).forEach(([key, material], index) => {
