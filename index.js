@@ -67,25 +67,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function setupMaterialSelector(materials) {
-    // Your setup code here
-    const uiContainer = document.getElementById('uiContainer'); // Ensure this exists
-    const materialsContainer = document.createElement('div');
-    materialsContainer.id = 'materialsContainer';
-    uiContainer.appendChild(materialsContainer); // Append the container to the DOM
+        const uiContainer = document.getElementById('uiContainer'); // Ensure this is the correct ID for your container
+        if (!uiContainer) {
+            console.error('UI Container not found');
+            return;
+        }
+    
+        // Assuming materialsContainer is a direct child or correctly referenced within uiContainer
+        const materialsContainer = document.createElement('div');
+        materialsContainer.id = 'materialsContainer';
+        uiContainer.appendChild(materialsContainer);
+    
+        Object.entries(materials).forEach(([key, material]) => {
+            const button = document.createElement('button');
+            button.textContent = material.label;
+            button.className = 'materialButton'; // Use this class for styling
+            materialsContainer.appendChild(button);
+        });
+    
+        // Implement expand/collapse logic here if necessary
+    }
 
-    Object.entries(materials).forEach(([key, material]) => {
-        const button = document.createElement('button');
-        button.textContent = material.label;
-        button.className = 'materialButton';
-        materialsContainer.appendChild(button);
-    });
-}
-
-
-    document.addEventListener('DOMContentLoaded', () => {
-    // Other initialization code
-    setupMaterialSelector(materials); // Make sure materials is defined before this call
-});
 
 
 
