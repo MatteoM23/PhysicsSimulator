@@ -43,7 +43,7 @@ export const interactionRules = (bodyA, bodyB, engine) => {
         case 'oil+water':
             const collisionPoint = { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 };
             createOilSlickAndDisappear(engine, collisionPoint);
-            fadeOutAndRemoveBody(engine, bodyA, 3000); // Fade out oil/water over 3 seconds
+            fadeOutAndRemoveBody(engine, bodyA, 3000); // Start fading immediately, over 3 seconds
             fadeOutAndRemoveBody(engine, bodyB, 3000);
             break;
         case 'rubber+water':
@@ -336,6 +336,26 @@ function createOilSlickAndDisappear(engine, collisionPoint) {
     }
 }
 
+
+function fadeOutAndRemoveBody(engine, body, fadeDuration, startDelay = 0) {
+    setTimeout(() => {
+        let opacity = 1; // Start with full opacity
+        const intervalTime = 100; // Interval time in ms for opacity reduction
+        const steps = fadeDuration / intervalTime;
+        let currentStep = 0;
+
+        const fadeInterval = setInterval(() => {
+            opacity = 1 - (++currentStep / steps);
+            if (body.render) {
+                body.render.opacity = opacity > 0 ? opacity : 0;
+            }
+            if (currentStep >= steps) {
+                clearInterval(fadeInterval);
+                Matter.World.remove(engine.world, body);
+            }
+        }, intervalTime);
+    }, startDelay);
+}
 
 
 
