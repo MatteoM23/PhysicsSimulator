@@ -298,9 +298,9 @@ function increaseIceSize(bodyA, bodyB) {
 }
 
 function createOilSlickAndDisappear(engine, collisionPoint) {
-    const numberOfParticles = 3; // Number of oil particles
-    const slickColor = '#8B4513'; // Oil color
-    const particleFadeDelay = 60000; // Delay before starting to fade out particles (1 minute)
+    const numberOfParticles = 3; // Number of oil particles to create
+    const slickColor = '#8B4513'; // Color representing oil
+    const particleFadeDelay = 60000; // Delay in milliseconds (1 minute) before starting to fade out particles
 
     for (let i = 0; i < numberOfParticles; i++) {
         const offset = { x: Math.random() * 20 - 10, y: Math.random() * 20 - 10 };
@@ -313,31 +313,26 @@ function createOilSlickAndDisappear(engine, collisionPoint) {
         });
         Matter.World.add(engine.world, particle);
 
-        // Delay the start of the fade-out process for each particle
+        // Set a timeout to delay the start of the fade-out process
         setTimeout(() => {
-            fadeOutAndRemoveBody(engine, particle, 3000); // Fade out over 3 seconds after the delay
+            // Function to gradually fade out the particle
+            const fadeOutParticle = (particle, duration) => {
+                let opacity = 1; // Start with full opacity
+                const intervalTime = 100; // Interval time in ms for opacity reduction
+                const interval = setInterval(() => {
+                    opacity -= intervalTime / duration;
+                    particle.render.opacity = opacity;
+
+                    if (opacity <= 0) {
+                        clearInterval(interval);
+                        Matter.World.remove(engine.world, particle);
+                    }
+                }, intervalTime);
+            };
+
+            // Call the fade out function for each particle after the delay
+            fadeOutParticle(particle, 3000); // Fade out over 3 seconds
         }, particleFadeDelay);
-    }
-}
-
-
-        // Function to gradually fade out the particle
-        function fadeOutParticle(particle, duration) {
-            let opacity = 1; // Start with full opacity
-            const intervalTime = 100; // Interval time in ms for opacity reduction
-            const interval = setInterval(() => {
-                opacity -= intervalTime / duration;
-                particle.render.opacity = opacity;
-
-                if (opacity <= 0) {
-                    clearInterval(interval);
-                    Matter.World.remove(engine.world, particle);
-                }
-            }, intervalTime);
-        }
-
-        // Call the fade out function for each particle
-        fadeOutParticle(particle, disappearDuration);
     }
 }
 
