@@ -295,24 +295,34 @@ function increaseIceSize(bodyA, bodyB) {
 }
 
 function createOilSlick(engine, collisionPoint) {
-    // Generate a series of particles to simulate an oil slick at the collision point
-    const numberOfParticles = 10;
+    const numberOfParticles = 3; // Reduced number of particles for subtlety
     const slickColor = '#8B4513'; // Brown color representing oil
     const oilDensity = 0.0008; // Density less than water for floating effect
     const oilFriction = 0.01; // Low friction to simulate slickness
+    const waterColor = slickColor; // Assuming you have a way to set water color globally
+
+    // Optionally, change the global water color to represent contamination
+    // This step depends on how water is represented in your simulation
+    // For example, if water bodies are drawn as large rectangles, you might set their fillStyle to waterColor
 
     for (let i = 0; i < numberOfParticles; i++) {
         const offset = { x: Math.random() * 20 - 10, y: Math.random() * 20 - 10 };
         const particle = Matter.Bodies.circle(collisionPoint.x + offset.x, collisionPoint.y + offset.y, 3, {
             isStatic: false, // Allow particles to move
-            render: { fillStyle: slickColor },
+            render: { fillStyle: slickColor, opacity: 1 },
             density: oilDensity,
             friction: oilFriction,
             restitution: 0.5, // Slightly bouncy for dynamic interactions
         });
         Matter.World.add(engine.world, particle);
+
+        // Fade out the particle to simulate it mixing into the water
+        setTimeout(() => {
+            Matter.World.remove(engine.world, particle);
+        }, 5000); // Adjust the timeout as needed to control the rate of disappearance
     }
 }
+
 
 
 function createSplashOrWaves(engine, collisionPoint) {
