@@ -36,10 +36,13 @@ body, html {
 }
 
 #materialsContainer {
-    display: grid;
-    grid-template-columns: repeat(6, auto);
-    gap: 8px;
+    display: flex; /* Change from grid to flex */
+    flex-wrap: wrap; /* Allow items to wrap to the next line */
+    gap: 8px; /* Gap between buttons */
+    max-width: 100%; /* Ensure it doesn't overflow */
+    overflow-x: auto; /* Enable horizontal scrolling if needed */
 }
+
 
 .expandArrow {
     margin-left: 10px;
