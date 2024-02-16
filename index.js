@@ -63,32 +63,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    function setupMaterialSelector(materials) {
-    const selector = document.createElement('div');
-    selector.className = 'material-selector';
-    document.body.appendChild(selector);
+    function setupMaterialSelector() {
+    // Assuming materials is defined and contains your materials information
+    const materialsContainer = document.getElementById('materialsContainer');
 
-    // Container for the materials and the expand arrow
-    const materialsContainer = document.createElement('div');
-    materialsContainer.id = 'materialsContainer';
-    selector.appendChild(materialsContainer);
+    if (!materialsContainer) {
+        console.error('materialsContainer not found');
+        return;
+    }
 
-    // Create material buttons
-    Object.entries(materials).forEach(([key, { label, color }], index) => {
+    Object.entries(materials).forEach(([key, material]) => {
         const button = document.createElement('button');
-        button.innerText = label;
-        button.style.backgroundColor = color;
+        button.textContent = material.label;
         button.className = 'materialButton';
-        // Initially show only the first 6 materials
-        if (index >= 6) button.style.display = 'none';
-        button.onclick = () => {
-            currentMaterial = key;
-            document.querySelectorAll('.material-selector button').forEach(btn => {
-                btn.classList.remove('selected');
-            });
-            button.classList.add('selected');
-        };
         materialsContainer.appendChild(button);
+
+        button.addEventListener('click', () => {
+            // Handle material selection
+            console.log(`Material ${key} selected`);
+        });
     });
 
     // Expand/Collapse arrow
