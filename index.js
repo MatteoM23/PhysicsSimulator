@@ -3,7 +3,10 @@ import { interactionRules, handleCollisions } from './interactions.js';
 
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Make sure this element exists in your HTML or is created and appended to the DOM before this script runs
     const materialsContainer = document.getElementById('materialsContainer');
+
+
 
     // Assuming an object or array of materials
     const materials = {
@@ -63,45 +66,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    function setupMaterialSelector() {
-    // Assuming materials is defined and contains your materials information
-    const materialsContainer = document.getElementById('materialsContainer');
-
-    if (!materialsContainer) {
-        console.error('materialsContainer not found');
-        return;
-    }
+    function setupMaterialSelector(materials) {
+    // Your setup code here
+    const uiContainer = document.getElementById('uiContainer'); // Ensure this exists
+    const materialsContainer = document.createElement('div');
+    materialsContainer.id = 'materialsContainer';
+    uiContainer.appendChild(materialsContainer); // Append the container to the DOM
 
     Object.entries(materials).forEach(([key, material]) => {
         const button = document.createElement('button');
         button.textContent = material.label;
         button.className = 'materialButton';
         materialsContainer.appendChild(button);
-
-        button.addEventListener('click', () => {
-            // Handle material selection
-            console.log(`Material ${key} selected`);
-        });
-    });
-
-    // Expand/Collapse arrow
-    const expandArrow = document.createElement('button');
-    expandArrow.innerHTML = '&#x25BC;'; // Downward arrow
-    expandArrow.className = 'expandArrow';
-    selector.appendChild(expandArrow);
-
-    expandArrow.addEventListener('click', () => {
-        const isExpanded = expandArrow.innerHTML === '&#x25BC;';
-        document.querySelectorAll('.material-selector .materialButton').forEach((btn, index) => {
-            if (index >= 6) btn.style.display = isExpanded ? 'inline-block' : 'none';
-        });
-        expandArrow.innerHTML = isExpanded ? '&#x25B2;' : '&#x25BC;'; // Toggle arrow
     });
 }
 
 
+    document.addEventListener('DOMContentLoaded', () => {
+    // Other initialization code
+    setupMaterialSelector(materials); // Make sure materials is defined before this call
+});
 
-    
+
+
     function expandMaterialsDropdown(materials) {
         // Remove all current buttons
         while (materialsContainer.firstChild) {
