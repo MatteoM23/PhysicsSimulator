@@ -66,20 +66,17 @@ export const interactionRules = (bodyA, bodyB, engine) => {
 
 
 function convertToSteamAndObsidian(bodyA, bodyB, engine) {
-    // Identifying water and lava bodies
     let waterBody = bodyA.material === 'water' ? bodyA : bodyB;
     let lavaBody = bodyA.material === 'lava' ? bodyA : bodyB;
 
-    // Simulate evaporation by removing the water body
-    Matter.World.remove(engine.world, waterBody);
+    Matter.World.remove(engine.world, waterBody); // Remove water to simulate evaporation
 
-    // Change lava to obsidian
-    lavaBody.render.fillStyle = '#504A4B'; // A dark, reflective color for obsidian
+    lavaBody.render.fillStyle = '#504A4B'; // Change color to simulate obsidian
     lavaBody.material = 'obsidian';
 
-    // Create steam particles at the position where the water body was
-    createSteamParticles(engine, waterBody.position);
+    createSteamParticles(engine, waterBody.position); // Create steam where water evaporated
 }
+
 
 function createSteamParticles(engine, position) {
     const numberOfParticles = 10; // Number of steam particles to create
@@ -112,40 +109,49 @@ function convertLavaToRockRemoveIce(bodyA, bodyB, engine) {
 }
 
 function simulateExplosion(bodyA, bodyB, world, radius, force) {
-    // Calculate the explosion's epicenter
     const explosionPoint = { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 };
 
+    // Apply forces to nearby bodies to simulate the explosion's impact
     Matter.Composite.allBodies(world).forEach(body => {
         if (!body.isStatic) {
             const dx = body.position.x - explosionPoint.x;
             const dy = body.position.y - explosionPoint.y;
-            const distance = Math.sqrt(dx*dx + dy*dy);
+            const distance = Math.sqrt(dx * dx + dy * dy);
             if (distance < radius) {
-                // Calculate force direction and magnitude
-                const forceDirection = Matter.Vector.normalise({ x: dx, y: dy });
-                const forceMagnitude = force * (1 - distance / radius);
-                const appliedForce = Matter.Vector.mult(forceDirection, forceMagnitude);
-
-                Matter.Body.applyForce(body, body.position, appliedForce);
+                const forceMagnitude = (force * (1 - distance / radius)) / distance;
+                Matter.Body.applyForce(body, body.position, {
+                    x: dx * forceMagnitude,
+                    y: dy * forceMagnitude,
+                });
             }
         }
     });
+
+    // Create visual explosion particles at the epicenter
+    createExplosionParticles(world, explosionPoint, radius);
 }
+
 
 
 function createExplosionParticles(world, center, radius) {
-    const numberOfParticles = 20; // More particles for a bigger boom!
+    const numberOfParticles = 20; // Adjust for the desired visual effect
     for (let i = 0; i < numberOfParticles; i++) {
         let angle = Math.random() * Math.PI * 2;
-        let distance = Math.random() * radius; // Spread particles within the explosion radius
+        let distance = Math.random() * radius;
         let particle = Matter.Bodies.circle(center.x + Math.cos(angle) * distance, center.y + Math.sin(angle) * distance, 1, {
             isStatic: false,
-            render: { fillStyle: '#ff0' }, // Bright yellow for a fiery look
+            render: { fillStyle: '#ff0' },
+        });
+        // Apply an upward force to simulate the explosion force dispersing particles
+        const forceMagnitude = Math.random() * 0.0005 + 0.0001; // Randomized for variety
+        Matter.Body.applyForce(particle, { x: particle.position.x, y: particle.position.y }, {
+            x: Math.cos(angle) * forceMagnitude,
+            y: Math.sin(angle) * forceMagnitude,
         });
         Matter.World.add(world, particle);
-        // Optional: You might want to add logic for these particles to fade or disperse
     }
 }
+
 
 
 function createExplosionParticles(world, center, radius) {
