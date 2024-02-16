@@ -17,11 +17,11 @@ body, html {
     color: var(--text-color);
     font-family: var(--font-family);
     display: flex;
-    flex-direction: column; /* Ensure vertical layout */
-    justify-content: space-between; /* Spacing between top and bottom sections */
-    align-items: flex-end; /* Align items to the right side */
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
     user-select: none;
-    position: relative; /* Needed for absolute positioning */
+    position: relative;
 }
 
 #uiContainer {
@@ -37,7 +37,7 @@ body, html {
     z-index: 1050;
 }
 
-#materialsContainer, .feature-buttons {
+#materialsContainer, #featureButtons {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
@@ -53,7 +53,7 @@ body, html {
     transition: transform var(--transition-speed) ease;
 }
 
-.materialButton, .feature-buttons .materialButton {
+.materialButton, #featureButtons .materialButton {
     background-color: var(--button-bg-color);
     color: var(--text-color);
     border: none;
@@ -65,13 +65,13 @@ body, html {
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
 }
 
-.materialButton:hover, .feature-buttons .materialButton:hover {
+.materialButton:hover, #featureButtons .materialButton:hover {
     background-color: var(--button-hover-bg-color);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
 }
 
-.materialButton:active, .feature-buttons .materialButton:active {
+.materialButton:active, #featureButtons .materialButton:active {
     background-color: var(--button-active-bg-color);
     transform: translateY(1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
@@ -82,7 +82,7 @@ body, html {
 }
 
 .feature-buttons {
-    position: absolute; /* Positioning relative to the body */
-    bottom: 20px; /* Distance from the bottom */
-    right: 20px; /* Distance from the right */
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
 }
