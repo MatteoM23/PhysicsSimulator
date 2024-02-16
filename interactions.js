@@ -41,7 +41,11 @@ export const interactionRules = (bodyA, bodyB, engine) => {
             increaseIceSize(bodyA, bodyB);
             break;
         case 'oil+water':
-            createOilSlick(engine, { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 });
+            const collisionPoint = { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 };
+            createOilSlick(engine, collisionPoint);
+            // Remove the oil and water bodies from the world after creating the oil slick
+            Matter.World.remove(engine.world, bodyA);
+            Matter.World.remove(engine.world, bodyB);
             break;
         case 'rubber+water':
             createSplashOrWaves(engine, { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 });
