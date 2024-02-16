@@ -294,34 +294,44 @@ function increaseIceSize(bodyA, bodyB) {
     iceBody.circleRadius += 5; // Adjust the size increment as needed
 }
 
-function createOilSlick(engine, collisionPoint) {
-    const numberOfParticles = 3; // Reduced number of particles for subtlety
-    const slickColor = '#8B4513'; // Brown color representing oil
-    const oilDensity = 0.0008; // Density less than water for floating effect
-    const oilFriction = 0.01; // Low friction to simulate slickness
-    const waterColor = slickColor; // Assuming you have a way to set water color globally
-
-    // Optionally, change the global water color to represent contamination
-    // This step depends on how water is represented in your simulation
-    // For example, if water bodies are drawn as large rectangles, you might set their fillStyle to waterColor
+function createOilSlickAndDisappear(engine, collisionPoint) {
+    const numberOfParticles = 3; // Reduced number of particles
+    const slickColor = '#8B4513'; // Color representing oil
+    const oilDensity = 0.0008; // Density for floating effect
+    const oilFriction = 0.01; // Low friction for slickness
+    const disappearDuration = 5000; // Time in milliseconds for particles to disappear
 
     for (let i = 0; i < numberOfParticles; i++) {
         const offset = { x: Math.random() * 20 - 10, y: Math.random() * 20 - 10 };
         const particle = Matter.Bodies.circle(collisionPoint.x + offset.x, collisionPoint.y + offset.y, 3, {
-            isStatic: false, // Allow particles to move
-            render: { fillStyle: slickColor, opacity: 1 },
+            isStatic: false,
+            render: { fillStyle: slickColor },
             density: oilDensity,
             friction: oilFriction,
-            restitution: 0.5, // Slightly bouncy for dynamic interactions
+            restitution: 0.5,
         });
         Matter.World.add(engine.world, particle);
 
-        // Fade out the particle to simulate it mixing into the water
-        setTimeout(() => {
-            Matter.World.remove(engine.world, particle);
-        }, 5000); // Adjust the timeout as needed to control the rate of disappearance
+        // Function to gradually fade out the particle
+        function fadeOutParticle(particle, duration) {
+            let opacity = 1; // Start with full opacity
+            const intervalTime = 100; // Interval time in ms for opacity reduction
+            const interval = setInterval(() => {
+                opacity -= intervalTime / duration;
+                particle.render.opacity = opacity;
+
+                if (opacity <= 0) {
+                    clearInterval(interval);
+                    Matter.World.remove(engine.world, particle);
+                }
+            }, intervalTime);
+        }
+
+        // Call the fade out function for each particle
+        fadeOutParticle(particle, disappearDuration);
     }
 }
+
 
 
 
