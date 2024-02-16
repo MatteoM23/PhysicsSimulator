@@ -131,7 +131,6 @@ function collapseMaterialsDropdown(materials, container) {
 
 
 function initPhysics() {
-    // Your existing initPhysics function here
     const engine = Matter.Engine.create();
     const render = Matter.Render.create({
         element: document.body,
@@ -158,6 +157,7 @@ function initPhysics() {
 
     return { engine, render, world: engine.world };
 }
+
 
 function createNewBody(position, materialKey, world) {
     // Your existing createNewBody function here
@@ -215,9 +215,10 @@ function isFeatureButton(element) {
 
 let isMouseDown = false;
 
-document.addEventListener('mousedown', event => handleMouseDown(event, render, world));
+document.addEventListener('mousedown', (event) => handleMouseDown(event, physics.render, physics.world));
 document.addEventListener('mouseup', handleMouseUp);
-document.addEventListener('mousemove', event => handleMouseMove(event, render, world));
+document.addEventListener('mousemove', (event) => handleMouseMove(event, physics.render, physics.world));
+
 
 function handleMouseDown(event, render, world) {
     isMouseDown = true;
