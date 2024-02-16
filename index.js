@@ -1,6 +1,103 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
 import { interactionRules, handleCollisions } from './interactions.js';
 
+
+document.addEventListener('DOMContentLoaded', () => {
+    const materialsContainer = document.getElementById('materialsContainer');
+
+    // Assuming an object or array of materials
+    const materials = {
+    // Existing materials
+    sand: { label: 'Sand', color: '#f4e04d', density: 0.0025, size: 22.5, friction: 0.5, restitution: 0.3 },
+    water: { label: 'Water', color: '#3498db', density: 0.001, size: 27, friction: 0.02, restitution: 0.9 },
+    oil: { label: 'Oil', color: '#34495e', density: 0.0008, size: 27, friction: 0.05, restitution: 0.05 },
+    rock: { label: 'Rock', color: '#7f8c8d', density: 0.005, size: 37.5, friction: 0.8, restitution: 0.2 },
+    lava: { label: 'Lava', color: '#e74c3c', density: 0.004, size: 33, friction: 0.4, restitution: 0.6 },
+    ice: { label: 'Ice', color: '#a8e0ff', density: 0.0008, size: 27, friction: 0.01, restitution: 0.95 },
+    rubber: { label: 'Rubber', color: '#ff3b3b', density: 0.0012, size: 33, friction: 0.9, restitution: 0.8 },
+    steel: { label: 'Steel', color: '#8d8d8d', density: 0.008, size: 45, friction: 0.6, restitution: 0.1 },
+    glass: { label: 'Glass', color: '#c4faf8', density: 0.002, size: 22.5, friction: 0.4, restitution: 0.7 },
+    wood: { label: 'Wood', color: '#deb887', density: 0.003, size: 37.5, friction: 0.6, restitution: 0.3 },
+    antimatter: { label: 'Antimatter', color: '#ff4081', density: 0.001, size: 22.5, friction: 0.01, restitution: 0.99 },
+    darkMatter: { label: 'Dark Matter', color: '#6200ea', density: 0.0005, size: 22.5, friction: 0.0, restitution: 1.0 },
+    neutronium: { label: 'Neutronium', color: '#5c5c8a', density: 0.02, size: 30, friction: 0.5, restitution: 0.1 },
+    quantumFoam: { label: 'Quantum Foam', color: '#ffec8b', density: 0.0001, size: 25, friction: 0.0, restitution: 0.98 },
+    exoticMatter: { label: 'Exotic Matter', color: '#fa8072', density: -0.001, size: 22.5, friction: 0.01, restitution: 1.1 },
+    plasmaCrystal: { label: 'Plasma Crystal', color: '#00ced1', density: 0.003, size: 20, friction: 0.2, restitution: 0.5 },
+    voidEssence: { label: 'Void Essence', color: '#000080', density: 0.0005, size: 25, friction: 0.0, restitution: 1.0 },
+    ether: { label: 'Ether', color: '#b19cd9', density: 0.0002, size: 30, friction: 0.01, restitution: 0.95 },
+    solarFlare: { label: 'Solar Flare', color: '#ffae42', density: 0.001, size: 35, friction: 0.1, restitution: 0.8 },
+    cosmicDust: { label: 'Cosmic Dust', color: '#6c7b8b', density: 0.002, size: 20, friction: 0.7, restitution: 0.3 },
+    magneticField: { label: 'Magnetic Field', color: '#1e90ff', density: 0.0001, size: 40, friction: 0.0, restitution: 1.05 },
+    photonGel: { label: 'Photon Gel', color: '#ffa07a', density: 0.0008, size: 25, friction: 0.05, restitution: 0.9 },
+};
+
+    // Initially display only the first 6 materials
+    Object.entries(materials).slice(0, 6).forEach(([key, material], index) => {
+        const button = document.createElement('button');
+        button.textContent = material.label;
+        button.className = 'materialButton'; // Use this class for styling
+        materialsContainer.appendChild(button);
+    });
+
+    // Arrow for expanding/collapsing the dropdown
+    const expandArrow = document.createElement('span');
+    expandArrow.innerHTML = '&#x25BC;'; // Downward arrow symbol
+    expandArrow.className = 'expandArrow';
+    materialsContainer.appendChild(expandArrow);
+
+    // Toggle full dropdown view on arrow click
+    let isExpanded = false;
+    expandArrow.addEventListener('click', () => {
+        if (!isExpanded) {
+            // Show all materials
+            expandMaterialsDropdown(materials);
+        } else {
+            // Collapse to show only the first row
+            collapseMaterialsDropdown();
+        }
+        isExpanded = !isExpanded;
+        expandArrow.innerHTML = isExpanded ? '&#x25B2;' : '&#x25BC;'; // Toggle arrow direction
+    });
+
+    function expandMaterialsDropdown(materials) {
+        // Remove all current buttons
+        while (materialsContainer.firstChild) {
+            materialsContainer.removeChild(materialsContainer.firstChild);
+        }
+
+        // Add all materials
+        Object.entries(materials).forEach(([key, material], index) => {
+            const button = document.createElement('button');
+            button.textContent = material.label;
+            button.className = 'materialButton';
+            materialsContainer.appendChild(button);
+        });
+
+        // Re-add the expand arrow
+        materialsContainer.appendChild(expandArrow);
+    }
+
+    function collapseMaterialsDropdown() {
+        // Similar logic to initially setting up the dropdown, showing only the first 6 materials
+        while (materialsContainer.firstChild) {
+            materialsContainer.removeChild(materialsContainer.firstChild);
+        }
+
+        Object.entries(materials).slice(0, 6).forEach(([key, material], index) => {
+            const button = document.createElement('button');
+            button.textContent = material.label;
+            button.className = 'materialButton';
+            materialsContainer.appendChild(button);
+        });
+
+        // Re-add the expand arrow
+        materialsContainer.appendChild(expandArrow);
+    }
+});
+
+
+
 const materials = {
     // Existing materials
     sand: { label: 'Sand', color: '#f4e04d', density: 0.0025, size: 22.5, friction: 0.5, restitution: 0.3 },
