@@ -42,10 +42,9 @@ export const interactionRules = (bodyA, bodyB, engine) => {
             break;
         case 'oil+water':
             const collisionPoint = { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 };
-            createOilSlick(engine, collisionPoint);
-            // Remove the oil and water bodies from the world after creating the oil slick
-            Matter.World.remove(engine.world, bodyA);
-            Matter.World.remove(engine.world, bodyB);
+            createOilSlickAndDisappear(engine, collisionPoint);
+            fadeOutAndRemoveBody(engine, bodyA, 3000); // Fade out oil/water over 3 seconds
+            fadeOutAndRemoveBody(engine, bodyB, 3000);
             break;
         case 'rubber+water':
             createSplashOrWaves(engine, { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 });
