@@ -128,19 +128,6 @@ function collapseMaterialsDropdown(materials, container) {
 }
 
 
-function handleMouseUp() {
-    // Implement the logic for handling mouse up events
-    isMouseDown = false;
-}
-
-function handleMouseMove(event, render, world) {
-    // Implement the logic for handling mouse move events
-    if (isMouseDown && !isMaterialSelectorButton(event.target) && !isFeatureButton(event.target)) {
-        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-        createNewBody({ x, y }, currentMaterial, world);
-    }
-}
-
 function initPhysics() {
     // Your existing initPhysics function here
     const engine = Matter.Engine.create();
