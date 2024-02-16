@@ -1,68 +1,70 @@
-// Import the required namespaces from Matter.js directly
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
-// Destructure necessary components from Matter for convenience
-const { Body, Vertices } = Matter;
+// Destructure necessary components from Matter for enhanced usability
+const { Body, Vertices, Vector } = Matter;
 
-// Adjusts the screenToWorld function to correctly convert screen coordinates to world coordinates
+// Improved screenToWorld function for accuracy and efficiency
 function screenToWorld(clientX, clientY, render) {
-    // Calculate the position of the canvas element on the page
     const bounds = render.canvas.getBoundingClientRect();
-    
-    // Calculate world coordinates
-    const scaleX = render.canvas.width / bounds.width;
-    const scaleY = render.canvas.height / bounds.height;
-    const worldX = (clientX - bounds.left) * scaleX;
-    const worldY = (clientY - bounds.top) * scaleY;
-
-    return { x: worldX, y: worldY };
+    const scaleX = render.options.width / bounds.width;
+    const scaleY = render.options.height / bounds.height;
+    return {
+        x: (clientX - bounds.left) * scaleX,
+        y: (clientY - bounds.top) * scaleY
+    };
 }
 
-
-// Other utility functions remain the same as they don't directly interact with Render
+// Enhanced isInside function for better readability
 function isInside(body, x, y) {
     return Vertices.contains(body.vertices, { x, y });
 }
 
+// More concise adjustMaterialProperties using Body.set directly
 function adjustMaterialProperties(body, properties) {
-    Object.entries(properties).forEach(([key, value]) => {
-        if (body[key] !== undefined) {
-            body[key] = value;
-        }
-    });
     Body.set(body, properties);
 }
 
+// Utilizing Matter.js Vector.magnitude for calculateMagnitude
 function calculateMagnitude(vector) {
-    return Math.sqrt(vector.x ** 2 + vector.y ** 2);
+    return Vector.magnitude(vector);
 }
 
+// Improved applyForceTowardsPoint to include normalization using Matter.Vector
 function applyForceTowardsPoint(body, point, strength) {
-    const dx = point.x - body.position.x;
-    const dy = point.y - body.position.y;
-    const distance = calculateMagnitude({ x: dx, y: dy });
-    const forceMagnitude = strength / distance; // Adjust the strength based on distance
-    const force = {
-        x: (dx / distance) * forceMagnitude,
-        y: (dy / distance) * forceMagnitude,
-    };
+    const forceDirection = Vector.sub(point, body.position);
+    const forceMagnitude = strength / calculateMagnitude(forceDirection);
+    const force = Vector.mult(Vector.normalise(forceDirection), forceMagnitude);
     Body.applyForce(body, body.position, force);
 }
 
+// Simplified normalizeVector utilizing Vector.normalise
 function normalizeVector(vector) {
-    const magnitude = calculateMagnitude(vector);
+    return Vector.normalise(vector);
+}
+
+// Additional utility function to create a random vector within a range
+function randomVector(min, max) {
     return {
-        x: vector.x / magnitude,
-        y: vector.y / magnitude,
+        x: Math.random() * (max - min) + min,
+        y: Math.random() * (max - min) + min
     };
 }
 
-// Export the functions for use in other modules
+// Additional utility function to rotate a body around a point
+function rotateBodyAroundPoint(body, point, angle) {
+    Body.setPosition(body, {
+        x: point.x + Math.cos(angle) * (body.position.x - point.x) - Math.sin(angle) * (body.position.y - point.y),
+        y: point.y + Math.sin(angle) * (body.position.x - point.x) + Math.cos(angle) * (body.position.y - point.y)
+    });
+}
+
 export {
     screenToWorld,
     isInside,
     adjustMaterialProperties,
     calculateMagnitude,
     applyForceTowardsPoint,
-    normalizeVector
+    normalizeVector,
+    randomVector,
+    rotateBodyAroundPoint
 };
