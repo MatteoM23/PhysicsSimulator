@@ -17,9 +17,11 @@ body, html {
     color: var(--text-color);
     font-family: var(--font-family);
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column; /* Ensure vertical layout */
+    justify-content: space-between; /* Spacing between top and bottom sections */
+    align-items: flex-end; /* Align items to the right side */
     user-select: none;
+    position: relative; /* Needed for absolute positioning */
 }
 
 #uiContainer {
@@ -77,4 +79,10 @@ body, html {
 
 #uiContainer.expanded .expandArrow {
     transform: rotate(-180deg);
+}
+
+.feature-buttons {
+    position: absolute; /* Positioning relative to the body */
+    bottom: 20px; /* Distance from the bottom */
+    right: 20px; /* Distance from the right */
 }
