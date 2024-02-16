@@ -211,6 +211,8 @@ function isFeatureButton(element) {
     return element.closest('.feature-buttons') !== null;
 }
 
+let isMouseDown = false;
+
 function handleMouseDown(event, render, world) {
     // Implement the logic for handling mouse down events
     isMouseDown = true;
