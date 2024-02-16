@@ -1,15 +1,8 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
 import { interactionRules, handleCollisions } from './interactions.js';
 
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Make sure this element exists in your HTML or is created and appended to the DOM before this script runs
-    const materialsContainer = document.getElementById('materialsContainer');
-
-
-
-    // Assuming an object or array of materials
-    const materials = {
+// Define materials globally to ensure they are accessible throughout the script
+const materials = {
     // Existing materials
     sand: { label: 'Sand', color: '#f4e04d', density: 0.0025, size: 22.5, friction: 0.5, restitution: 0.3 },
     water: { label: 'Water', color: '#3498db', density: 0.001, size: 27, friction: 0.02, restitution: 0.9 },
@@ -35,104 +28,129 @@ document.addEventListener('DOMContentLoaded', () => {
     photonGel: { label: 'Photon Gel', color: '#ffa07a', density: 0.0008, size: 25, friction: 0.05, restitution: 0.9 },
 };
 
+let currentMaterial = 'sand';
 
+document.addEventListener('DOMContentLoaded', () => {
+    const uiContainer = document.getElementById('uiContainer');
+    if (!uiContainer) {
+        console.error('UI Container not found');
+        return;
+    }
+
+    // Create materialsContainer if it does not exist
+    let materialsContainer = document.getElementById('materialsContainer');
+    if (!materialsContainer) {
+        materialsContainer = document.createElement('div');
+        materialsContainer.id = 'materialsContainer';
+        uiContainer.appendChild(materialsContainer);
+    }
+
+    setupMaterialSelector(materials, materialsContainer);
+    const { engine, render, world } = initPhysics();
+
+    setupFeatureButtons(engine, world);
+
+    document.body.addEventListener('mousedown', (event) => handleMouseDown(event, render, world));
+    document.body.addEventListener('mouseup', () => handleMouseUp());
+    document.body.addEventListener('mousemove', (event) => handleMouseMove(event, render, world));
+});
+
+function setupMaterialSelector(materials, container) {
     // Initially display only the first 6 materials
-    Object.entries(materials).slice(0, 6).forEach(([key, material], index) => {
+    Object.entries(materials).slice(0, 6).forEach(([key, material]) => {
         const button = document.createElement('button');
         button.textContent = material.label;
         button.className = 'materialButton'; // Use this class for styling
-        materialsContainer.appendChild(button);
+        button.onclick = () => selectMaterial(key);
+        container.appendChild(button);
     });
 
     // Arrow for expanding/collapsing the dropdown
     const expandArrow = document.createElement('span');
     expandArrow.innerHTML = '&#x25BC;'; // Downward arrow symbol
     expandArrow.className = 'expandArrow';
-    materialsContainer.appendChild(expandArrow);
+    container.appendChild(expandArrow);
 
     // Toggle full dropdown view on arrow click
     let isExpanded = false;
     expandArrow.addEventListener('click', () => {
         if (!isExpanded) {
             // Show all materials
-            expandMaterialsDropdown(materials);
+            expandMaterialsDropdown(materials, container);
         } else {
             // Collapse to show only the first row
-            collapseMaterialsDropdown();
+            collapseMaterialsDropdown(materials, container);
         }
         isExpanded = !isExpanded;
         expandArrow.innerHTML = isExpanded ? '&#x25B2;' : '&#x25BC;'; // Toggle arrow direction
     });
+}
 
+function selectMaterial(key) {
+    currentMaterial = key;
+    console.log(`Material ${key} selected`);
+}
 
+function expandMaterialsDropdown(materials, container) {
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
+    Object.entries(materials).forEach(([key, material]) => {
+        const button = document.createElement('button');
+        button.textContent = material.label;
+        button.className = 'materialButton';
+        button.onclick = () => selectMaterial(key);
+        container.appendChild(button);
+    });
+    // Re-add the expand arrow
+    // Note: Make sure to re-create or move the expand arrow logic here if it gets removed
+}
 
-    function setupMaterialSelector(materials) {
-        const uiContainer = document.getElementById('uiContainer'); // Ensure this is the correct ID for your container
-        if (!uiContainer) {
-            console.error('UI Container not found');
-            return;
-        }
-    
-        // Assuming materialsContainer is a direct child or correctly referenced within uiContainer
-        const materialsContainer = document.createElement('div');
-        materialsContainer.id = 'materialsContainer';
-        uiContainer.appendChild(materialsContainer);
-    
-        Object.entries(materials).forEach(([key, material]) => {
-            const button = document.createElement('button');
-            button.textContent = material.label;
-            button.className = 'materialButton'; // Use this class for styling
-            materialsContainer.appendChild(button);
-        });
-    
-        // Implement expand/collapse logic here if necessary
+function collapseMaterialsDropdown(materials, container) {
+    // Remove all current buttons
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
     }
 
+    // Add only the first 6 materials
+    Object.entries(materials).slice(0, 6).forEach(([key, material], index) => {
+        const button = document.createElement('button');
+        button.textContent = material.label;
+        button.className = 'materialButton';
+        container.appendChild(button);
+    });
 
+    // Add the expand arrow
+    const expandArrow = document.createElement('span');
+    expandArrow.innerHTML = '&#x25BC;'; // Downward arrow symbol
+    expandArrow.className = 'expandArrow';
+    container.appendChild(expandArrow);
+}
 
-
-    function expandMaterialsDropdown(materials) {
-        // Remove all current buttons
-        while (materialsContainer.firstChild) {
-            materialsContainer.removeChild(materialsContainer.firstChild);
-        }
-
-        // Add all materials
-        Object.entries(materials).forEach(([key, material], index) => {
-            const button = document.createElement('button');
-            button.textContent = material.label;
-            button.className = 'materialButton';
-            materialsContainer.appendChild(button);
-        });
-
-        // Re-add the expand arrow
-        materialsContainer.appendChild(expandArrow);
+function handleMouseDown(event, render, world) {
+    // Implement the logic for handling mouse down events
+    isMouseDown = true;
+    const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+    if (!isMaterialSelectorButton(event.target) && !isFeatureButton(event.target)) {
+        createNewBody({ x, y }, currentMaterial, world);
     }
+}
 
-    function collapseMaterialsDropdown() {
-        // Similar logic to initially setting up the dropdown, showing only the first 6 materials
-        while (materialsContainer.firstChild) {
-            materialsContainer.removeChild(materialsContainer.firstChild);
-        }
+function handleMouseUp() {
+    // Implement the logic for handling mouse up events
+    isMouseDown = false;
+}
 
-        Object.entries(materials).slice(0, 6).forEach(([key, material], index) => {
-            const button = document.createElement('button');
-            button.textContent = material.label;
-            button.className = 'materialButton';
-            materialsContainer.appendChild(button);
-        });
-
-        // Re-add the expand arrow
-        materialsContainer.appendChild(expandArrow);
+function handleMouseMove(event, render, world) {
+    // Implement the logic for handling mouse move events
+    if (isMouseDown && !isMaterialSelectorButton(event.target) && !isFeatureButton(event.target)) {
+        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+        createNewBody({ x, y }, currentMaterial, world);
     }
-});
-
-
-
-let currentMaterial = 'sand';
-
+}
 
 function initPhysics() {
+    // Your existing initPhysics function here
     const engine = Matter.Engine.create();
     const render = Matter.Render.create({
         element: document.body,
@@ -160,52 +178,8 @@ function initPhysics() {
     return { engine, render, world: engine.world };
 }
 
-
-function screenToWorld(clientX, clientY, render) {
-    const bounds = render.canvas.getBoundingClientRect();
-    const scaleX = render.canvas.width / bounds.width;
-    const scaleY = render.canvas.height / bounds.height;
-    return { x: (clientX - bounds.left) * scaleX, y: (clientY - bounds.top) * scaleY };
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const { engine, render, world } = initPhysics();
-
-    let isMouseDown = false;
-    document.body.addEventListener('mousedown', event => {
-        isMouseDown = true;
-        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-        if (!isMaterialSelectorButton(event.target) && !isFeatureButton(event.target)) {
-            createNewBody({ x, y }, currentMaterial, world);
-        }
-    });
-
-    document.body.addEventListener('mouseup', () => {
-        isMouseDown = false;
-    });
-
-    document.body.addEventListener('mousemove', event => {
-        if (isMouseDown && !isMaterialSelectorButton(event.target) && !isFeatureButton(event.target)) {
-            const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-            createNewBody({ x, y }, currentMaterial, world);
-        }
-    });
-
-    setupMaterialSelector(materials);
-    setupFeatureButtons(engine, world);
-});
-
-function isMaterialSelectorButton(element) {
-    return element.closest('.material-selector') !== null;
-}
-
-function isFeatureButton(element) {
-    return element.closest('.feature-buttons') !== null;
-}
-
-
-
 function createNewBody(position, materialKey, world) {
+    // Your existing createNewBody function here
     const material = materials[materialKey];
     const options = {
         density: material.density,
@@ -221,6 +195,7 @@ function createNewBody(position, materialKey, world) {
 }
 
 function clearDynamicBodies(world) {
+    // Your existing clearDynamicBodies function here
     Matter.Composite.allBodies(world).forEach(body => {
         if (!body.isStatic) {
             Matter.Composite.remove(world, body);
@@ -228,8 +203,8 @@ function clearDynamicBodies(world) {
     });
 }
 
-
 function setupFeatureButtons(engine, world) {
+    // Your existing setupFeatureButtons function here
     const buttonsContainer = document.createElement('div');
     buttonsContainer.className = 'feature-buttons';
     document.body.appendChild(buttonsContainer);
@@ -246,3 +221,14 @@ function setupFeatureButtons(engine, world) {
     clearButton.onclick = () => clearDynamicBodies(engine.world);
     buttonsContainer.appendChild(clearButton);
 }
+
+function isMaterialSelectorButton(element) {
+    // Your existing isMaterialSelectorButton function here
+    return element.closest('.material-selector') !== null;
+}
+
+function isFeatureButton(element) {
+    // Your existing isFeatureButton function here
+    return element.closest('.feature-buttons') !== null;
+}
+
