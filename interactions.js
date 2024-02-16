@@ -153,23 +153,6 @@ function createExplosionParticles(world, center, radius) {
 }
 
 
-
-function createExplosionParticles(world, center, radius) {
-    const numberOfParticles = 20; // More particles for a bigger boom!
-    for (let i = 0; i < numberOfParticles; i++) {
-        let angle = Math.random() * Math.PI * 2;
-        let distance = Math.random() * radius; // Spread particles within the explosion radius
-        let particle = Matter.Bodies.circle(center.x + Math.cos(angle) * distance, center.y + Math.sin(angle) * distance, 1, {
-            isStatic: false,
-            render: { fillStyle: '#ff0' }, // Bright yellow for a fiery look
-        });
-        Matter.World.add(world, particle);
-        // Optional: You might want to add logic for these particles to fade or disperse
-    }
-}
-
-
-
 function createMud(bodyA, bodyB, engine) {
     // Determine the collision point. For simplicity, we'll just use the midpoint between the two bodies.
     const collisionPoint = {
