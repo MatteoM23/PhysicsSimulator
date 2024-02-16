@@ -66,18 +66,22 @@ export const interactionRules = (bodyA, bodyB, engine) => {
 
 
 function convertToSteamAndObsidian(bodyA, bodyB, typeA, typeB, engine) {
-    // Assume bodyA is water and bodyB is lava, or vice versa
-    // Implementation would remove the water body and change the material of the lava body to 'obsidian'
     let waterBody = typeA === 'water' ? bodyA : bodyB;
     let lavaBody = typeA === 'lava' ? bodyA : bodyB;
 
-    // Convert water to steam (effectively remove or replace with steam particles)
-    Matter.World.remove(engine.world, waterBody);
+    // Schedule water removal to simulate delay before conversion
+    setTimeout(() => {
+        // Remove water body to simulate conversion to steam
+        Matter.World.remove(engine.world, waterBody);
+    }, 1000); // Delay in milliseconds
 
-    // Convert lava to obsidian
-    lavaBody.render.fillStyle = '#555'; // Example color for obsidian
-    lavaBody.material = 'obsidian';
+    // Change lava to obsidian with a slight delay
+    setTimeout(() => {
+        lavaBody.render.fillStyle = '#555'; // Set color for obsidian
+        lavaBody.material = 'obsidian';
+    }, 1500); // Delay to visualize interaction before conversion
 }
+
 
 function convertLavaToRockRemoveIce(bodyA, bodyB, engine) {
     // Similar to the above, remove ice and convert lava to rock
@@ -91,23 +95,24 @@ function convertLavaToRockRemoveIce(bodyA, bodyB, engine) {
 
 function simulateExplosion(bodyA, bodyB, world, radius, force) {
     const explosionPoint = { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 };
+
     Matter.Composite.allBodies(world).forEach(body => {
         if (!body.isStatic) {
             const dx = body.position.x - explosionPoint.x;
             const dy = body.position.y - explosionPoint.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
+
             if (distance < radius) {
-                const forceMagnitude = (force * (1 - distance / radius)) / distance; // Adjust for more realistic fall-off
-                Matter.Body.applyForce(body, body.position, {
-                    x: dx * forceMagnitude,
-                    y: dy * forceMagnitude,
-                });
+                // Calculate force vector with direction and magnitude
+                const forceMagnitude = Math.min(force / distance, force);
+                const forceDirection = { x: dx / distance, y: dy / distance };
+                const forceVector = { x: forceDirection.x * forceMagnitude, y: forceDirection.y * forceMagnitude };
+
+                Matter.Body.applyForce(body, body.position, forceVector);
             }
         }
     });
 }
-
-
 
 
 function createMud(bodyA, bodyB, engine) {
