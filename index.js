@@ -61,6 +61,54 @@ document.addEventListener('DOMContentLoaded', () => {
         expandArrow.innerHTML = isExpanded ? '&#x25B2;' : '&#x25BC;'; // Toggle arrow direction
     });
 
+
+
+    function setupMaterialSelector(materials) {
+    const selector = document.createElement('div');
+    selector.className = 'material-selector';
+    document.body.appendChild(selector);
+
+    // Container for the materials and the expand arrow
+    const materialsContainer = document.createElement('div');
+    materialsContainer.id = 'materialsContainer';
+    selector.appendChild(materialsContainer);
+
+    // Create material buttons
+    Object.entries(materials).forEach(([key, { label, color }], index) => {
+        const button = document.createElement('button');
+        button.innerText = label;
+        button.style.backgroundColor = color;
+        button.className = 'materialButton';
+        // Initially show only the first 6 materials
+        if (index >= 6) button.style.display = 'none';
+        button.onclick = () => {
+            currentMaterial = key;
+            document.querySelectorAll('.material-selector button').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            button.classList.add('selected');
+        };
+        materialsContainer.appendChild(button);
+    });
+
+    // Expand/Collapse arrow
+    const expandArrow = document.createElement('button');
+    expandArrow.innerHTML = '&#x25BC;'; // Downward arrow
+    expandArrow.className = 'expandArrow';
+    selector.appendChild(expandArrow);
+
+    expandArrow.addEventListener('click', () => {
+        const isExpanded = expandArrow.innerHTML === '&#x25BC;';
+        document.querySelectorAll('.material-selector .materialButton').forEach((btn, index) => {
+            if (index >= 6) btn.style.display = isExpanded ? 'inline-block' : 'none';
+        });
+        expandArrow.innerHTML = isExpanded ? '&#x25B2;' : '&#x25BC;'; // Toggle arrow
+    });
+}
+
+
+
+    
     function expandMaterialsDropdown(materials) {
         // Remove all current buttons
         while (materialsContainer.firstChild) {
