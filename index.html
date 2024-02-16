@@ -8,13 +8,16 @@
 </head>
 <body>
     <!-- uiContainer will contain the materialsContainer and the dynamically added dropdownArrow -->
-    <div id="uiContainer" class="uiElement"></div>
-        <!-- Ensure this is inside the <body> tag -->
+    <div id="uiContainer" class="uiElement">
+        <!-- materialsContainer should be inside uiContainer -->
         <div id="materialsContainer"></div>
 
-    <div id="featureButtons" class="uiElement">
-        <!-- Feature buttons will be dynamically inserted here -->
+        <!-- featureButtons should also be inside uiContainer -->
+        <div id="featureButtons" class="uiElement">
+            <!-- Feature buttons will be dynamically inserted here -->
+        </div>
     </div>
+    
     <script type="module" src="index.js"></script>
     <script type="module" src="interactions.js"></script>
     <script type="module" src="utils.js"></script>
