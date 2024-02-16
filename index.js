@@ -67,6 +67,7 @@ function screenToWorld(clientX, clientY, render) {
     return { x: (clientX - bounds.left) * scaleX, y: (clientY - bounds.top) * scaleY };
 }
 
+// Replace this block with the provided snippet
 document.addEventListener('DOMContentLoaded', () => {
     const { engine, render, world } = initPhysics();
 
@@ -74,7 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.addEventListener('mousedown', event => {
         isMouseDown = true;
         const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-        createNewBody({ x, y }, currentMaterial, world);
+        // Check if the clicked element is a material selector button or a feature button
+        if (!event.target.classList.contains('material-selector') && !event.target.classList.contains('feature-buttons')) {
+            createNewBody({ x, y }, currentMaterial, world);
+        }
     });
 
     document.body.addEventListener('mouseup', () => {
@@ -91,6 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupMaterialSelector(materials);
     setupFeatureButtons(engine, world);
 });
+
 
 function createNewBody(position, materialKey, world) {
     const material = materials[materialKey];
