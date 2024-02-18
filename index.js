@@ -108,7 +108,7 @@ function initPhysics() {
     const materialSelectorHeight = document.getElementById('materialsContainer').offsetHeight || 0;
     const featureButtonsHeight = document.querySelector('.feature-buttons').offsetHeight || 0;
     const groundHeight = Math.min(window.innerHeight * 0.1, 100); // Set ground height to 10% of viewport height or maximum 100px
-    const groundY = window.innerHeight - groundHeight / 2 - featureButtonsHeight - 10; // Adjust the floor position
+    const groundY = window.innerHeight - groundHeight / 2 - featureButtonsHeight - materialSelectorHeight - 10; // Adjust the floor position
 
     const ground = Matter.Bodies.rectangle(window.innerWidth / 2, groundY, window.innerWidth, groundHeight, {
         isStatic: true,
@@ -128,6 +128,7 @@ function initPhysics() {
     // Add elements to the world
     Matter.World.add(world, [ground, leftWall, rightWall]);
 }
+
 
     addEnvironment(); // Add the initial environment
 
