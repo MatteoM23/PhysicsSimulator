@@ -101,7 +101,7 @@ function initPhysics() {
     setupEventListeners(); // Assuming setupEventListeners is defined elsewhere
 
     // Handle window resize event
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize); // Ensure environment updates on resize
 }
 
 function createRenderer() {
@@ -125,41 +125,40 @@ function createRenderer() {
 }
 
 function handleResize() {
-    // Adjust render dimensions to match the new window size
+    // Update renderer dimensions
     render.canvas.width = document.documentElement.clientWidth;
     render.canvas.height = document.documentElement.clientHeight;
     render.options.width = document.documentElement.clientWidth;
     render.options.height = document.documentElement.clientHeight;
 
-    // Update environment elements to adjust to new size
+    // Re-add environment elements with updated positions
     addEnvironment();
 }
 
+
 function addEnvironment() {
-    // Clear existing environment bodies before adding new ones
-    Matter.Composite.clear(world, true); // true to clear all bodies, false or omit to keep statics
+    // First, clear existing environment bodies to avoid duplicates
+    Matter.Composite.clear(world, false); // false to keep static bodies like walls, if you have them
 
-    const groundHeight = Math.min(window.innerHeight * 0.1, 100);
-    const groundY = window.innerHeight - groundHeight / 2;
+    // Calculate the ground position based on the viewport height
+    const viewportHeight = document.documentElement.clientHeight;
+    const groundHeight = 20; // Define a consistent ground height
+    const groundY = viewportHeight - groundHeight / 2; // Position ground at the bottom of the viewport
 
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, groundY, window.innerWidth, groundHeight, {
+    // Create the ground with the updated position and dimensions
+    const ground = Matter.Bodies.rectangle(document.documentElement.clientWidth / 2, groundY, document.documentElement.clientWidth, groundHeight, {
         isStatic: true,
-        render: { fillStyle: '#868e96' }
+        render: {
+            fillStyle: '#868e96' // Style the ground as needed
+        }
     });
 
-    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, {
-        isStatic: true,
-        render: { fillStyle: '#868e96' }
-    });
+    // Add or re-add walls if necessary, adjusting their positions similarly
 
-    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, {
-        isStatic: true,
-        render: { fillStyle: '#868e96' }
-    });
-
-    // Add updated elements to the world
-    Matter.World.add(world, [ground, leftWall, rightWall]);
+    // Add the ground (and walls if applicable) to the world
+    Matter.World.add(world, [ground]);
 }
+
 
 
 function setButtonTextColorBasedOnBackground() {
