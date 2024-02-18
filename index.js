@@ -6,6 +6,11 @@ let engine, render, world;
 let isMouseDown = false; // Define isMouseDown at the top of your script
 let fountainInterval;
 let particles = [];
+let engine, render, world;
+let teleportationActive = false;
+let placingGateA = false, placingGateB = false;
+let gateA, gateB;
+let gates = [];
 
 
 
@@ -194,49 +199,120 @@ document.addEventListener('DOMContentLoaded', setButtonTextColorBasedOnBackgroun
 
 // Enhance the features in the setupFeatureButtons() function
 function setupFeatureButtons() {
-    // Ensure the feature buttons container is targeted specifically
     const buttonsContainer = document.querySelector('.feature-buttons');
     if (!buttonsContainer) {
         console.error('Feature buttons container not found');
         return;
     }
 
+    // Existing buttons
     const clearWorldButton = document.createElement('button');
     clearWorldButton.textContent = 'Clear World';
-    clearWorldButton.onclick = clearMaterialBodiesWithEffect; // Updated onclick event handler
+    clearWorldButton.onclick = clearMaterialBodiesWithEffect;
     buttonsContainer.appendChild(clearWorldButton);
 
     const invertGravityButton = createFeatureButton('Invert Gravity', () => {
-        engine.world.gravity.y *= -1; // Inverts gravity
+        engine.world.gravity.y *= -1;
     });
     buttonsContainer.appendChild(invertGravityButton);
 
-    const materialFountainButton = createFeatureButton('Material Fountain', startMaterialFountainWithEffect);
-    buttonsContainer.appendChild(materialFountainButton);
-
-    // Add more feature buttons as needed, appending them to buttonsContainer
+    // Teleportation Gates Button
+    const teleportGatesButton = createFeatureButton('Toggle Teleport Gates', toggleTeleportationGates);
+    buttonsContainer.appendChild(teleportGatesButton);
 }
 
-function startMaterialFountainWithEffect() {
-    // Clear existing particles to prevent accumulation over time
-    particles.forEach(particle => {
-        Matter.World.remove(world, particle);
+// Toggle Teleportation Gates Mode
+function toggleTeleportationGates() {
+    teleportationActive = !teleportationActive;
+    if (!teleportationActive) {
+        // Remove gates if deactivating
+        [gateA, gateB].forEach(gate => {
+            if (gate) Matter.Composite.remove(world, gate);
+        });
+        gateA = gateB = null;
+        gates = [];
+    } else {
+        // Enter placement mode for gate A
+        placingGateA = true;
+        document.querySelector('.feature-buttons').textContent = 'Place Gate A';
+    }
+}
+
+// Visual Preview and Placement of Gates
+document.addEventListener('mousemove', function(event) {
+    if (!teleportationActive) return;
+    const mousePosition = { x: event.clientX, y: event.clientY };
+    if (placingGateA || placingGateB) {
+        let previewGate = placingGateA ? gateA : gateB;
+        // Update preview gate position
+        if (previewGate) {
+            Matter.Body.setPosition(previewGate, Matter.Vector.create(mousePosition.x, mousePosition.y));
+        } else {
+            // Create preview gate
+            const options = { 
+                isSensor: true, 
+                isStatic: true,
+                render: { 
+                    fillStyle: placingGateA ? 'rgba(0, 255, 0, 0.5)' : 'rgba(255, 0, 0, 0.5)'
+                }
+            };
+            previewGate = Matter.Bodies.rectangle(mousePosition.x, mousePosition.y, 50, 10, options);
+            Matter.World.add(world, previewGate);
+            if (placingGateA) gateA = previewGate;
+            else gateB = previewGate;
+        }
+    }
+});
+
+document.addEventListener('click', function() {
+    if (placingGateA) {
+        placingGateA = false;
+        placingGateB = true;
+        document.querySelector('.feature-buttons').textContent = 'Place Gate B';
+    } else if (placingGateB) {
+        placingGateB = false;
+        teleportationActive = false; // End teleportation gate placement
+        document.querySelector('.feature-buttons').textContent = '';
+        gates.push(gateA, gateB); // Add gates to the array for teleportation functionality
+        gateA.render.fillStyle = '#00FF00'; // Make gate A fully visible
+        gateB.render.fillStyle = '#FF0000'; // Make gate B fully visible
+    }
+});
+
+// Teleportation Logic
+Matter.Events.on(engine, 'collisionStart', function(event) {
+    event.pairs.forEach(function(pair) {
+        const labels = [pair.bodyA.label, pair.bodyB.label];
+        if ((labels.includes('teleportA') || labels.includes('teleportB')) && gates.length === 2) {
+            const teleportFrom = labels.includes('teleportA') ? gateA : gateB;
+            const teleportTo = teleportFrom === gateA ? gateB : gateA;
+            const bodyToTeleport = pair.bodyA.label.startsWith('teleport') ? pair.bodyB : pair.bodyA;
+            
+            // Teleport the body
+            Matter.Body.setPosition(bodyToTeleport, { x: teleportTo.position.x, y: teleportTo.position.y - 50 });
+        }
     });
-    particles = [];
+});
 
-    // Start fountain interval
-    fountainInterval = setInterval(() => {
-        const x = window.innerWidth / 2; // Fixed x position (center of the screen)
-        const velocity = { x: Math.random() * 2 - 1, y: -Math.random() * 5 }; // Randomized velocity for realistic fountain effect
-        createBodyWithVelocity(x, window.innerHeight, currentMaterial, velocity); // Spawn material body with velocity at the bottom of the screen
-
-        // Create color-changing and varying-sized particles for visual effect
-        createColorChangingParticle(x, window.innerHeight, 5 + Math.random() * 15, 0.5 + Math.random() * 0.5); // Example function to create color-changing particles
-    }, 100); // Adjust interval as desired
+function setupCustomMaterialCreator() {
+    const customMaterialButton = createFeatureButton('Create Material', openMaterialCreator);
+    document.querySelector('.feature-buttons').appendChild(customMaterialButton);
 }
 
-function stopMaterialFountain() {
-    clearInterval(fountainInterval);
+function openMaterialCreator() {
+    // Open a modal or a side panel where users can input properties for a new material
+    // For simplicity, this could be a series of prompts or a form in a modal
+    const name = prompt("Enter material name:");
+    const color = prompt("Enter material color (hex):");
+    const density = parseFloat(prompt("Enter material density:"));
+    const friction = parseFloat(prompt("Enter material friction:"));
+    const restitution = parseFloat(prompt("Enter material restitution:"));
+
+    // Add the new material to the materials object
+    materials[name] = { label: name, color, density, friction, restitution, size: 25 }; // Default size provided
+
+    // Refresh the material selector UI to include the new material
+    setupMaterialSelector(materials);
 }
 
 function shakeScreen(duration, intensity) {
