@@ -217,7 +217,7 @@ function createMaterialBody(event) {
     createBody(x, y, currentMaterial);
 }
 
-function createNewBody(x, y, materialKey) {
+function createBody(x, y, materialKey) {
     const material = materials[materialKey];
     const body = Matter.Bodies.circle(x, y, material.size / 2, {
         density: material.density,
