@@ -197,9 +197,10 @@ function handleMouseMove(event) {
 
 function createBodyAtMousePosition(event) {
     const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-    // Assumes a function like createNewBody exists and utilizes x, y, and currentMaterial
-    createNewBody(x, y, currentMaterial); // Adjust based on your createNewBody function's parameters
+    // Corrected to use the existing createBody function
+    createBody(x, y, currentMaterial);
 }
+
 
 
 function createMaterialBody(event) {
@@ -208,7 +209,7 @@ function createMaterialBody(event) {
     createBody(x, y, currentMaterial);
 }
 
-function createBody(x, y, materialKey) {
+function createNewBody(x, y, materialKey) {
     const material = materials[materialKey];
     const body = Matter.Bodies.circle(x, y, material.size / 2, {
         density: material.density,
@@ -216,6 +217,9 @@ function createBody(x, y, materialKey) {
         restitution: material.restitution,
         render: { fillStyle: material.color },
     });
+    Matter.World.add(world, body);
+}
+
     Matter.World.add(world, body);
 }
 
