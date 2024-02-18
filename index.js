@@ -89,34 +89,33 @@ function initPhysics() {
 
     // Define a function to create the renderer with dynamic size
     function createRenderer() {
-    render = Matter.Render.create({
-        element: document.body, // Ensure this element is suitable for your page layout
-        engine: engine,
-        options: {
-            width: window.innerWidth,
-            height: window.innerHeight,
-            wireframes: false,
-            background: 'linear-gradient(135deg, #333333, #1b2838)'
-        }
-    });
-}
-
+        render = Matter.Render.create({
+            element: document.body, // Ensure this element is suitable for your page layout
+            engine: engine,
+            options: {
+                width: window.innerWidth,
+                height: window.innerHeight,
+                wireframes: false,
+                background: 'linear-gradient(135deg, #333333, #1b2838)'
+            }
+        });
+    }
 
     createRenderer(); // Create the initial renderer
 
     // Define a function to add basic environment elements
     function addEnvironment() {
-        const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 20, { 
+        const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 20, {
             isStatic: true,
             render: { fillStyle: '#868e96' }
         });
 
-        const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, { 
+        const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, {
             isStatic: true,
             render: { fillStyle: '#868e96' }
         });
 
-        const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, { 
+        const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, {
             isStatic: true,
             render: { fillStyle: '#868e96' }
         });
@@ -128,7 +127,7 @@ function initPhysics() {
     addEnvironment(); // Add the initial environment
 
     // Setup collision handling
-    Matter.Events.on(engine, 'collisionStart', function(event) {
+    Matter.Events.on(engine, 'collisionStart', function (event) {
         handleCollisions(event, engine);
     });
 
@@ -150,12 +149,13 @@ function handleResize() {
     render.canvas.height = window.innerHeight;
     render.options.width = window.innerWidth;
     render.options.height = window.innerHeight;
-    
+
     // Update the background directly on the canvas element
     document.body.style.background = 'linear-gradient(135deg, #333333, #1b2838)';
-    
+
     // Optionally, adjust environment elements (like ground, walls) based on new size
 }
+
 
 
 // Enhance the features in the setupFeatureButtons() function
