@@ -86,9 +86,9 @@ function selectMaterial(key) {
 function initPhysics() {
     engine = Matter.Engine.create();
     world = engine.world;
-    
+
     render = Matter.Render.create({
-        element: document.body,
+        element: document.body, // Ensure this element is suitable for your page layout
         engine: engine,
         options: {
             width: window.innerWidth,
@@ -98,14 +98,50 @@ function initPhysics() {
         }
     });
 
-    // Add bodies like ground, walls, etc., to the world
-    // Example: const ground = Matter.Bodies.rectangle(0, 0, 0, 0, { isStatic: true });
+    // Define basic environment elements
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 20, { 
+        isStatic: true,
+        render: {
+            fillStyle: '#868e96' // Aesthetic choice for ground color
+        }
+    });
 
+    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, { 
+        isStatic: true,
+        render: {
+            fillStyle: '#868e96'
+        }
+    });
+
+    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, { 
+        isStatic: true,
+        render: {
+            fillStyle: '#868e96'
+        }
+    });
+
+    // Add elements to the world
+    Matter.World.add(world, [ground, leftWall, rightWall]);
+
+    // Setup collision handling
+    Matter.Events.on(engine, 'collisionStart', function(event) {
+        handleCollisions(event, engine);
+    });
+
+    // Start the engine and rendering
     Matter.Runner.run(engine);
     Matter.Render.run(render);
 
+    // Setup event listeners for user interaction
     setupEventListeners();
 }
+
+function setupEventListeners() {
+    document.body.addEventListener('mousedown', handleMouseDown);
+    document.body.addEventListener('mouseup', handleMouseUp);
+    document.body.addEventListener('mousemove', handleMouseMove);
+}
+
 
 function setupFeatureButtons() {
     const buttonsContainer = document.getElementById('uiContainer') || document.body; // Fallback to body if container not found
