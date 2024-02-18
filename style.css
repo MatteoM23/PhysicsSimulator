@@ -1,18 +1,22 @@
 :root {
-    --button-bg-color: #607D8B; /* Soft Blue Grey */
-    --button-hover-bg-color: #78909C; /* Lighter Blue Grey */
-    --button-active-bg-color: #455A64; /* Darker Blue Grey */
-    --container-bg-color: #ECEFF1; /* Light Blue Grey background */
-    --text-color: #37474F; /* Dark Slate Grey for contrast */
+    /* Color Scheme Enhancements */
+    --button-bg-color: #607D8B;
+    --button-hover-bg-color: #78909C;
+    --button-active-bg-color: #455A64;
+    --container-bg-color: #ECEFF1;
+    --text-color: #37474F;
+    --selected-material-color: #FFC107; /* Highlight selected material */
+
+    /* UI Enhancements */
     --font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-    --font-family-title: 'Poppins', sans-serif; /* Adds character and modernity */
+    --font-family-title: 'Poppins', sans-serif;
     --transition-speed: 0.3s;
     --border-radius: 8px;
     --shadow-color: rgba(38, 50, 56, 0.3);
-    --hover-scale: 1.03;
+    --hover-scale: 1.05;
     --active-transform: translateY(2px);
-    --background-animation-color-start: #546E7A; /* Darker shade for gradient start */
-    --background-animation-color-end: #29434E; /* Darker shade for gradient end */
+    --background-animation-color-start: #546E7A;
+    --background-animation-color-end: #29434E;
 }
 
 body, html {
@@ -25,27 +29,29 @@ body, html {
     font-family: var(--font-family);
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Adjusted to flex-start for better alignment */
+    justify-content: flex-start;
     align-items: center;
     user-select: none;
     overflow: hidden;
 }
 
+/* Container Enhancements */
 #uiContainer {
     font-family: var(--font-family-title);
     text-transform: uppercase;
     letter-spacing: 1px;
-    padding: 20px; /* Added padding */
-    margin-top: 20px; /* Added margin to ensure visibility */
+    padding: 20px;
+    margin-top: 20px;
     border-radius: var(--border-radius);
     background-color: var(--container-bg-color);
     box-shadow: 0 4px 8px var(--shadow-color);
-    display: flex; /* Ensures flex layout for the container */
-    flex-direction: column; /* Aligns children vertically */
-    align-items: center; /* Centers items horizontally */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     transition: all var(--transition-speed) ease-in-out;
 }
 
+/* Button Enhancements */
 .materialButton, .feature-buttons button {
     font-weight: bold;
     text-shadow: 1px 1px 2px var(--shadow-color);
@@ -56,10 +62,10 @@ body, html {
     font-size: 16px;
     cursor: pointer;
     border-radius: var(--border-radius);
-    margin: 5px; /* Added margin for spacing */
+    margin: 5px;
     transition: background-color var(--transition-speed) ease, transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
     box-shadow: 0 2px 4px var(--shadow-color);
-    display: inline-block; /* Changed to inline-block for better layout control */
+    display: inline-block;
 }
 
 .materialButton:hover, .feature-buttons button:hover {
@@ -74,20 +80,16 @@ body, html {
     box-shadow: 0 1px 2px var(--shadow-color);
 }
 
-.feature-buttons {
-    display: flex;
-    flex-wrap: wrap; /* Allows wrapping for multiple buttons */
-    justify-content: center; /* Centers buttons when they wrap */
-    padding: 10px;
-    margin-bottom: 20px; /* Added margin to ensure visibility at the bottom */
-    border-radius: var(--border-radius);
-    background-color: var(--container-bg-color);
-    box-shadow: 0 4px 8px var(--shadow-color);
+.materialButton.selected {
+    /* Visual cue for selected material */
+    background-color: var(--selected-material-color);
+    box-shadow: 0 2px 4px var(--shadow-color), 0 0 15px var(--selected-material-color);
 }
 
+/* Responsive Layout Enhancements */
 @media (max-width: 768px) {
     #uiContainer, .feature-buttons {
-        width: 90%; /* Adjusts width on smaller screens for better responsiveness */
+        width: 90%;
         flex-direction: row;
         flex-wrap: wrap;
         justify-content: center;
