@@ -3,21 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Physics Simulation</title>
+    <!-- Ensure your CSS file is linked here -->
     <link rel="stylesheet" href="style.css">
-    <title>Physics Particle Simulation</title>
+    <!-- Optionally, link Google Fonts for Roboto and Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- uiContainer will contain the materialsContainer and the dynamically added dropdownArrow -->
+
     <div id="uiContainer" class="uiElement">
-        <!-- Ensure this is inside the <body> tag -->
         <div id="materialsContainer"></div>
+        <!-- Materials buttons will be dynamically inserted here -->
     </div>
 
-    <div id="featureButtons" class="uiElement">
+    <div class="feature-buttons">
         <!-- Feature buttons will be dynamically inserted here -->
     </div>
-    <script type="module" src="index.js"></script>
-    <script type="module" src="interactions.js"></script>
-    <script type="module" src="utils.js"></script>
+
+    <!-- Your JavaScript files -->
+    <script src="index.js"></script>
+    <script src="interactions.js"></script>
+    <script src="utils.js"></script>
+
 </body>
 </html>
