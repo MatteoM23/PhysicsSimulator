@@ -87,41 +87,44 @@ function initPhysics() {
     engine = Matter.Engine.create();
     world = engine.world;
 
-    render = Matter.Render.create({
-        element: document.body, // Ensure this element is suitable for your page layout
-        engine: engine,
-        options: {
-            width: window.innerWidth,
-            height: window.innerHeight,
-            wireframes: false,
-            background: 'linear-gradient(135deg, #333333, #1b2838)'
-        }
-    });
+    // Define a function to create the renderer with dynamic size
+    function createRenderer() {
+        render = Matter.Render.create({
+            element: document.body, // Ensure this element is suitable for your page layout
+            engine: engine,
+            options: {
+                width: window.innerWidth,
+                height: window.innerHeight,
+                wireframes: false,
+                background: 'linear-gradient(135deg, #333333, #1b2838)'
+            }
+        });
+    }
 
-    // Define basic environment elements
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 20, { 
-        isStatic: true,
-        render: {
-            fillStyle: '#868e96' // Aesthetic choice for ground color
-        }
-    });
+    createRenderer(); // Create the initial renderer
 
-    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, { 
-        isStatic: true,
-        render: {
-            fillStyle: '#868e96'
-        }
-    });
+    // Define a function to add basic environment elements
+    function addEnvironment() {
+        const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 20, { 
+            isStatic: true,
+            render: { fillStyle: '#868e96' }
+        });
 
-    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, { 
-        isStatic: true,
-        render: {
-            fillStyle: '#868e96'
-        }
-    });
+        const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, { 
+            isStatic: true,
+            render: { fillStyle: '#868e96' }
+        });
 
-    // Add elements to the world
-    Matter.World.add(world, [ground, leftWall, rightWall]);
+        const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, { 
+            isStatic: true,
+            render: { fillStyle: '#868e96' }
+        });
+
+        // Add elements to the world
+        Matter.World.add(world, [ground, leftWall, rightWall]);
+    }
+
+    addEnvironment(); // Add the initial environment
 
     // Setup collision handling
     Matter.Events.on(engine, 'collisionStart', function(event) {
@@ -134,7 +137,30 @@ function initPhysics() {
 
     // Setup event listeners for user interaction
     setupEventListeners();
+
+    // Handle window resize event
+    window.addEventListener('resize', () => {
+        // Clear the existing renderer and environment elements
+        Matter.Render.stop(render);
+        Matter.World.clear(world, true);
+
+        // Recreate the renderer and add environment elements
+        createRenderer();
+        addEnvironment();
+    });
 }
+
+function handleResize() {
+    // Update render canvas size to match the window's size
+    render.canvas.width = window.innerWidth;
+    render.canvas.height = window.innerHeight;
+    render.options.width = window.innerWidth;
+    render.options.height = window.innerHeight;
+
+    // Reconfigure the environment to adapt to new dimensions
+    addEnvironment();
+}
+
 
 
 
