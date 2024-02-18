@@ -84,12 +84,13 @@ function initPhysics() {
     engine = Matter.Engine.create();
     world = engine.world;
 
-    createRenderer(); // Initializes the renderer with dynamic sizing
-    addEnvironment(); // Adds the initial environment (ground, walls)
+    // Initially create the renderer and environment
+    createRenderer();
+    addEnvironment();
 
     // Setup collision handling
     Matter.Events.on(engine, 'collisionStart', function (event) {
-        handleCollisions(event, engine);
+        handleCollisions(event, engine); // Assuming handleCollisions is defined elsewhere
     });
 
     // Start the engine and rendering
@@ -97,14 +98,14 @@ function initPhysics() {
     Matter.Render.run(render);
 
     // Setup event listeners for user interaction
-    setupEventListeners();
+    setupEventListeners(); // Assuming setupEventListeners is defined elsewhere
 
     // Handle window resize event
     window.addEventListener('resize', handleResize);
 }
 
 function createRenderer() {
-    // Remove existing canvas to prevent duplicates
+    // Remove existing canvas if it exists to prevent duplicates
     const existingCanvas = document.querySelector('canvas');
     if (existingCanvas) {
         existingCanvas.remove();
@@ -118,41 +119,48 @@ function createRenderer() {
             width: document.documentElement.clientWidth,
             height: document.documentElement.clientHeight,
             wireframes: false,
-            background: 'linear-gradient(135deg, #333333, #1b2838)',
+            background: 'linear-gradient(135deg, #333333, #1b2838)', // Or any other desired background
         }
     });
 }
 
 function handleResize() {
-    // Adjust render dimensions to the new window size
-    Matter.Render.lookAt(render, {
-        min: { x: 0, y: 0 },
-        max: { x: document.documentElement.clientWidth, y: document.documentElement.clientHeight }
-    });
+    // Adjust render dimensions to match the new window size
+    render.canvas.width = document.documentElement.clientWidth;
+    render.canvas.height = document.documentElement.clientHeight;
+    render.options.width = document.documentElement.clientWidth;
+    render.options.height = document.documentElement.clientHeight;
 
-    // Update environment elements to fit new size
-    updateEnvironment();
+    // Update environment elements to adjust to new size
+    addEnvironment();
 }
 
 function addEnvironment() {
+    // Clear existing environment bodies before adding new ones
+    Matter.Composite.clear(world, true); // true to clear all bodies, false or omit to keep statics
+
     const groundHeight = Math.min(window.innerHeight * 0.1, 100);
     const groundY = window.innerHeight - groundHeight / 2;
 
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, groundY, window.innerWidth, groundHeight, { isStatic: true, render: { fillStyle: '#868e96' } });
-    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: '#868e96' } });
-    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: '#868e96' } });
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, groundY, window.innerWidth, groundHeight, {
+        isStatic: true,
+        render: { fillStyle: '#868e96' }
+    });
 
+    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, {
+        isStatic: true,
+        render: { fillStyle: '#868e96' }
+    });
+
+    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, {
+        isStatic: true,
+        render: { fillStyle: '#868e96' }
+    });
+
+    // Add updated elements to the world
     Matter.World.add(world, [ground, leftWall, rightWall]);
 }
 
-function updateEnvironment() {
-    // Example implementation to clear and re-add ground and walls
-    // This can be modified or extended based on specific needs
-    Matter.Composite.clear(world, false, {
-        isStatic: true // Optionally, keep static bodies if they don't need to be updated
-    });
-    addEnvironment(); // Re-add environment with updated dimensions
-}
 
 // Enhance the features in the setupFeatureButtons() function
 function setupFeatureButtons() {
