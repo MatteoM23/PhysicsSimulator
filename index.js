@@ -10,7 +10,6 @@ let teleportationActive = false;
 let placingGateA = false, placingGateB = false;
 let gateA, gateB;
 let gates = [];
-let world;
 let isMouseDown = false;
 
 
