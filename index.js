@@ -73,9 +73,6 @@ function initPhysics() {
     // Start everything
     Matter.Runner.run(runner, engine); // Use the initialized runner
     Matter.Render.run(render);
-
-    // Correctly attach event listeners
-    attachEvents();
 }
 
 
