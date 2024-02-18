@@ -4,6 +4,10 @@ import { screenToWorld } from './utils.js';
 
 let engine, render, world;
 let isMouseDown = false; // Define isMouseDown at the top of your script
+let fountainInterval;
+let particles = [];
+
+
 
 // Define materials globally to ensure they are accessible throughout the script
 const materials = {
@@ -76,56 +80,12 @@ function selectMaterial(key) {
     console.log(`Material ${key} selected`);
 }
 
-
-
 function initPhysics() {
     engine = Matter.Engine.create();
     world = engine.world;
 
-    // Define a function to create the renderer with dynamic size
-    function createRenderer() {
-        render = Matter.Render.create({
-            element: document.body, // Ensure this element is suitable for your page layout
-            engine: engine,
-            options: {
-                width: window.innerWidth,
-                height: window.innerHeight,
-                wireframes: false,
-                background: 'linear-gradient(135deg, #333333, #1b2838)'
-            }
-        });
-    }
-
-    createRenderer(); // Create the initial renderer
-
-    // Define a function to add basic environment elements
-   function addEnvironment() {
-    const groundHeight = Math.min(window.innerHeight * 0.1, 100); // Set ground height to 10% of viewport height or maximum 100px
-    const groundY = window.innerHeight - groundHeight / 2; // Position the floor at the bottom of the viewport
-
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, groundY, window.innerWidth, groundHeight, {
-        isStatic: true,
-        render: { fillStyle: '#868e96' }
-    });
-
-    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, {
-        isStatic: true,
-        render: { fillStyle: '#868e96' }
-    });
-
-    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, {
-        isStatic: true,
-        render: { fillStyle: '#868e96' }
-    });
-
-    // Add elements to the world
-    Matter.World.add(world, [ground, leftWall, rightWall]);
-}
-
-
-
-
-    addEnvironment(); // Add the initial environment
+    createRenderer(); // Initializes the renderer with dynamic sizing
+    addEnvironment(); // Adds the initial environment (ground, walls)
 
     // Setup collision handling
     Matter.Events.on(engine, 'collisionStart', function (event) {
@@ -143,24 +103,58 @@ function initPhysics() {
     window.addEventListener('resize', handleResize);
 }
 
-// Define a function to handle window resize
-function handleResize() {
-    // Update render canvas size to match the window's size
-    render.canvas.width = window.innerWidth;
-    render.canvas.height = window.innerHeight;
-    render.options.width = window.innerWidth;
-    render.options.height = window.innerHeight;
+function createRenderer() {
+    // Remove existing canvas to prevent duplicates
+    const existingCanvas = document.querySelector('canvas');
+    if (existingCanvas) {
+        existingCanvas.remove();
+    }
 
-    // Update the background directly on the canvas element
-    document.body.style.background = 'linear-gradient(135deg, #333333, #1b2838)';
-
-    // Optionally, adjust environment elements (like ground, walls) based on new size
+    // Create new renderer with adjusted size
+    render = Matter.Render.create({
+        element: document.body,
+        engine: engine,
+        options: {
+            width: document.documentElement.clientWidth,
+            height: document.documentElement.clientHeight,
+            wireframes: false,
+            background: 'linear-gradient(135deg, #333333, #1b2838)',
+        }
+    });
 }
 
+function handleResize() {
+    // Adjust render dimensions to the new window size
+    Matter.Render.lookAt(render, {
+        min: { x: 0, y: 0 },
+        max: { x: document.documentElement.clientWidth, y: document.documentElement.clientHeight }
+    });
 
+    // Update environment elements to fit new size
+    updateEnvironment();
+}
+
+function addEnvironment() {
+    const groundHeight = Math.min(window.innerHeight * 0.1, 100);
+    const groundY = window.innerHeight - groundHeight / 2;
+
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, groundY, window.innerWidth, groundHeight, { isStatic: true, render: { fillStyle: '#868e96' } });
+    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: '#868e96' } });
+    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: '#868e96' } });
+
+    Matter.World.add(world, [ground, leftWall, rightWall]);
+}
+
+function updateEnvironment() {
+    // Example implementation to clear and re-add ground and walls
+    // This can be modified or extended based on specific needs
+    Matter.Composite.clear(world, false, {
+        isStatic: true // Optionally, keep static bodies if they don't need to be updated
+    });
+    addEnvironment(); // Re-add environment with updated dimensions
+}
 
 // Enhance the features in the setupFeatureButtons() function
-
 function setupFeatureButtons() {
     // Ensure the feature buttons container is targeted specifically
     const buttonsContainer = document.querySelector('.feature-buttons');
@@ -185,11 +179,6 @@ function setupFeatureButtons() {
     // Add more feature buttons as needed, appending them to buttonsContainer
 }
 
-
-// Material Fountain enhancement
-let fountainInterval;
-let particles = [];
-
 function startMaterialFountainWithEffect() {
     // Clear existing particles to prevent accumulation over time
     particles.forEach(particle => {
@@ -212,26 +201,19 @@ function stopMaterialFountain() {
     clearInterval(fountainInterval);
 }
 
-function shakeScreen(intensity, duration) {
-    const originalX = window.scrollX;
-    const originalY = window.scrollY;
-    let startTime = null;
-
-    function shake(currentTime) {
-        if (!startTime) startTime = currentTime;
-        const elapsed = currentTime - startTime;
-        if (elapsed < duration) {
-            const shakeX = Math.random() * intensity * 2 - intensity;
-            const shakeY = Math.random() * intensity * 2 - intensity;
-            window.scrollTo(originalX + shakeX, originalY + shakeY);
-            requestAnimationFrame(shake);
-        } else {
-            window.scrollTo(originalX, originalY);
-        }
+function shakeScreen(duration, intensity) {
+    let start = performance.now();
+    function shake() {
+        const elapsed = performance.now() - start;
+        const randomX = intensity * (Math.random() - 0.5) * 2;
+        const randomY = intensity * (Math.random() - 0.5) * 2;
+        window.scrollBy(randomX, randomY);
+        if (elapsed < duration) requestAnimationFrame(shake);
+        else window.scrollTo(0, 0); // Reset view after shaking
     }
-
     requestAnimationFrame(shake);
 }
+
 
 function createParticleBurst(position, color, numParticles, size) {
     const explosionForce = 0.02;
