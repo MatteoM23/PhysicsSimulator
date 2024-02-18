@@ -471,14 +471,6 @@ function placeMaterial(event) {
     createBody(point.x, point.y, currentMaterial);
 }
 
-// Converts screen coordinates to world coordinates
-function screenToWorld(screenX, screenY) {
-    const bounds = render.bounds;
-    const scale = render.options.width / bounds.max.x;
-    const worldX = screenX / scale + bounds.min.x;
-    const worldY = screenY / scale + bounds.min.y;
-    return { x: worldX, y: worldY };
-}
 
 // Creates a body at a given position with the specified material
 function createBody(x, y, materialKey) {
