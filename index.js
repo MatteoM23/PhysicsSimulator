@@ -105,33 +105,22 @@ function initPhysics() {
 
     // Define a function to add basic environment elements
     function addEnvironment() {
-    const groundWidth = window.innerWidth * 0.8; // 80% of the viewport width
-    const groundHeight = 20;
-    const groundX = window.innerWidth / 2;
-    const groundY = window.innerHeight - groundHeight / 2;
+    const materialSelectorHeight = document.getElementById('materialsContainer').offsetHeight || 0;
+    const featureButtonsHeight = document.querySelector('.feature-buttons').offsetHeight || 0;
+    const totalHeight = window.innerHeight - materialSelectorHeight - featureButtonsHeight;
+    const groundHeight = Math.min(totalHeight * 0.8, 200); // Limit ground height to 80% of available space or 200px, whichever is smaller
 
-    const wallThickness = Math.min(window.innerWidth, window.innerHeight) * 0.02; // 2% of the smaller dimension
-    const leftWallWidth = wallThickness;
-    const leftWallHeight = window.innerHeight * 0.8; // 80% of the viewport height
-    const leftWallX = leftWallWidth / 2;
-    const leftWallY = window.innerHeight / 2;
-
-    const rightWallWidth = wallThickness;
-    const rightWallHeight = window.innerHeight * 0.8; // 80% of the viewport height
-    const rightWallX = window.innerWidth - rightWallWidth / 2;
-    const rightWallY = window.innerHeight / 2;
-
-    const ground = Matter.Bodies.rectangle(groundX, groundY, groundWidth, groundHeight, {
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - groundHeight / 2, window.innerWidth, groundHeight, {
         isStatic: true,
         render: { fillStyle: '#868e96' }
     });
 
-    const leftWall = Matter.Bodies.rectangle(leftWallX, leftWallY, leftWallWidth, leftWallHeight, {
+    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, totalHeight, {
         isStatic: true,
         render: { fillStyle: '#868e96' }
     });
 
-    const rightWall = Matter.Bodies.rectangle(rightWallX, rightWallY, rightWallWidth, rightWallHeight, {
+    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, totalHeight, {
         isStatic: true,
         render: { fillStyle: '#868e96' }
     });
@@ -139,6 +128,7 @@ function initPhysics() {
     // Add elements to the world
     Matter.World.add(world, [ground, leftWall, rightWall]);
 }
+
 
 
 
