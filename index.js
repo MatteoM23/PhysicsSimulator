@@ -40,41 +40,6 @@ const materials = {
 };
 
 
-function setupMaterialSelector(materials) {
-    const materialsContainer = document.getElementById('materialsContainer') || createMaterialsContainer();
-    
-    Object.keys(materials).forEach(key => {
-        const material = materials[key];
-        const button = document.createElement('button');
-        button.textContent = material.label;
-        button.className = 'materialButton';
-        button.style.backgroundColor = material.color;
-        button.style.color = '#ffffff'; // Assuming white text for better readability
-        button.onclick = () => selectMaterial(key);
-        materialsContainer.appendChild(button);
-    });
-}
-
-function createMaterialsContainer() {
-    const uiContainer = document.getElementById('uiContainer');
-    const container = document.createElement('div');
-    container.id = 'materialsContainer';
-    uiContainer.appendChild(container);
-    return container;
-}
-
-function selectMaterial(key) {
-    currentMaterial = key;
-    const buttons = document.querySelectorAll('.materialButton');
-    buttons.forEach(button => {
-        button.classList.remove('selected'); // Remove the class from all buttons
-        if (button.textContent === materials[key].label) {
-            button.classList.add('selected'); // Add class to the selected one
-        }
-    });
-    console.log(`Material ${key} selected`);
-}
-
 let currentMaterial = 'sand';
 
 function initPhysics() {
@@ -126,6 +91,43 @@ function addEventListeners() {
     document.addEventListener('mouseup', handleMouseUp);
     document.addEventListener('mousemove', handleMouseMove);
 }
+
+
+function setupMaterialSelector(materials) {
+    const materialsContainer = document.getElementById('materialsContainer') || createMaterialsContainer();
+    
+    Object.keys(materials).forEach(key => {
+        const material = materials[key];
+        const button = document.createElement('button');
+        button.textContent = material.label;
+        button.className = 'materialButton';
+        button.style.backgroundColor = material.color;
+        button.style.color = '#ffffff'; // Assuming white text for better readability
+        button.onclick = () => selectMaterial(key);
+        materialsContainer.appendChild(button);
+    });
+}
+
+function createMaterialsContainer() {
+    const uiContainer = document.getElementById('uiContainer');
+    const container = document.createElement('div');
+    container.id = 'materialsContainer';
+    uiContainer.appendChild(container);
+    return container;
+}
+
+function selectMaterial(key) {
+    currentMaterial = key;
+    const buttons = document.querySelectorAll('.materialButton');
+    buttons.forEach(button => {
+        button.classList.remove('selected'); // Remove the class from all buttons
+        if (button.textContent === materials[key].label) {
+            button.classList.add('selected'); // Add class to the selected one
+        }
+    });
+    console.log(`Material ${key} selected`);
+}
+
 
 function handleMouseDown(event) {
     if (!event.target.matches('.materialButton') && !teleportationActive) {
