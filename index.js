@@ -1,4 +1,4 @@
-import Matter from 'https://cdn.skypack.dev/matter-js';
+import Matter, { Events } from 'https://cdn.skypack.dev/matter-js';
 import { interactionRules, handleCollisions } from './interactions.js';
 import { screenToWorld } from './utils.js';
 
