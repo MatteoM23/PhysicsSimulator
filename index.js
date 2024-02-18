@@ -89,17 +89,18 @@ function initPhysics() {
 
     // Define a function to create the renderer with dynamic size
     function createRenderer() {
-        render = Matter.Render.create({
-            element: document.body, // Ensure this element is suitable for your page layout
-            engine: engine,
-            options: {
-                width: window.innerWidth,
-                height: window.innerHeight,
-                wireframes: false,
-                background: 'linear-gradient(135deg, #333333, #1b2838)'
-            }
-        });
-    }
+    render = Matter.Render.create({
+        element: document.body, // Ensure this element is suitable for your page layout
+        engine: engine,
+        options: {
+            width: window.innerWidth,
+            height: window.innerHeight,
+            wireframes: false,
+            background: 'linear-gradient(135deg, #333333, #1b2838)'
+        }
+    });
+}
+
 
     createRenderer(); // Create the initial renderer
 
@@ -144,21 +145,18 @@ function initPhysics() {
 
 // Define a function to handle window resize
 function handleResize() {
-    // Update the renderer canvas size to match the window's size
+    // Update render canvas size to match the window's size
     render.canvas.width = window.innerWidth;
     render.canvas.height = window.innerHeight;
     render.options.width = window.innerWidth;
     render.options.height = window.innerHeight;
-
-    // Update the position of environment elements (like ground, walls) based on new size
-    const ground = world.bodies.find(body => body.label === 'Ground');
-    const leftWall = world.bodies.find(body => body.label === 'LeftWall');
-    const rightWall = world.bodies.find(body => body.label === 'RightWall');
-
-    Matter.Body.setPosition(ground, { x: window.innerWidth / 2, y: window.innerHeight });
-    Matter.Body.setPosition(leftWall, { x: 0, y: window.innerHeight / 2 });
-    Matter.Body.setPosition(rightWall, { x: window.innerWidth, y: window.innerHeight / 2 });
+    
+    // Recreate the background to fit the new dimensions
+    Matter.Render.setBackground(render, 'linear-gradient(135deg, #333333, #1b2838)');
+    
+    // Optionally, adjust environment elements (like ground, walls) based on new size
 }
+
 
 
 
