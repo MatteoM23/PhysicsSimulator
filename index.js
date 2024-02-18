@@ -77,7 +77,7 @@ function selectMaterial(key) {
 
 let currentMaterial = 'sand';
 
-function init() {
+function initPhysics() {
     // Initialization logic
     engine = Matter.Engine.create();
     world = engine.world;
