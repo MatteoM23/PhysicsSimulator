@@ -10,7 +10,6 @@ let teleportationActive = false;
 let placingGateA = false, placingGateB = false;
 let gateA, gateB;
 let gates = [];
-let isMouseDown = false;
 
 
 // Define materials globally to ensure they are accessible throughout the script
