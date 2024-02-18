@@ -485,7 +485,21 @@ function createBody(x, y, materialKey) {
     Matter.World.add(world, body);
 }
 
+function setupEventListeners() {
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mousemove', handleMouseMove);
+}
 
+// Final initialization logic wrapped in DOMContentLoaded event listener
+document.addEventListener('DOMContentLoaded', () => {
+    initPhysics(); // Initialize physics engine, world, and renderer
+    setupMaterialSelector(); // Setup material selector UI
+    setupFeatureButtons(); // Setup feature buttons for user interactions
+    setupEventListeners(); // Setup event listeners for material placement and other interactions
+
+    // Any other initialization logic needed for your application
+});
 
 
 
