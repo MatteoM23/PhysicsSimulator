@@ -104,7 +104,7 @@ function initPhysics() {
     createRenderer(); // Create the initial renderer
 
     // Define a function to add basic environment elements
-    function addEnvironment() {
+   function addEnvironment() {
     const groundHeight = Math.min(window.innerHeight * 0.1, 100); // Set ground height to 10% of viewport height or maximum 100px
     const groundY = window.innerHeight - groundHeight / 2; // Position the floor at the bottom of the viewport
 
@@ -126,6 +126,7 @@ function initPhysics() {
     // Add elements to the world
     Matter.World.add(world, [ground, leftWall, rightWall]);
 }
+
 
 
 
