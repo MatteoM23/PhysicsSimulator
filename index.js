@@ -232,7 +232,6 @@ function isFeatureButton(element) {
     return element.closest('.feature-buttons') !== null;
 }
 
-let isMouseDown = false;
 
 let isMouseDown = false;
 
