@@ -187,39 +187,12 @@ function setupFeatureButtons() {
     });
     buttonsContainer.appendChild(invertGravityButton);
 
-    const explosionButton = createFeatureButton('Explosion', () => {
-        // Trigger explosion at mouse position
-        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-        createExplosion(x, y);
-    });
-    buttonsContainer.appendChild(explosionButton);
-
     const materialFountainButton = createFeatureButton('Material Fountain', startMaterialFountainWithEffect);
     buttonsContainer.appendChild(materialFountainButton);
 
     // Add more feature buttons as needed, appending them to buttonsContainer
 }
 
-// Explosion enhancement
-// Function to create explosion with visual effects
-function createExplosion(x, y) {
-    const explosionForce = 0.05; // Adjusted force for explosion
-    const bodies = Matter.Composite.allBodies(world);
-    
-    // Shake the screen to simulate explosion impact
-    shakeScreen(10, 100);
-
-    bodies.forEach(body => {
-        const force = Matter.Vector.sub(body.position, { x, y });
-        const magnitude = Matter.Vector.magnitude(force);
-        const explosionVector = Matter.Vector.mult(Matter.Vector.normalise(force), explosionForce / magnitude);
-        Matter.Body.applyForce(body, body.position, explosionVector);
-
-        // Create a burst of particles for visual effect
-        createParticleBurst(body.position, 'orange', 20, 0.5); // Example particle burst
-    });
-
-}
 
 // Material Fountain enhancement
 let fountainInterval;
