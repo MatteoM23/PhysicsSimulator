@@ -162,6 +162,41 @@ function addEnvironment() {
 }
 
 
+function setButtonTextColorBasedOnBackground() {
+    const buttons = document.querySelectorAll('.materialButton');
+    buttons.forEach(button => {
+        const bgColor = getComputedStyle(button).backgroundColor;
+        const color = invertColor(bgColor, true);
+        button.style.color = color;
+    });
+}
+
+function invertColor(rgb, bw) {
+    if (/^rgb/.test(rgb)) {
+        let [r, g, b] = rgb.match(/\d+/g).map(Number);
+        if (bw) {
+            // http://stackoverflow.com/a/3943023/112731
+            return (r * 0.299 + g * 0.587 + b * 0.114) > 186 ? '#000000' : '#FFFFFF';
+        }
+        // invert color components
+        r = (255 - r).toString(16);
+        g = (255 - g).toString(16);
+        b = (255 - b).toString(16);
+        // pad each with zeros and return
+        return "#" + padZero(r) + padZero(g) + padZero(b);
+    }
+    return rgb;
+}
+
+function padZero(str, len = 2) {
+    const zeros = new Array(len).join('0');
+    return (zeros + str).slice(-len);
+}
+
+// Call this function after your buttons are created or when the document is fully loaded
+document.addEventListener('DOMContentLoaded', setButtonTextColorBasedOnBackground);
+
+
 // Enhance the features in the setupFeatureButtons() function
 function setupFeatureButtons() {
     // Ensure the feature buttons container is targeted specifically
