@@ -58,11 +58,12 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function setupMaterialSelector(materials, container) {
-    // Initially display only the first 6 materials
-    Object.entries(materials).slice(0, 6).forEach(([key, material]) => {
+    Object.entries(materials).forEach(([key, material]) => {
         const button = document.createElement('button');
         button.textContent = material.label;
-        button.className = 'materialButton'; // Use this class for styling
+        button.className = 'materialButton';
+        button.style.backgroundColor = material.color; // Set button background color to material color
+        button.style.color = invertColor(material.color, true); // Optional: Set text color for better readability
         button.onclick = () => selectMaterial(key);
         container.appendChild(button);
     });
@@ -73,20 +74,41 @@ function setupMaterialSelector(materials, container) {
     expandArrow.className = 'expandArrow';
     container.appendChild(expandArrow);
 
-    // Toggle full dropdown view on arrow click
     let isExpanded = false;
     expandArrow.addEventListener('click', () => {
         if (!isExpanded) {
-            // Show all materials
             expandMaterialsDropdown(materials, container);
         } else {
-            // Collapse to show only the first row
             collapseMaterialsDropdown(materials, container);
         }
         isExpanded = !isExpanded;
         expandArrow.innerHTML = isExpanded ? '&#x25B2;' : '&#x25BC;'; // Toggle arrow direction
     });
 }
+
+// Utility function to invert button text color for better visibility
+function invertColor(hex, bw) {
+    if (hex.indexOf('#') === 0) {
+        hex = hex.slice(1);
+    }
+    // Convert hex to RGB
+    var r = parseInt(hex.substr(0,2), 16),
+        g = parseInt(hex.substr(2,2), 16),
+        b = parseInt(hex.substr(4,2), 16);
+    // Invert color components
+    r = (255 - r).toString(16);
+    g = (255 - g).toString(16);
+    b = (255 - b).toString(16);
+    // Pad each with zeros and return
+    return "#" + padZero(r) + padZero(g) + padZero(b);
+}
+
+function padZero(str, len) {
+    len = len || 2;
+    var zeros = new Array(len).join('0');
+    return (zeros + str).slice(-len);
+}
+
 
 function selectMaterial(key) {
     currentMaterial = key;
