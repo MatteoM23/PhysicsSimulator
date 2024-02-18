@@ -107,21 +107,20 @@ function initPhysics() {
     function addEnvironment() {
     const materialSelectorHeight = document.getElementById('materialsContainer').offsetHeight || 0;
     const featureButtonsHeight = document.querySelector('.feature-buttons').offsetHeight || 0;
-    const totalHeight = window.innerHeight - materialSelectorHeight - featureButtonsHeight;
-    const groundHeight = Math.min(totalHeight * 0.8, 200); // Limit ground height to 80% of available space or 200px, whichever is smaller
-    const groundY = window.innerHeight - groundHeight / 2 - materialSelectorHeight - featureButtonsHeight - 10; // Adjust the floor position
+    const groundHeight = Math.min(window.innerHeight * 0.1, 100); // Set ground height to 10% of viewport height or maximum 100px
+    const groundY = window.innerHeight - groundHeight / 2 - featureButtonsHeight - 10; // Adjust the floor position
 
     const ground = Matter.Bodies.rectangle(window.innerWidth / 2, groundY, window.innerWidth, groundHeight, {
         isStatic: true,
         render: { fillStyle: '#868e96' }
     });
 
-    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, totalHeight, {
+    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, {
         isStatic: true,
         render: { fillStyle: '#868e96' }
     });
 
-    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, totalHeight, {
+    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, {
         isStatic: true,
         render: { fillStyle: '#868e96' }
     });
@@ -129,9 +128,6 @@ function initPhysics() {
     // Add elements to the world
     Matter.World.add(world, [ground, leftWall, rightWall]);
 }
-
-
-
 
     addEnvironment(); // Add the initial environment
 
