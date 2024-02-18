@@ -105,24 +105,25 @@ function initPhysics() {
 
     // Define a function to add basic environment elements
     function addEnvironment() {
-        const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 20, {
-            isStatic: true,
-            render: { fillStyle: '#868e96' }
-        });
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - 10, window.innerWidth, 20, {
+        isStatic: true,
+        render: { fillStyle: '#868e96' }
+    });
 
-        const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, {
-            isStatic: true,
-            render: { fillStyle: '#868e96' }
-        });
+    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, {
+        isStatic: true,
+        render: { fillStyle: '#868e96' }
+    });
 
-        const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, {
-            isStatic: true,
-            render: { fillStyle: '#868e96' }
-        });
+    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, {
+        isStatic: true,
+        render: { fillStyle: '#868e96' }
+    });
 
-        // Add elements to the world
-        Matter.World.add(world, [ground, leftWall, rightWall]);
-    }
+    // Add elements to the world
+    Matter.World.add(world, [ground, leftWall, rightWall]);
+}
+
 
     addEnvironment(); // Add the initial environment
 
