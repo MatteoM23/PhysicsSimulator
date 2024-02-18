@@ -2,10 +2,7 @@ import Matter from 'https://cdn.skypack.dev/matter-js';
 import { interactionRules, handleCollisions } from './interactions.js';
 import { screenToWorld } from './utils.js';
 
-
 let engine, render, world;
-
-
 
 // Define materials globally to ensure they are accessible throughout the script
 const materials = {
@@ -37,33 +34,15 @@ const materials = {
 let currentMaterial = 'sand';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const uiContainer = document.getElementById('uiContainer');
-    if (!uiContainer) {
-        console.error('UI Container not found');
-        return;
-    }
+    initPhysics(); // Initializes Matter.js engine, render, and world
 
-    // Create materialsContainer if it does not exist
-    let materialsContainer = document.getElementById('materialsContainer');
-    if (!materialsContainer) {
-        materialsContainer = document.createElement('div');
-        materialsContainer.id = 'materialsContainer';
-        uiContainer.appendChild(materialsContainer);
-    }
-
-    setupMaterialSelector(materials, materialsContainer);
-    const { engine, render, world } = initPhysics();
-
-    setupFeatureButtons(engine, world);
-
-    document.body.addEventListener('mousedown', (event) => handleMouseDown(event, render, world));
-    document.body.addEventListener('mouseup', () => handleMouseUp());
-    document.body.addEventListener('mousemove', (event) => handleMouseMove(event, render, world));
+    setupMaterialSelector(materials);
+    setupFeatureButtons();
 });
 
-function setupMaterialSelector(materials, container) {
-    container.innerHTML = ''; // Clear existing content
-
+function setupMaterialSelector(materials) {
+    const materialsContainer = document.getElementById('materialsContainer') || createMaterialsContainer();
+    
     Object.keys(materials).forEach(key => {
         const material = materials[key];
         const button = document.createElement('button');
@@ -72,88 +51,37 @@ function setupMaterialSelector(materials, container) {
         button.style.backgroundColor = material.color;
         button.style.color = '#ffffff'; // Assuming white text for better readability
         button.onclick = () => selectMaterial(key);
-        container.appendChild(button);
+        materialsContainer.appendChild(button);
     });
 }
 
-
-function getInvertedColor(hex) {
-    if (hex.indexOf('#') === 0) {
-        hex = hex.slice(1);
-    }
-    // Convert hex to RGB
-    let r = parseInt(hex.slice(0, 2), 16),
-        g = parseInt(hex.slice(2, 4), 16),
-        b = parseInt(hex.slice(4, 6), 16);
-    // Invert color components
-    r = (255 - r).toString(16);
-    g = (255 - g).toString(16);
-    b = (255 - b).toString(16);
-    // Pad each with zeros and return
-    return "#" + padZero(r) + padZero(g) + padZero(b);
+function createMaterialsContainer() {
+    const uiContainer = document.getElementById('uiContainer');
+    const container = document.createElement('div');
+    container.id = 'materialsContainer';
+    uiContainer.appendChild(container);
+    return container;
 }
-
-function padZero(str, len = 2) {
-    const zeros = new Array(len).join('0');
-    return (zeros + str).slice(-len);
-}
-
-
 
 function selectMaterial(key) {
     currentMaterial = key;
+    // Update UI to reflect the current selection
     const buttons = document.querySelectorAll('.materialButton');
     buttons.forEach(button => {
         if (button.textContent === materials[key].label) {
-            button.classList.add('selected'); // Highlight the selected button
+            button.classList.add('selected'); // Add a class to highlight the selected button
         } else {
-            button.classList.remove('selected');
+            button.classList.remove('selected'); // Remove the class from non-selected buttons
         }
     });
     console.log(`Material ${key} selected`);
 }
 
 
-
-function expandMaterialsDropdown(materials, container) {
-    while (container.firstChild) {
-        container.removeChild(container.firstChild);
-    }
-    Object.entries(materials).forEach(([key, material]) => {
-        const button = document.createElement('button');
-        button.textContent = material.label;
-        button.className = 'materialButton';
-        button.onclick = () => selectMaterial(key);
-        container.appendChild(button);
-    });
-    // Re-add the expand arrow
-    // Note: Make sure to re-create or move the expand arrow logic here if it gets removed
-}
-
-function collapseMaterialsDropdown(materials, container) {
-    // Remove all current buttons
-    while (container.firstChild) {
-        container.removeChild(container.firstChild);
-    }
-
-    // Add only the first 6 materials
-    Object.entries(materials).slice(0, 6).forEach(([key, material], index) => {
-        const button = document.createElement('button');
-        button.textContent = material.label;
-        button.className = 'materialButton';
-        container.appendChild(button);
-    });
-
-    // Add the expand arrow
-    const expandArrow = document.createElement('span');
-    expandArrow.innerHTML = '&#x25BC;'; // Downward arrow symbol
-    expandArrow.className = 'expandArrow';
-    container.appendChild(expandArrow);
-}
-
-
 function initPhysics() {
     engine = Matter.Engine.create();
+    world = engine.world;
+    
     render = Matter.Render.create({
         element: document.body,
         engine: engine,
@@ -162,88 +90,63 @@ function initPhysics() {
             height: window.innerHeight,
             wireframes: false,
             background: 'linear-gradient(135deg, #333333, #1b2838)'
-        },
+        }
     });
 
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - 10, window.innerWidth, 20, { isStatic: true, render: { fillStyle: 'transparent' } });
-    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: 'transparent' } });
-    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: 'transparent' } });
-    Matter.World.add(engine.world, [ground, leftWall, rightWall]);
-
-    world = engine.world; // Assign the world for global access
-
-    Matter.Events.on(engine, 'collisionStart', function(event) {
-        handleCollisions(event, engine);
-    });
+    // Add bodies like ground, walls, etc., to the world
+    // Example: const ground = Matter.Bodies.rectangle(0, 0, 0, 0, { isStatic: true });
 
     Matter.Runner.run(engine);
     Matter.Render.run(render);
+
+    setupEventListeners();
 }
 
-
-function createNewBody(x, y) {
-    const material = materials[currentMaterial];
-    const body = Matter.Bodies.circle(x, y, material.size / 2, {
-        density: material.density,
-        friction: material.friction,
-        restitution: material.restitution,
-        render: {
-            fillStyle: material.color,
-        },
+function setupFeatureButtons() {
+    const featuresContainer = document.querySelector('.feature-buttons') || createFeatureButtonsContainer();
+    
+    // Example feature: Clear World
+    const clearButton = createFeatureButton('Clear World', () => {
+        Matter.Composite.clear(world, true); // Clear all bodies, but keep static ones like ground
+        console.log('World cleared');
     });
-    Matter.World.add(engine.world, body);
-}
 
-function clearDynamicBodies(world) {
-    // Your existing clearDynamicBodies function here
-    Matter.Composite.allBodies(world).forEach(body => {
-        if (!body.isStatic) {
-            Matter.Composite.remove(world, body);
-        }
+    // Example feature: Invert Gravity
+    const invertGravityButton = createFeatureButton('Invert Gravity', () => {
+        engine.world.gravity.y = engine.world.gravity.y * -1; // Invert gravity
+        console.log('Gravity inverted');
     });
+
+    featuresContainer.appendChild(clearButton);
+    featuresContainer.appendChild(invertGravityButton);
 }
 
-function setupFeatureButtons(engine, world) {
-    // Your existing setupFeatureButtons function here
-    const buttonsContainer = document.createElement('div');
-    buttonsContainer.className = 'feature-buttons';
-    document.body.appendChild(buttonsContainer);
-
-    const gravityButton = document.createElement('button');
-    gravityButton.innerText = 'Invert Gravity';
-    gravityButton.onclick = () => {
-        engine.world.gravity.y = -engine.world.gravity.y;
-    };
-    buttonsContainer.appendChild(gravityButton);
-
-    const clearButton = document.createElement('button');
-    clearButton.innerText = 'Clear World';
-    clearButton.onclick = () => clearDynamicBodies(engine.world);
-    buttonsContainer.appendChild(clearButton);
+function createFeatureButton(text, onClick) {
+    const button = document.createElement('button');
+    button.innerText = text;
+    button.className = 'featureButton';
+    button.addEventListener('click', onClick);
+    return button;
 }
 
-function isMaterialSelectorButton(element) {
-    // Your existing isMaterialSelectorButton function here
-    return element.closest('.material-selector') !== null;
-}
-
-function isFeatureButton(element) {
-    // Your existing isFeatureButton function here
-    return element.closest('.feature-buttons') !== null;
+function createFeatureButtonsContainer() {
+    const container = document.createElement('div');
+    container.className = 'feature-buttons';
+    document.body.appendChild(container);
+    return container;
 }
 
 
-let isMouseDown = false;
-
-document.addEventListener('mousedown', (event) => handleMouseDown(event));
-document.addEventListener('mouseup', handleMouseUp);
-document.addEventListener('mousemove', (event) => handleMouseMove(event));
+function setupEventListeners() {
+    document.body.addEventListener('mousedown', handleMouseDown);
+    document.body.addEventListener('mouseup', handleMouseUp);
+    document.body.addEventListener('mousemove', handleMouseMove);
+}
 
 function handleMouseDown(event) {
     if (!event.target.closest('.uiElement')) {
         isMouseDown = true;
-        const position = { x: event.clientX, y: event.clientY };
-        createNewBody(position, currentMaterial, engine.world);
+        createMaterialBody(event);
     }
 }
 
@@ -253,21 +156,24 @@ function handleMouseUp() {
 
 function handleMouseMove(event) {
     if (isMouseDown && !event.target.closest('.uiElement')) {
-        const position = { x: event.clientX, y: event.clientY };
-        createNewBody(position, currentMaterial, engine.world);
+        createMaterialBody(event);
     }
 }
 
+function createMaterialBody(event) {
+    const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+    // Assuming a function 'createBody' that takes material properties and adds a new body to the world
+    createBody(x, y, currentMaterial);
+}
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize physics engine and render
-    const { engine, render, world } = initPhysics();
-
-    document.addEventListener('mousedown', event => {
-        if (!event.target.classList.contains('materialButton')) {
-            const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-            createNewBody(x, y);
-        }
+function createBody(x, y, materialKey) {
+    const material = materials[materialKey];
+    const body = Matter.Bodies.circle(x, y, material.size / 2, {
+        density: material.density,
+        friction: material.friction,
+        restitution: material.restitution,
+        render: { fillStyle: material.color },
     });
-});
+    Matter.World.add(world, body);
+}
 
