@@ -78,21 +78,20 @@ function initPhysics() {
 }
 
 function attachEvents() {
-    // Make sure to only attach events after the engine has been initialized
-    if (engine) {
-        Matter.Events.on(engine, 'afterUpdate', () => {
-            // Your event handling logic here
+    Matter.Events.on(engine, 'afterUpdate', () => {
+        // Get all pairs of collisions that occurred during the last update
+        const collisions = engine.pairs.collisionActive;
+
+        // Log information about each collision pair
+        collisions.forEach(pair => {
+            const bodyA = pair.bodyA;
+            const bodyB = pair.bodyB;
+            const collisionNormal = pair.collision.normal; // The collision normal vector
+
+            console.log(`Collision detected between ${bodyA.label || 'Body A'} and ${bodyB.label || 'Body B'}`);
+            console.log(`Collision normal: (${collisionNormal.x.toFixed(2)}, ${collisionNormal.y.toFixed(2)})`);
         });
-    } else {
-        console.error('Engine is not initialized before attaching events.');
-    }
-}
-
-
-function addEventListeners() {
-    document.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('mousemove', handleMouseMove);
+    });
 }
 
 
@@ -131,6 +130,12 @@ function selectMaterial(key) {
     console.log(`Material ${key} selected`);
 }
 
+
+function setupEventListeners() {
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mousemove', handleMouseMove);
+}
 
 function handleMouseDown(event) {
     if (!event.target.matches('.materialButton') && !teleportationActive) {
