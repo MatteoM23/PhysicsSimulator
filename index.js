@@ -86,9 +86,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initPhysics() {
+    // Create an engine
     engine = Matter.Engine.create();
     world = engine.world;
-    
+
+    // Create a renderer
     render = Matter.Render.create({
         element: document.body,
         engine: engine,
@@ -96,16 +98,31 @@ function initPhysics() {
             width: window.innerWidth,
             height: window.innerHeight,
             wireframes: false,
-            background: 'transparent'
-        }
+            background: 'transparent', // Adjust as needed
+        },
     });
 
-    // Correctly define and run the runner
-    runner = Matter.Runner.create();
+    // Define and create a runner
+    runner = Matter.Runner.create(); // Correctly define the runner
+
+    // Add walls or boundaries if necessary
+    addBoundaries();
+
+    // Run the engine and the renderer
     Matter.Runner.run(runner, engine);
     Matter.Render.run(render);
 
-    addBoundaries();
+    // Now, safely attach events
+    attachEvents();
+}
+
+function attachEvents() {
+    // Example of attaching an event listener correctly after initialization
+    Matter.Events.on(engine, 'afterUpdate', () => {
+        // Your event logic here
+    });
+
+    // Additional event bindings as necessary
 }
 
 function addBoundaries() {
