@@ -437,13 +437,6 @@ function createFeatureButtonsContainer() {
 }
 
 
-// Setup event listeners for mouse interactions
-function setupEventListeners() {
-    document.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('mousemove', handleMouseMove);
-}
-
 // Handles mouse down event
 function handleMouseDown(event) {
     // Prevent material placement if the click is on UI elements or if teleportation gates are active
