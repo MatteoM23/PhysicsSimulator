@@ -58,43 +58,31 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function setupMaterialSelector(materials, container) {
+    container.innerHTML = ''; // Clear existing content
+
     Object.entries(materials).forEach(([key, material]) => {
         const button = document.createElement('button');
         button.textContent = material.label;
         button.className = 'materialButton';
-        button.style.backgroundColor = material.color; // Set button background color to material color
-        button.style.color = invertColor(material.color, true); // Optional: Set text color for better readability
+        // Set button background to material color
+        button.style.backgroundColor = material.color;
+        // Set text color for better contrast
+        button.style.color = getInvertedColor(material.color);
         button.onclick = () => selectMaterial(key);
         container.appendChild(button);
     });
 
-    // Arrow for expanding/collapsing the dropdown
-    const expandArrow = document.createElement('span');
-    expandArrow.innerHTML = '&#x25BC;'; // Downward arrow symbol
-    expandArrow.className = 'expandArrow';
-    container.appendChild(expandArrow);
-
-    let isExpanded = false;
-    expandArrow.addEventListener('click', () => {
-        if (!isExpanded) {
-            expandMaterialsDropdown(materials, container);
-        } else {
-            collapseMaterialsDropdown(materials, container);
-        }
-        isExpanded = !isExpanded;
-        expandArrow.innerHTML = isExpanded ? '&#x25B2;' : '&#x25BC;'; // Toggle arrow direction
-    });
+    // Dynamically adjust layout or add animations if desired
 }
 
-// Utility function to invert button text color for better visibility
-function invertColor(hex, bw) {
+function getInvertedColor(hex) {
     if (hex.indexOf('#') === 0) {
         hex = hex.slice(1);
     }
     // Convert hex to RGB
-    var r = parseInt(hex.substr(0,2), 16),
-        g = parseInt(hex.substr(2,2), 16),
-        b = parseInt(hex.substr(4,2), 16);
+    let r = parseInt(hex.slice(0, 2), 16),
+        g = parseInt(hex.slice(2, 4), 16),
+        b = parseInt(hex.slice(4, 6), 16);
     // Invert color components
     r = (255 - r).toString(16);
     g = (255 - g).toString(16);
@@ -103,17 +91,26 @@ function invertColor(hex, bw) {
     return "#" + padZero(r) + padZero(g) + padZero(b);
 }
 
-function padZero(str, len) {
-    len = len || 2;
-    var zeros = new Array(len).join('0');
+function padZero(str, len = 2) {
+    const zeros = new Array(len).join('0');
     return (zeros + str).slice(-len);
 }
 
 
+
 function selectMaterial(key) {
     currentMaterial = key;
+    // Update UI to reflect the current selection
+    document.querySelectorAll('.materialButton').forEach(button => {
+        if (button.textContent === materials[key].label) {
+            button.classList.add('active');
+        } else {
+            button.classList.remove('active');
+        }
+    });
     console.log(`Material ${key} selected`);
 }
+
 
 function expandMaterialsDropdown(materials, container) {
     while (container.firstChild) {
@@ -237,16 +234,17 @@ function isFeatureButton(element) {
 
 let isMouseDown = false;
 
-document.addEventListener('mousedown', (event) => handleMouseDown(event, physics.render, physics.world));
+let isMouseDown = false;
+
+document.addEventListener('mousedown', (event) => handleMouseDown(event));
 document.addEventListener('mouseup', handleMouseUp);
-document.addEventListener('mousemove', (event) => handleMouseMove(event, physics.render, physics.world));
+document.addEventListener('mousemove', (event) => handleMouseMove(event));
 
-
-function handleMouseDown(event, render, world) {
-    isMouseDown = true;
-    const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-    if (!isMaterialSelectorButton(event.target) && !isFeatureButton(event.target)) {
-        createNewBody({ x, y }, currentMaterial, world);
+function handleMouseDown(event) {
+    if (!event.target.closest('.uiElement')) {
+        isMouseDown = true;
+        const position = { x: event.clientX, y: event.clientY };
+        createNewBody(position, currentMaterial, engine.world);
     }
 }
 
@@ -254,11 +252,12 @@ function handleMouseUp() {
     isMouseDown = false;
 }
 
-function handleMouseMove(event, render, world) {
-    if (isMouseDown && !isMaterialSelectorButton(event.target) && !isFeatureButton(event.target)) {
-        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-        createNewBody({ x, y }, currentMaterial, world);
+function handleMouseMove(event) {
+    if (isMouseDown && !event.target.closest('.uiElement')) {
+        const position = { x: event.clientX, y: event.clientY };
+        createNewBody(position, currentMaterial, engine.world);
     }
 }
+
 
 
