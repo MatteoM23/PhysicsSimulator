@@ -224,8 +224,11 @@ function createBody(x, y, materialKey) {
         friction: material.friction,
         restitution: material.restitution,
         render: { fillStyle: material.color },
+        // Add a material property to the body
+        material: materialKey // This is important for interactions.js to identify the body's material
     });
     Matter.World.add(world, body);
 }
+
 
 
