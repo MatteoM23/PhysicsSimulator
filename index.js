@@ -347,7 +347,16 @@ function setupEventListeners() {
 function handleMouseDown(event) {
     if (!event.target.closest('.materialButton')) { // Prevents interaction if clicking on a material button
         isMouseDown = true;
-        createBodyAtMousePosition(event); // Assumes this function is defined to handle body creation
+        // Directly create body at mouse position without a separate function call
+        const { x, y } = screenToWorld(event.clientX, event.clientY);
+        createBody(x, y, currentMaterial);
+    }
+}
+
+function handleMouseMove(event) {
+    if (isMouseDown) {
+        const { x, y } = screenToWorld(event.clientX, event.clientY);
+        createBody(x, y, currentMaterial); // Continuously create or move body based on currentMaterial and mouse position
     }
 }
 
@@ -355,19 +364,11 @@ function handleMouseUp() {
     isMouseDown = false;
 }
 
-function handleMouseMove(event) {
-    if (isMouseDown) {
-        createBodyAtMousePosition(event); // Create or move body based on currentMaterial and mouse position
-    }
-}
-
 function createBodyAtMousePosition(event) {
     const { x, y } = screenToWorld(event.clientX, event.clientY, render);
     // Corrected to use the existing createBody function
     createBody(x, y, currentMaterial);
 }
-
-
 
 function createMaterialBody(event) {
     const { x, y } = screenToWorld(event.clientX, event.clientY, render);
