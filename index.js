@@ -220,6 +220,4 @@ function createNewBody(x, y, materialKey) {
     Matter.World.add(world, body);
 }
 
-    Matter.World.add(world, body);
-}
 
