@@ -83,12 +83,20 @@ function selectMaterial(key) {
     console.log(`Material ${key} selected`);
 }
 
+let currentMaterial = 'sand';
+// Define materials, teleportationActive, etc., as before
+
+document.addEventListener('DOMContentLoaded', () => {
+    initPhysics();
+    setupMaterialSelector(materials);
+    setupFeatureButtons();
+    setupEventListeners();
+});
+
 function initPhysics() {
-    // Create engine
     engine = Matter.Engine.create();
     world = engine.world;
-
-    // Create renderer
+    
     render = Matter.Render.create({
         element: document.body,
         engine: engine,
@@ -100,14 +108,11 @@ function initPhysics() {
         }
     });
 
-    // Create runner
+    // Correctly define and run the runner
     runner = Matter.Runner.create();
-
-    // Run the engine and renderer
     Matter.Runner.run(runner, engine);
     Matter.Render.run(render);
 
-    // Add boundaries
     addBoundaries();
 }
 
