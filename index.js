@@ -76,53 +76,70 @@ function selectMaterial(key) {
 }
 
 let currentMaterial = 'sand';
-// Define materials, teleportationActive, etc., as before
 
-document.addEventListener('DOMContentLoaded', () => {
-    initPhysics();
-    setupMaterialSelector(materials);
-    setupFeatureButtons();
-    setupEventListeners();
-});
-
-function initPhysics() {
-    // Create an engine
+function init() {
+    // Initialization logic
     engine = Matter.Engine.create();
     world = engine.world;
-
-    // Create a renderer
     render = Matter.Render.create({
         element: document.body,
         engine: engine,
         options: {
             width: window.innerWidth,
             height: window.innerHeight,
-            wireframes: false,
-            background: 'transparent', // Adjust as needed
-        },
+            wireframes: false
+        }
     });
 
-    // Define and create a runner
-    runner = Matter.Runner.create(); // Correctly define the runner
-
-    // Add walls or boundaries if necessary
-    addBoundaries();
-
-    // Run the engine and the renderer
+    // Create runner to continuously update the engine
+    runner = Matter.Runner.create();
     Matter.Runner.run(runner, engine);
     Matter.Render.run(render);
 
-    // Now, safely attach events
-    attachEvents();
+    addEventListeners();
+    addBoundaries();
+    setupMaterialSelector(materials);
+    setupFeatureButtons();
 }
 
-function attachEvents() {
-    // Example of attaching an event listener correctly after initialization
-    Matter.Events.on(engine, 'afterUpdate', () => {
-        // Your event logic here
-    });
+function addEventListeners() {
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mousemove', handleMouseMove);
+}
 
-    // Additional event bindings as necessary
+function handleMouseDown(event) {
+    if (!event.target.matches('.materialButton') && !teleportationActive) {
+        isMouseDown = true;
+        placeMaterial(event.clientX, event.clientY);
+    }
+}
+
+function handleMouseUp() {
+    isMouseDown = false;
+}
+
+function handleMouseMove(event) {
+    if (isMouseDown) {
+        placeMaterial(event.clientX, event.clientY);
+    }
+}
+
+function placeMaterial(screenX, screenY) {
+    const point = screenToWorld(screenX, screenY, render);
+    createBody(point.x, point.y, currentMaterial);
+}
+
+function createBody(x, y, materialKey) {
+    const material = materials[materialKey];
+    const body = Matter.Bodies.circle(x, y, material.size / 2, {
+        density: material.density,
+        friction: material.friction,
+        restitution: material.restitution,
+        render: { fillStyle: material.color },
+        material: materialKey
+    });
+    Matter.World.add(world, body);
 }
 
 function addBoundaries() {
@@ -467,56 +484,6 @@ function createFeatureButtonsContainer() {
 }
 
 
-function setupEventListeners() {
-    document.addEventListener('mousedown', (event) => handleMouseDown(event));
-    document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('mousemove', (event) => handleMouseMove(event));
-}
-
-// Event Handlers
-function handleMouseDown(event) {
-    if (!event.target.matches('.materialButton') && !teleportationActive) {
-        isMouseDown = true;
-        placeMaterial(event.clientX, event.clientY);
-    }
-}
-
-function handleMouseUp() {
-    isMouseDown = false;
-}
-
-function handleMouseMove(event) {
-    if (isMouseDown) {
-        placeMaterial(event.clientX, event.clientY);
-    }
-}
-
-function placeMaterial(screenX, screenY) {
-    // Use the imported screenToWorld utility
-    const point = screenToWorld(screenX, screenY, render);
-    createBody(point.x, point.y, currentMaterial);
-}
-
-
-// Create a physics body and add it to the world
-function createBody(x, y, materialKey) {
-    const material = materials[materialKey];
-    const body = Matter.Bodies.circle(x, y, material.size / 2, {
-        density: material.density,
-        friction: material.friction,
-        restitution: material.restitution,
-        render: { fillStyle: material.color },
-        material: materialKey
-    });
-    Matter.World.add(world, body);
-}
-
-// Initialization
-document.addEventListener('DOMContentLoaded', () => {
-    initPhysics();
-    setupEventListeners();
-    // Any additional setup logic can go here
-});
 
 
 
