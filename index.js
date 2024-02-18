@@ -192,37 +192,124 @@ function setupFeatureButtons() {
 }
 
 // Explosion enhancement
+// Function to create explosion with visual effects
 function createExplosion(x, y) {
-    const explosionForce = 0.5; // Increased force for a stronger explosion
+    const explosionForce = 0.05; // Adjusted force for explosion
     const bodies = Matter.Composite.allBodies(world);
+    
+    // Shake the screen to simulate explosion impact
+    shakeScreen(10, 100);
+
     bodies.forEach(body => {
         const force = Matter.Vector.sub(body.position, { x, y });
         const magnitude = Matter.Vector.magnitude(force);
         const explosionVector = Matter.Vector.mult(Matter.Vector.normalise(force), explosionForce / magnitude);
         Matter.Body.applyForce(body, body.position, explosionVector);
 
-        // Add particle effect for explosion
-        createParticleEffect(body.position, { x: explosionVector.x * 10, y: explosionVector.y * 10 }, 20, 'orange', 0.5); // Example particle effect
+        // Create a burst of particles for visual effect
+        createParticleBurst(body.position, 'orange', 20, 0.5); // Example particle burst
     });
 
-    // Add sound effect for explosion
-    playExplosionSound(); // Example function to play explosion sound
 }
 
 // Material Fountain enhancement
 let fountainInterval;
+let particles = [];
 
 function startMaterialFountainWithEffect() {
+    // Clear existing particles to prevent accumulation over time
+    particles.forEach(particle => {
+        Matter.World.remove(world, particle);
+    });
+    particles = [];
+
+    // Start fountain interval
     fountainInterval = setInterval(() => {
         const x = window.innerWidth / 2; // Fixed x position (center of the screen)
         const velocity = { x: Math.random() * 2 - 1, y: -Math.random() * 5 }; // Randomized velocity for realistic fountain effect
         createBodyWithVelocity(x, window.innerHeight, currentMaterial, velocity); // Spawn material body with velocity at the bottom of the screen
+
+        // Create color-changing and varying-sized particles for visual effect
+        createColorChangingParticle(x, window.innerHeight, 5 + Math.random() * 15, 0.5 + Math.random() * 0.5); // Example function to create color-changing particles
     }, 100); // Adjust interval as desired
 }
 
 function stopMaterialFountain() {
     clearInterval(fountainInterval);
 }
+
+function shakeScreen(intensity, duration) {
+    const originalX = window.scrollX;
+    const originalY = window.scrollY;
+    let startTime = null;
+
+    function shake(currentTime) {
+        if (!startTime) startTime = currentTime;
+        const elapsed = currentTime - startTime;
+        if (elapsed < duration) {
+            const shakeX = Math.random() * intensity * 2 - intensity;
+            const shakeY = Math.random() * intensity * 2 - intensity;
+            window.scrollTo(originalX + shakeX, originalY + shakeY);
+            requestAnimationFrame(shake);
+        } else {
+            window.scrollTo(originalX, originalY);
+        }
+    }
+
+    requestAnimationFrame(shake);
+}
+
+function createParticleBurst(position, color, numParticles, size) {
+    const explosionForce = 0.02;
+    for (let i = 0; i < numParticles; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const velocity = {
+            x: Math.cos(angle) * explosionForce,
+            y: Math.sin(angle) * explosionForce
+        };
+        const particle = Matter.Bodies.circle(position.x, position.y, size / 2, {
+            frictionAir: 0,
+            restitution: 1,
+            render: {
+                fillStyle: color,
+                strokeStyle: 'transparent'
+            }
+        });
+        particles.push(particle);
+        Matter.World.add(world, particle);
+        Matter.Body.setVelocity(particle, velocity);
+    }
+}
+
+function createColorChangingParticle(x, y, size, duration) {
+    const colors = ['#FF6347', '#FFA500', '#FFFF00', '#32CD32', '#6495ED', '#9370DB']; // Example colors
+    const particle = Matter.Bodies.circle(x, y, size / 2, {
+        frictionAir: 0,
+        restitution: 0.5 // Example restitution
+    });
+    const initialColor = colors[Math.floor(Math.random() * colors.length)];
+    const finalColor = colors[Math.floor(Math.random() * colors.length)];
+    let startTime = null;
+
+    function updateColor(currentTime) {
+        if (!startTime) startTime = currentTime;
+        const elapsed = (currentTime - startTime) / 1000; // Convert milliseconds to seconds
+        const t = elapsed / duration;
+        const r = Math.floor(initialColor[1] * (1 - t) + finalColor[1] * t);
+        const g = Math.floor(initialColor[2] * (1 - t) + finalColor[2] * t);
+        const b = Math.floor(initialColor[3] * (1 - t) + finalColor[3] * t);
+        const color = `rgb(${r},${g},${b})`;
+        particle.render.fillStyle = color;
+        if (elapsed < duration * 1000) {
+            requestAnimationFrame(updateColor);
+        }
+    }
+
+    requestAnimationFrame(updateColor);
+    particles.push(particle);
+    Matter.World.add(world, particle);
+}
+
 
 // Clear World enhancement
 function clearMaterialBodiesWithEffect() {
