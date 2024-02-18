@@ -6,6 +6,9 @@
     --text-color: #f5f6fa;
     --font-family: 'Helvetica Neue', Arial, sans-serif;
     --transition-speed: 0.4s;
+    --border-radius: 10px; /* New variable for consistent border-radius */
+    --shadow-color: rgba(0, 0, 0, 0.5); /* New variable for shadows */
+    --hover-scale: 1.05; /* New variable for hover scale effect */
 }
 
 body, html {
@@ -22,9 +25,10 @@ body, html {
     align-items: flex-end;
     user-select: none;
     position: relative;
+    overflow: hidden; /* Ensure no overflow for full-page designs */
 }
 
-#uiContainer {
+#uiContainer, #featureButtons {
     position: fixed;
     top: 20px;
     left: 20px;
@@ -32,9 +36,11 @@ body, html {
     align-items: center;
     background-color: var(--container-bg-color);
     padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8);
+    border-radius: var(--border-radius);
+    box-shadow: 0 5px 15px var(--shadow-color);
     z-index: 1050;
+    transition: transform var(--transition-speed) ease-in-out, box-shadow var(--transition-speed) ease-in-out;
+    will-change: transform, box-shadow; /* For smoother animations */
 }
 
 #materialsContainer, #featureButtons {
@@ -45,12 +51,13 @@ body, html {
     overflow-x: auto;
 }
 
-.expandArrow {
+.expandArrow, .materialButton {
     margin-left: 10px;
     cursor: pointer;
     user-select: none;
     font-size: 20px;
-    transition: transform var(--transition-speed) ease;
+    transition: transform var(--transition-speed) ease, color var(--transition-speed) ease;
+    color: var(--text-color); /* Ensure text color consistency */
 }
 
 .materialButton, #featureButtons .materialButton {
@@ -60,21 +67,21 @@ body, html {
     padding: 8px 12px;
     font-size: 14px;
     cursor: pointer;
-    border-radius: 6px;
-    transition: all var(--transition-speed) ease;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+    border-radius: var(--border-radius);
+    transition: all var(--transition-speed) ease, box-shadow var(--transition-speed) ease, transform var(--transition-speed) ease;
+    box-shadow: 0 3px 6px var(--shadow-color);
 }
 
 .materialButton:hover, #featureButtons .materialButton:hover {
     background-color: var(--button-hover-bg-color);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+    transform: translateY(-2px) scale(var(--hover-scale));
+    box-shadow: 0 4px 8px var(--shadow-color);
 }
 
 .materialButton:active, #featureButtons .materialButton:active {
     background-color: var(--button-active-bg-color);
     transform: translateY(1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 2px 4px var(--shadow-color);
 }
 
 #uiContainer.expanded .expandArrow {
@@ -85,4 +92,14 @@ body, html {
     position: absolute;
     bottom: 20px;
     right: 20px;
+}
+
+@media (max-width: 768px) {
+    #uiContainer, #featureButtons {
+        flex-direction: column;
+        top: auto;
+        bottom: 20px; /* Adjust for mobile */
+        left: 50%;
+        transform: translateX(-50%);
+    }
 }
