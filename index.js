@@ -352,30 +352,35 @@ function createFeatureButtonsContainer() {
 
 
 function setupEventListeners() {
-    document.body.addEventListener('mousedown', handleMouseDown);
-    document.body.addEventListener('mouseup', handleMouseUp);
-    document.body.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mousemove', handleMouseMove);
 }
 
 function handleMouseDown(event) {
-    if (!event.target.closest('.materialButton')) { // Prevents interaction if clicking on a material button
+    // Check if the click is not on a UI element like a material button
+    if (!event.target.matches('.materialButton')) {
         isMouseDown = true;
-        // Directly create body at mouse position without a separate function call
-        const { x, y } = screenToWorld(event.clientX, event.clientY);
-        createBody(x, y, currentMaterial);
-    }
-}
-
-function handleMouseMove(event) {
-    if (isMouseDown) {
-        const { x, y } = screenToWorld(event.clientX, event.clientY);
-        createBody(x, y, currentMaterial); // Continuously create or move body based on currentMaterial and mouse position
+        placeMaterial(event);
     }
 }
 
 function handleMouseUp() {
     isMouseDown = false;
 }
+
+function handleMouseMove(event) {
+    if (isMouseDown) {
+        placeMaterial(event);
+    }
+}
+
+function placeMaterial(event) {
+    // Convert screen coordinates to world coordinates
+    const point = screenToWorld(event.clientX, event.clientY, render);
+    createBody(point.x, point.y, currentMaterial);
+}
+
 
 function createBodyAtMousePosition(event) {
     const { x, y } = screenToWorld(event.clientX, event.clientY, render);
