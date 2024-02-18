@@ -1,5 +1,4 @@
 :root {
-    /* Enhanced and sophisticated color scheme */
     --button-bg-color: #607D8B; /* Soft Blue Grey */
     --button-hover-bg-color: #78909C; /* Lighter Blue Grey */
     --button-active-bg-color: #455A64; /* Darker Blue Grey */
@@ -26,75 +25,72 @@ body, html {
     font-family: var(--font-family);
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start; /* Adjusted to flex-start for better alignment */
     align-items: center;
     user-select: none;
-    overflow: hidden;
-    animation: backgroundFlow 10s ease infinite alternate;
-}
-
-@keyframes backgroundFlow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    overflow: auto; /* Changed to auto to allow scrolling */
 }
 
 #uiContainer {
-    font-family: var(--font-family-title); /* Use the title font for headings */
-    text-transform: uppercase; /* Adds a modern touch */
-    letter-spacing: 1px; /* Enhances readability and style */
-    /* Rest of the styles remain unchanged */
+    font-family: var(--font-family-title);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 20px; /* Added padding */
+    margin-top: 20px; /* Added margin to ensure visibility */
+    border-radius: var(--border-radius);
+    background-color: var(--container-bg-color);
+    box-shadow: 0 4px 8px var(--shadow-color);
+    display: flex; /* Ensures flex layout for the container */
+    flex-direction: column; /* Aligns children vertically */
+    align-items: center; /* Centers items horizontally */
+    transition: all var(--transition-speed) ease-in-out;
 }
 
 .materialButton, .feature-buttons button {
-    font-weight: bold; /* Makes text more pronounced */
-    text-shadow: 1px 1px 2px var(--shadow-color); /* Subtle text shadow for depth */
-    /* Rest of the styles remain unchanged */
+    font-weight: bold;
+    text-shadow: 1px 1px 2px var(--shadow-color);
+    background-color: var(--button-bg-color);
+    color: #FFFFFF;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: var(--border-radius);
+    margin: 5px; /* Added margin for spacing */
+    transition: background-color var(--transition-speed) ease, transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    display: inline-block; /* Changed to inline-block for better layout control */
 }
 
 .materialButton:hover, .feature-buttons button:hover {
-    animation: pulse 1.5s infinite;
+    background-color: var(--button-hover-bg-color);
+    transform: scale(var(--hover-scale));
+    box-shadow: 0 6px 12px var(--shadow-color);
 }
 
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+.materialButton:active, .feature-buttons button:active {
+    background-color: var(--button-active-bg-color);
+    transform: var(--active-transform);
+    box-shadow: 0 1px 2px var(--shadow-color);
 }
 
-/* Additional aesthetic touches */
-.materialButton, .feature-buttons button {
-    overflow: hidden; /* Prepares buttons for additional effects */
-    position: relative; /* Allows for pseudo-elements */
-}
-
-.materialButton::before, .feature-buttons button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.2);
-    opacity: 0;
-    transition: opacity var(--transition-speed) ease;
+.feature-buttons {
+    display: flex;
+    flex-wrap: wrap; /* Allows wrapping for multiple buttons */
+    justify-content: center; /* Centers buttons when they wrap */
+    padding: 10px;
+    margin-bottom: 20px; /* Added margin to ensure visibility at the bottom */
     border-radius: var(--border-radius);
+    background-color: var(--container-bg-color);
+    box-shadow: 0 4px 8px var(--shadow-color);
 }
 
-.materialButton:hover::before, .feature-buttons button:hover::before {
-    opacity: 1;
-    animation: none;
-}
-
-/* Responsive tweaks for better mobile experience */
 @media (max-width: 768px) {
     #uiContainer, .feature-buttons {
+        width: 90%; /* Adjusts width on smaller screens for better responsiveness */
         flex-direction: row;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 15px;
-        bottom: 10px;
-        left: 50%;
-        transform: translateX(-50%);
+        gap: 10px;
     }
 }
