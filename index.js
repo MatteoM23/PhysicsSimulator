@@ -136,11 +136,6 @@ function initPhysics() {
     setupEventListeners();
 }
 
-function setupEventListeners() {
-    document.body.addEventListener('mousedown', handleMouseDown);
-    document.body.addEventListener('mouseup', handleMouseUp);
-    document.body.addEventListener('mousemove', handleMouseMove);
-}
 
 
 function setupFeatureButtons() {
