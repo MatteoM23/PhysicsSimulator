@@ -28,7 +28,7 @@ body, html {
     justify-content: flex-start; /* Adjusted to flex-start for better alignment */
     align-items: center;
     user-select: none;
-    overflow: auto; /* Changed to auto to allow scrolling */
+    overflow: hidden;
 }
 
 #uiContainer {
