@@ -10,7 +10,8 @@ let teleportationActive = false;
 let placingGateA = false, placingGateB = false;
 let gateA, gateB;
 let gates = [];
-
+let world;
+let isMouseDown = false;
 
 
 // Define materials globally to ensure they are accessible throughout the script
@@ -84,30 +85,47 @@ function selectMaterial(key) {
     console.log(`Material ${key} selected`);
 }
 
-function initPhysics() {
-    // Create an engine
+unction initPhysics() {
+    // Create engine
     engine = Matter.Engine.create();
     world = engine.world;
 
-    // Create a renderer
+    // Create renderer
     render = Matter.Render.create({
         element: document.body,
         engine: engine,
         options: {
-            width: Math.min(document.documentElement.clientWidth, 800),
-            height: Math.min(document.documentElement.clientHeight, 600),
-            wireframes: false
+            width: window.innerWidth,
+            height: window.innerHeight,
+            wireframes: false,
+            background: 'transparent'
         }
     });
 
-    // Run the engine
-    Matter.Engine.run(engine);
-    
-    // Run the renderer
+    // Create runner
+    runner = Matter.Runner.create();
+
+    // Run the engine and renderer
+    Matter.Runner.run(runner, engine);
     Matter.Render.run(render);
 
-    // Any additional setup for your physics environment (e.g., adding static bodies)
-    addEnvironment();
+    // Add boundaries
+    addBoundaries();
+}
+
+function addBoundaries() {
+    const thickness = 50;
+    const walls = [
+        // Bottom
+        Matter.Bodies.rectangle(render.options.width / 2, render.options.height, render.options.width, thickness, { isStatic: true }),
+        // Top
+        Matter.Bodies.rectangle(render.options.width / 2, 0, render.options.width, thickness, { isStatic: true }),
+        // Left
+        Matter.Bodies.rectangle(0, render.options.height / 2, thickness, render.options.height, { isStatic: true }),
+        // Right
+        Matter.Bodies.rectangle(render.options.width, render.options.height / 2, thickness, render.options.height, { isStatic: true })
+    ];
+    Matter.World.add(world, walls);
 }
 
 
@@ -437,35 +455,38 @@ function createFeatureButtonsContainer() {
 }
 
 
-// Handles mouse down event
+function setupEventListeners() {
+    document.addEventListener('mousedown', (event) => handleMouseDown(event));
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mousemove', (event) => handleMouseMove(event));
+}
+
+// Event Handlers
 function handleMouseDown(event) {
-    // Prevent material placement if the click is on UI elements or if teleportation gates are active
-    if (!event.target.closest('.materialButton, .feature-buttons') && !teleportationActive) {
+    if (!event.target.matches('.materialButton') && !teleportationActive) {
         isMouseDown = true;
-        placeMaterial(event);
+        placeMaterial(event.clientX, event.clientY);
     }
 }
 
-// Handles mouse up event
 function handleMouseUp() {
     isMouseDown = false;
 }
 
-// Handles mouse move event
 function handleMouseMove(event) {
     if (isMouseDown) {
-        placeMaterial(event);
+        placeMaterial(event.clientX, event.clientY);
     }
 }
 
-// Places material at mouse position
-function placeMaterial(event) {
-    const point = screenToWorld(event.clientX, event.clientY);
+function placeMaterial(screenX, screenY) {
+    // Use the imported screenToWorld utility
+    const point = screenToWorld(screenX, screenY, render);
     createBody(point.x, point.y, currentMaterial);
 }
 
 
-// Creates a body at a given position with the specified material
+// Create a physics body and add it to the world
 function createBody(x, y, materialKey) {
     const material = materials[materialKey];
     const body = Matter.Bodies.circle(x, y, material.size / 2, {
@@ -473,25 +494,16 @@ function createBody(x, y, materialKey) {
         friction: material.friction,
         restitution: material.restitution,
         render: { fillStyle: material.color },
-        material: materialKey // To identify the material during interactions
+        material: materialKey
     });
     Matter.World.add(world, body);
 }
 
-function setupEventListeners() {
-    document.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('mousemove', handleMouseMove);
-}
-
-// Final initialization logic wrapped in DOMContentLoaded event listener
+// Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    initPhysics(); // Initialize physics engine, world, and renderer
-    setupMaterialSelector(); // Setup material selector UI
-    setupFeatureButtons(); // Setup feature buttons for user interactions
-    setupEventListeners(); // Setup event listeners for material placement and other interactions
-
-    // Any other initialization logic needed for your application
+    initPhysics();
+    setupEventListeners();
+    // Any additional setup logic can go here
 });
 
 
