@@ -139,10 +139,17 @@ function initPhysics() {
 
 
 function setupFeatureButtons() {
-    const buttonsContainer = document.getElementById('uiContainer') || document.body; // Fallback to body if container not found
+    // Ensure the feature buttons container is targeted specifically
+    const buttonsContainer = document.querySelector('.feature-buttons');
+    if (!buttonsContainer) {
+        console.error('Feature buttons container not found');
+        return;
+    }
+
     const clearWorldButton = document.createElement('button');
     clearWorldButton.textContent = 'Clear World';
-    clearWorldButton.onclick = () => clearDynamicBodies(world); // Assumes clearDynamicBodies function is defined
+    // Assume clearDynamicBodies function is correctly defined elsewhere
+    clearWorldButton.onclick = () => clearDynamicBodies(world);
     buttonsContainer.appendChild(clearWorldButton);
 
     const invertGravityButton = document.createElement('button');
@@ -152,8 +159,9 @@ function setupFeatureButtons() {
     };
     buttonsContainer.appendChild(invertGravityButton);
 
-    // Add more feature buttons as needed
+    // Add more feature buttons as needed, appending them to buttonsContainer
 }
+
 
 
 function createFeatureButton(text, onClick) {
