@@ -39,14 +39,6 @@ const materials = {
     photonGel: { label: 'Photon Gel', color: '#ffa07a', density: 0.0008, size: 25, friction: 0.05, restitution: 0.9 },
 };
 
-let currentMaterial = 'sand';
-
-document.addEventListener('DOMContentLoaded', () => {
-    initPhysics(); // Initializes Matter.js engine, render, and world
-
-    setupMaterialSelector(materials);
-    setupFeatureButtons();
-});
 
 function setupMaterialSelector(materials) {
     const materialsContainer = document.getElementById('materialsContainer') || createMaterialsContainer();
