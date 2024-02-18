@@ -151,15 +151,11 @@ function handleResize() {
     render.options.width = window.innerWidth;
     render.options.height = window.innerHeight;
     
-    // Recreate the background to fit the new dimensions
-    Matter.Render.setBackground(render, 'linear-gradient(135deg, #333333, #1b2838)');
+    // Update the background directly on the canvas element
+    document.body.style.background = 'linear-gradient(135deg, #333333, #1b2838)';
     
     // Optionally, adjust environment elements (like ground, walls) based on new size
 }
-
-
-
-
 
 
 function setupFeatureButtons() {
