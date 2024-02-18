@@ -6,7 +6,6 @@ let engine, render, world;
 let isMouseDown = false; // Define isMouseDown at the top of your script
 let fountainInterval;
 let particles = [];
-let engine, render, world;
 let teleportationActive = false;
 let placingGateA = false, placingGateB = false;
 let gateA, gateB;
