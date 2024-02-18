@@ -80,8 +80,6 @@ function selectMaterial(key) {
     console.log(`Material ${key} selected`);
 }
 
-let engine, render, world;
-
 function initPhysics() {
     engine = Matter.Engine.create();
     world = engine.world;
