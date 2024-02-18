@@ -68,14 +68,9 @@ function selectMaterial(key) {
     currentMaterial = key;
     const buttons = document.querySelectorAll('.materialButton');
     buttons.forEach(button => {
+        button.classList.remove('selected'); // Remove the class from all buttons
         if (button.textContent === materials[key].label) {
-            button.classList.add('selected');
-            button.style.backgroundColor = materials[key].color; // Highlight with material color
-            button.style.color = 'white'; // Ensure text contrast
-        } else {
-            button.classList.remove('selected');
-            button.style.backgroundColor = ''; // Reset to default or initial color
-            button.style.color = ''; // Reset text color
+            button.classList.add('selected'); // Add class to the selected one
         }
     });
     console.log(`Material ${key} selected`);
@@ -318,9 +313,6 @@ function fadeOutBody(body) {
     // You can use CSS animations or libraries like GSAP for animation
     body.render.fillStyle = 'rgba(255, 255, 255, 0)'; // Example fading to transparent
 }
-
-
-
 
 
 function createFeatureButton(text, onClick) {
