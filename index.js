@@ -158,6 +158,8 @@ function handleResize() {
 }
 
 
+// Enhance the features in the setupFeatureButtons() function
+
 function setupFeatureButtons() {
     // Ensure the feature buttons container is targeted specifically
     const buttonsContainer = document.querySelector('.feature-buttons');
@@ -168,19 +170,82 @@ function setupFeatureButtons() {
 
     const clearWorldButton = document.createElement('button');
     clearWorldButton.textContent = 'Clear World';
-    // Assume clearDynamicBodies function is correctly defined elsewhere
-    clearWorldButton.onclick = () => clearDynamicBodies(world);
+    clearWorldButton.onclick = clearMaterialBodiesWithEffect; // Updated onclick event handler
     buttonsContainer.appendChild(clearWorldButton);
 
-    const invertGravityButton = document.createElement('button');
-    invertGravityButton.textContent = 'Invert Gravity';
-    invertGravityButton.onclick = () => {
+    const invertGravityButton = createFeatureButton('Invert Gravity', () => {
         engine.world.gravity.y *= -1; // Inverts gravity
-    };
+    });
     buttonsContainer.appendChild(invertGravityButton);
+
+    const explosionButton = createFeatureButton('Explosion', () => {
+        // Trigger explosion at mouse position
+        const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+        createExplosion(x, y);
+    });
+    buttonsContainer.appendChild(explosionButton);
+
+    const materialFountainButton = createFeatureButton('Material Fountain', startMaterialFountainWithEffect);
+    buttonsContainer.appendChild(materialFountainButton);
 
     // Add more feature buttons as needed, appending them to buttonsContainer
 }
+
+// Explosion enhancement
+function createExplosion(x, y) {
+    const explosionForce = 0.5; // Increased force for a stronger explosion
+    const bodies = Matter.Composite.allBodies(world);
+    bodies.forEach(body => {
+        const force = Matter.Vector.sub(body.position, { x, y });
+        const magnitude = Matter.Vector.magnitude(force);
+        const explosionVector = Matter.Vector.mult(Matter.Vector.normalise(force), explosionForce / magnitude);
+        Matter.Body.applyForce(body, body.position, explosionVector);
+
+        // Add particle effect for explosion
+        createParticleEffect(body.position, { x: explosionVector.x * 10, y: explosionVector.y * 10 }, 20, 'orange', 0.5); // Example particle effect
+    });
+
+    // Add sound effect for explosion
+    playExplosionSound(); // Example function to play explosion sound
+}
+
+// Material Fountain enhancement
+let fountainInterval;
+
+function startMaterialFountainWithEffect() {
+    fountainInterval = setInterval(() => {
+        const x = window.innerWidth / 2; // Fixed x position (center of the screen)
+        const velocity = { x: Math.random() * 2 - 1, y: -Math.random() * 5 }; // Randomized velocity for realistic fountain effect
+        createBodyWithVelocity(x, window.innerHeight, currentMaterial, velocity); // Spawn material body with velocity at the bottom of the screen
+    }, 100); // Adjust interval as desired
+}
+
+function stopMaterialFountain() {
+    clearInterval(fountainInterval);
+}
+
+// Clear World enhancement
+function clearMaterialBodiesWithEffect() {
+    // Fade out or animate the removal of material bodies for a visually pleasing effect
+    const bodies = Matter.Composite.allBodies(world);
+    bodies.forEach(body => {
+        // Example: Animate body removal
+        fadeOutBody(body);
+    });
+
+    // Clear world after animation completes
+    setTimeout(() => {
+        Matter.World.clear(world, false); // Clear bodies without removing static bodies (walls)
+    }, 1000); // Adjust delay as needed for animation duration
+}
+
+function fadeOutBody(body) {
+    // Example: Animate fading out of body
+    // You can use CSS animations or libraries like GSAP for animation
+    body.render.fillStyle = 'rgba(255, 255, 255, 0)'; // Example fading to transparent
+}
+
+
 
 
 
