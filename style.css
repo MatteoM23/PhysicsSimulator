@@ -1,14 +1,19 @@
 :root {
-    --button-bg-color: #34495e;
-    --button-hover-bg-color: #4a6572;
-    --button-active-bg-color: #1c2833;
-    --container-bg-color: rgba(34, 40, 49, 0.95);
-    --text-color: #f5f6fa;
-    --font-family: 'Helvetica Neue', Arial, sans-serif;
-    --transition-speed: 0.4s;
-    --border-radius: 10px;
-    --shadow-color: rgba(0, 0, 0, 0.5);
-    --hover-scale: 1.05;
+    /* Enhanced and sophisticated color scheme */
+    --button-bg-color: #607D8B; /* Soft Blue Grey */
+    --button-hover-bg-color: #78909C; /* Lighter Blue Grey */
+    --button-active-bg-color: #455A64; /* Darker Blue Grey */
+    --container-bg-color: #ECEFF1; /* Light Blue Grey background */
+    --text-color: #37474F; /* Dark Slate Grey for contrast */
+    --font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    --font-family-title: 'Poppins', sans-serif; /* Adds character and modernity */
+    --transition-speed: 0.3s;
+    --border-radius: 8px;
+    --shadow-color: rgba(38, 50, 56, 0.3);
+    --hover-scale: 1.03;
+    --active-transform: translateY(2px);
+    --background-animation-color-start: #546E7A; /* Darker shade for gradient start */
+    --background-animation-color-end: #29434E; /* Darker shade for gradient end */
 }
 
 body, html {
@@ -16,88 +21,79 @@ body, html {
     padding: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(145deg, #333333, #1b2838);
+    background: linear-gradient(135deg, var(--background-animation-color-start), var(--background-animation-color-end));
     color: var(--text-color);
     font-family: var(--font-family);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    align-items: flex-end;
-    user-select: none;
-    position: relative;
-    overflow: hidden;
-}
-
-#uiContainer, .feature-buttons {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    display: flex;
+    justify-content: center;
     align-items: center;
-    background-color: var(--container-bg-color);
-    padding: 10px;
-    border-radius: var(--border-radius);
-    box-shadow: 0 5px 15px var(--shadow-color);
-    z-index: 1050;
-    transition: transform var(--transition-speed) ease-in-out, box-shadow var(--transition-speed) ease-in-out;
-}
-
-#materialsContainer, .feature-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    max-width: 100%;
-    overflow-x: auto;
-}
-
-.expandArrow, .materialButton {
-    margin-left: 10px;
-    cursor: pointer;
     user-select: none;
-    font-size: 20px;
-    transition: transform var(--transition-speed) ease, color var(--transition-speed) ease;
-    color: var(--text-color);
+    overflow: hidden;
+    animation: backgroundFlow 10s ease infinite alternate;
+}
+
+@keyframes backgroundFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+#uiContainer {
+    font-family: var(--font-family-title); /* Use the title font for headings */
+    text-transform: uppercase; /* Adds a modern touch */
+    letter-spacing: 1px; /* Enhances readability and style */
+    /* Rest of the styles remain unchanged */
 }
 
 .materialButton, .feature-buttons button {
-    background-color: var(--button-bg-color);
-    color: var(--text-color);
-    border: none;
-    padding: 8px 12px;
-    font-size: 14px;
-    cursor: pointer;
-    border-radius: var(--border-radius);
-    transition: all var(--transition-speed) ease, box-shadow var(--transition-speed) ease, transform var(--transition-speed) ease;
-    box-shadow: 0 3px 6px var(--shadow-color);
+    font-weight: bold; /* Makes text more pronounced */
+    text-shadow: 1px 1px 2px var(--shadow-color); /* Subtle text shadow for depth */
+    /* Rest of the styles remain unchanged */
 }
 
 .materialButton:hover, .feature-buttons button:hover {
-    background-color: var(--button-hover-bg-color);
-    transform: translateY(-2px) scale(var(--hover-scale));
-    box-shadow: 0 4px 8px var(--shadow-color);
+    animation: pulse 1.5s infinite;
 }
 
-.materialButton:active, .feature-buttons button:active {
-    background-color: var(--button-active-bg-color);
-    transform: translateY(1px);
-    box-shadow: 0 2px 4px var(--shadow-color);
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
 }
 
-#uiContainer.expanded .expandArrow {
-    transform: rotate(-180deg);
+/* Additional aesthetic touches */
+.materialButton, .feature-buttons button {
+    overflow: hidden; /* Prepares buttons for additional effects */
+    position: relative; /* Allows for pseudo-elements */
 }
 
-.feature-buttons {
+.materialButton::before, .feature-buttons button::before {
+    content: '';
     position: absolute;
-    bottom: 20px;
-    right: 20px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.2);
+    opacity: 0;
+    transition: opacity var(--transition-speed) ease;
+    border-radius: var(--border-radius);
 }
 
+.materialButton:hover::before, .feature-buttons button:hover::before {
+    opacity: 1;
+    animation: none;
+}
+
+/* Responsive tweaks for better mobile experience */
 @media (max-width: 768px) {
     #uiContainer, .feature-buttons {
-        flex-direction: column;
-        top: auto;
-        bottom: 20px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+        bottom: 10px;
         left: 50%;
         transform: translateX(-50%);
     }
