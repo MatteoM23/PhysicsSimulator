@@ -60,20 +60,18 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupMaterialSelector(materials, container) {
     container.innerHTML = ''; // Clear existing content
 
-    Object.entries(materials).forEach(([key, material]) => {
+    Object.keys(materials).forEach(key => {
+        const material = materials[key];
         const button = document.createElement('button');
         button.textContent = material.label;
         button.className = 'materialButton';
-        // Set button background to material color
         button.style.backgroundColor = material.color;
-        // Set text color for better contrast
-        button.style.color = getInvertedColor(material.color);
+        button.style.color = '#ffffff'; // Assuming white text for better readability
         button.onclick = () => selectMaterial(key);
         container.appendChild(button);
     });
-
-    // Dynamically adjust layout or add animations if desired
 }
+
 
 function getInvertedColor(hex) {
     if (hex.indexOf('#') === 0) {
@@ -100,16 +98,17 @@ function padZero(str, len = 2) {
 
 function selectMaterial(key) {
     currentMaterial = key;
-    // Update UI to reflect the current selection
-    document.querySelectorAll('.materialButton').forEach(button => {
+    const buttons = document.querySelectorAll('.materialButton');
+    buttons.forEach(button => {
         if (button.textContent === materials[key].label) {
-            button.classList.add('active');
+            button.classList.add('selected'); // Highlight the selected button
         } else {
-            button.classList.remove('active');
+            button.classList.remove('selected');
         }
     });
     console.log(`Material ${key} selected`);
 }
+
 
 
 function expandMaterialsDropdown(materials, container) {
@@ -177,21 +176,17 @@ function initPhysics() {
     return { engine, render, world: engine.world };
 }
 
-
-function createNewBody(position, materialKey, world) {
-    // Your existing createNewBody function here
-    const material = materials[materialKey];
-    const options = {
+function createNewBody(x, y) {
+    const material = materials[currentMaterial];
+    const body = Matter.Bodies.circle(x, y, material.size / 2, {
         density: material.density,
-        friction: material.friction ?? 0.1,
-        restitution: material.restitution ?? 0.1,
+        friction: material.friction,
+        restitution: material.restitution,
         render: {
             fillStyle: material.color,
         },
-    };
-    const body = Matter.Bodies.circle(position.x, position.y, material.size / 2, options);
-    body.material = materialKey;
-    Matter.World.add(world, body);
+    });
+    Matter.World.add(engine.world, body);
 }
 
 function clearDynamicBodies(world) {
@@ -259,4 +254,15 @@ function handleMouseMove(event) {
 }
 
 
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize physics engine and render
+    const { engine, render, world } = initPhysics();
+
+    document.addEventListener('mousedown', event => {
+        if (!event.target.classList.contains('materialButton')) {
+            const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+            createNewBody(x, y);
+        }
+    });
+});
 
