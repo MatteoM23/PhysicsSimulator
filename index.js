@@ -85,21 +85,29 @@ function selectMaterial(key) {
 }
 
 function initPhysics() {
+    // Create an engine
     engine = Matter.Engine.create();
     world = engine.world;
 
-    createRenderer();
-
-    addEnvironment(); // This will now include dynamic adjustment for floor alignment
-
-    Matter.Events.on(engine, 'collisionStart', function(event) {
-        handleCollisions(event, engine); // Ensure this function is defined or adjust as needed
+    // Create a renderer
+    render = Matter.Render.create({
+        element: document.body,
+        engine: engine,
+        options: {
+            width: Math.min(document.documentElement.clientWidth, 800),
+            height: Math.min(document.documentElement.clientHeight, 600),
+            wireframes: false
+        }
     });
 
-    Matter.Runner.run(engine);
+    // Run the engine
+    Matter.Engine.run(engine);
+    
+    // Run the renderer
     Matter.Render.run(render);
 
-    window.addEventListener('resize', handleResize); // Adjust rendering and environment on resize
+    // Any additional setup for your physics environment (e.g., adding static bodies)
+    addEnvironment();
 }
 
 
