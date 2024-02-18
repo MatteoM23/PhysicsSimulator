@@ -109,8 +109,9 @@ function initPhysics() {
     const featureButtonsHeight = document.querySelector('.feature-buttons').offsetHeight || 0;
     const totalHeight = window.innerHeight - materialSelectorHeight - featureButtonsHeight;
     const groundHeight = Math.min(totalHeight * 0.8, 200); // Limit ground height to 80% of available space or 200px, whichever is smaller
+    const groundY = window.innerHeight - groundHeight / 2 - materialSelectorHeight - featureButtonsHeight - 10; // Adjust the floor position
 
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - groundHeight / 2, window.innerWidth, groundHeight, {
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, groundY, window.innerWidth, groundHeight, {
         isStatic: true,
         render: { fillStyle: '#868e96' }
     });
