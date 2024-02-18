@@ -2,7 +2,7 @@ import Matter from 'https://cdn.skypack.dev/matter-js';
 import { interactionRules, handleCollisions } from './interactions.js';
 import { screenToWorld } from './utils.js';
 
-let engine, render, world;
+let engine, render, world, runner; // Declare all needed variables at the top
 let isMouseDown = false; // Define isMouseDown at the top of your script
 let fountainInterval;
 let particles = [];
@@ -10,6 +10,7 @@ let teleportationActive = false;
 let placingGateA = false, placingGateB = false;
 let gateA, gateB;
 let gates = [];
+let currentMaterial = 'sand';
 
 
 // Define materials globally to ensure they are accessible throughout the script
@@ -39,51 +40,53 @@ const materials = {
     photonGel: { label: 'Photon Gel', color: '#ffa07a', density: 0.0008, size: 25, friction: 0.05, restitution: 0.9 },
 };
 
-
-let currentMaterial = 'sand';
+document.addEventListener('DOMContentLoaded', () => {
+    initPhysics();
+    setupEventListeners();
+    // Additional setup logic can go here
+});
 
 function initPhysics() {
-    // Initialization logic
+    // Initialize engine
     engine = Matter.Engine.create();
     world = engine.world;
+
+    // Initialize renderer
     render = Matter.Render.create({
         element: document.body,
         engine: engine,
         options: {
             width: window.innerWidth,
             height: window.innerHeight,
-            wireframes: false
-        }
+            wireframes: false,
+            background: 'transparent',
+        },
     });
 
-    // Create runner to continuously update the engine
-    runner = Matter.Runner.create();
-    Matter.Runner.run(runner, engine);
+    // Initialize runner
+    runner = Matter.Runner.create(); // Make sure this is properly initialized
+
+    // Add walls or other static bodies
+    addBoundaries();
+
+    // Start everything
+    Matter.Runner.run(runner, engine); // Use the initialized runner
     Matter.Render.run(render);
 
-    addEventListeners();
-    addBoundaries();
-    setupMaterialSelector(materials);
-    setupFeatureButtons();
+    // Correctly attach event listeners
+    attachEvents();
 }
 
-
-// Ensure this is called after engine and other objects have been initialized
 function attachEvents() {
-    if (engine) { // This checks that engine is not undefined
+    // Make sure to only attach events after the engine has been initialized
+    if (engine) {
         Matter.Events.on(engine, 'afterUpdate', () => {
-            // Example event logic here
+            // Your event handling logic here
         });
     } else {
-        console.error('Engine not initialized before attaching events');
+        console.error('Engine is not initialized before attaching events.');
     }
 }
-
-// Call this function at the end of your initialization process
-document.addEventListener('DOMContentLoaded', () => {
-    initPhysics(); // Make sure this function initializes engine, world, etc.
-    attachEvents(); // Now it's safe to attach events
-});
 
 
 function addEventListeners() {
