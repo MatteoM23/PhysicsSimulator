@@ -119,18 +119,31 @@ function createRenderer() {
 
 
 function addEnvironment() {
-    // Clear existing static bodies to prevent duplication
-    Matter.World.clear(world, false); // Keep the false flag to not remove all bodies, just static ones if needed
+    // Clear existing static bodies to avoid duplicates
+    Matter.World.clear(world, false); // false ensures only non-static bodies are removed
 
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - 10, window.innerWidth, 20, {
+    // Ground
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 20, {
         isStatic: true,
-        render: { fillStyle: '#868e96' } // Adjust the color as needed
+        render: { fillStyle: '#868e96' }
     });
 
-    // Optionally add walls or other elements here
+    // Left Wall
+    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, {
+        isStatic: true,
+        render: { fillStyle: '#868e96' }
+    });
 
-    Matter.World.add(world, [ground]);
+    // Right Wall
+    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, {
+        isStatic: true,
+        render: { fillStyle: '#868e96' }
+    });
+
+    // Adding ground and walls to the world
+    Matter.World.add(world, [ground, leftWall, rightWall]);
 }
+
 
 function handleResize() {
     // Update renderer dimensions
