@@ -3,6 +3,7 @@ import { interactionRules, handleCollisions } from './interactions.js';
 import { screenToWorld } from './utils.js';
 
 let engine, render, world;
+let isMouseDown = false; // Define isMouseDown at the top of your script
 
 // Define materials globally to ensure they are accessible throughout the script
 const materials = {
@@ -65,17 +66,21 @@ function createMaterialsContainer() {
 
 function selectMaterial(key) {
     currentMaterial = key;
-    // Update UI to reflect the current selection
     const buttons = document.querySelectorAll('.materialButton');
     buttons.forEach(button => {
         if (button.textContent === materials[key].label) {
-            button.classList.add('selected'); // Add a class to highlight the selected button
+            button.classList.add('selected');
+            button.style.backgroundColor = materials[key].color; // Highlight with material color
+            button.style.color = 'white'; // Ensure text contrast
         } else {
-            button.classList.remove('selected'); // Remove the class from non-selected buttons
+            button.classList.remove('selected');
+            button.style.backgroundColor = ''; // Reset to default or initial color
+            button.style.color = ''; // Reset text color
         }
     });
     console.log(`Material ${key} selected`);
 }
+
 
 
 function initPhysics() {
@@ -103,23 +108,22 @@ function initPhysics() {
 }
 
 function setupFeatureButtons() {
-    const featuresContainer = document.querySelector('.feature-buttons') || createFeatureButtonsContainer();
-    
-    // Example feature: Clear World
-    const clearButton = createFeatureButton('Clear World', () => {
-        Matter.Composite.clear(world, true); // Clear all bodies, but keep static ones like ground
-        console.log('World cleared');
-    });
+    const buttonsContainer = document.getElementById('uiContainer') || document.body; // Fallback to body if container not found
+    const clearWorldButton = document.createElement('button');
+    clearWorldButton.textContent = 'Clear World';
+    clearWorldButton.onclick = () => clearDynamicBodies(world); // Assumes clearDynamicBodies function is defined
+    buttonsContainer.appendChild(clearWorldButton);
 
-    // Example feature: Invert Gravity
-    const invertGravityButton = createFeatureButton('Invert Gravity', () => {
-        engine.world.gravity.y = engine.world.gravity.y * -1; // Invert gravity
-        console.log('Gravity inverted');
-    });
+    const invertGravityButton = document.createElement('button');
+    invertGravityButton.textContent = 'Invert Gravity';
+    invertGravityButton.onclick = () => {
+        engine.world.gravity.y *= -1; // Inverts gravity
+    };
+    buttonsContainer.appendChild(invertGravityButton);
 
-    featuresContainer.appendChild(clearButton);
-    featuresContainer.appendChild(invertGravityButton);
+    // Add more feature buttons as needed
 }
+
 
 function createFeatureButton(text, onClick) {
     const button = document.createElement('button');
@@ -144,9 +148,9 @@ function setupEventListeners() {
 }
 
 function handleMouseDown(event) {
-    if (!event.target.closest('.uiElement')) {
+    if (!event.target.closest('.materialButton')) { // Prevents interaction if clicking on a material button
         isMouseDown = true;
-        createMaterialBody(event);
+        createBodyAtMousePosition(event); // Assumes this function is defined to handle body creation
     }
 }
 
@@ -155,10 +159,17 @@ function handleMouseUp() {
 }
 
 function handleMouseMove(event) {
-    if (isMouseDown && !event.target.closest('.uiElement')) {
-        createMaterialBody(event);
+    if (isMouseDown) {
+        createBodyAtMousePosition(event); // Create or move body based on currentMaterial and mouse position
     }
 }
+
+function createBodyAtMousePosition(event) {
+    const { x, y } = screenToWorld(event.clientX, event.clientY, render);
+    // Assumes a function like createNewBody exists and utilizes x, y, and currentMaterial
+    createNewBody(x, y, currentMaterial); // Adjust based on your createNewBody function's parameters
+}
+
 
 function createMaterialBody(event) {
     const { x, y } = screenToWorld(event.clientX, event.clientY, render);
