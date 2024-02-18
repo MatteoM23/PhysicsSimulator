@@ -1,7 +1,7 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
-import Events from 'https://cdn.skypack.dev/matter-js/src/Events';
 import { interactionRules, handleCollisions } from './interactions.js';
 import { screenToWorld } from './utils.js';
+
 
 let engine, render, world, runner; // Declare all needed variables at the top
 let isMouseDown = false; // Define isMouseDown at the top of your script
@@ -76,23 +76,6 @@ function initPhysics() {
 
     // Correctly attach event listeners
     attachEvents();
-}
-
-function attachEvents() {
-    Matter.Events.on(engine, 'afterUpdate', () => {
-        // Get all pairs of collisions that occurred during the last update
-        const collisions = engine.pairs.collisionActive;
-
-        // Log information about each collision pair
-        collisions.forEach(pair => {
-            const bodyA = pair.bodyA;
-            const bodyB = pair.bodyB;
-            const collisionNormal = pair.collision.normal; // The collision normal vector
-
-            console.log(`Collision detected between ${bodyA.label || 'Body A'} and ${bodyB.label || 'Body B'}`);
-            console.log(`Collision normal: (${collisionNormal.x.toFixed(2)}, ${collisionNormal.y.toFixed(2)})`);
-        });
-    });
 }
 
 
