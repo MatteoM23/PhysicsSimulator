@@ -105,17 +105,33 @@ function initPhysics() {
 
     // Define a function to add basic environment elements
     function addEnvironment() {
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - 10, window.innerWidth, 20, {
+    const groundWidth = window.innerWidth * 0.8; // 80% of the viewport width
+    const groundHeight = 20;
+    const groundX = window.innerWidth / 2;
+    const groundY = window.innerHeight - groundHeight / 2;
+
+    const wallThickness = Math.min(window.innerWidth, window.innerHeight) * 0.02; // 2% of the smaller dimension
+    const leftWallWidth = wallThickness;
+    const leftWallHeight = window.innerHeight * 0.8; // 80% of the viewport height
+    const leftWallX = leftWallWidth / 2;
+    const leftWallY = window.innerHeight / 2;
+
+    const rightWallWidth = wallThickness;
+    const rightWallHeight = window.innerHeight * 0.8; // 80% of the viewport height
+    const rightWallX = window.innerWidth - rightWallWidth / 2;
+    const rightWallY = window.innerHeight / 2;
+
+    const ground = Matter.Bodies.rectangle(groundX, groundY, groundWidth, groundHeight, {
         isStatic: true,
         render: { fillStyle: '#868e96' }
     });
 
-    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, {
+    const leftWall = Matter.Bodies.rectangle(leftWallX, leftWallY, leftWallWidth, leftWallHeight, {
         isStatic: true,
         render: { fillStyle: '#868e96' }
     });
 
-    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, {
+    const rightWall = Matter.Bodies.rectangle(rightWallX, rightWallY, rightWallWidth, rightWallHeight, {
         isStatic: true,
         render: { fillStyle: '#868e96' }
     });
@@ -123,6 +139,7 @@ function initPhysics() {
     // Add elements to the world
     Matter.World.add(world, [ground, leftWall, rightWall]);
 }
+
 
 
     addEnvironment(); // Add the initial environment
