@@ -3,6 +3,10 @@ import { interactionRules, handleCollisions } from './interactions.js';
 import { screenToWorld } from './utils.js';
 
 
+let engine, render, world;
+
+
+
 // Define materials globally to ensure they are accessible throughout the script
 const materials = {
     // Existing materials
@@ -149,8 +153,8 @@ function collapseMaterialsDropdown(materials, container) {
 
 
 function initPhysics() {
-    const engine = Matter.Engine.create();
-    const render = Matter.Render.create({
+    engine = Matter.Engine.create();
+    render = Matter.Render.create({
         element: document.body,
         engine: engine,
         options: {
@@ -166,15 +170,16 @@ function initPhysics() {
     const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true, render: { fillStyle: 'transparent' } });
     Matter.World.add(engine.world, [ground, leftWall, rightWall]);
 
+    world = engine.world; // Assign the world for global access
+
     Matter.Events.on(engine, 'collisionStart', function(event) {
         handleCollisions(event, engine);
     });
 
     Matter.Runner.run(engine);
     Matter.Render.run(render);
-
-    return { engine, render, world: engine.world };
 }
+
 
 function createNewBody(x, y) {
     const material = materials[currentMaterial];
