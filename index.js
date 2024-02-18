@@ -229,15 +229,23 @@ function clearMaterialBodiesWithEffect() {
     // Fade out or animate the removal of material bodies for a visually pleasing effect
     const bodies = Matter.Composite.allBodies(world);
     bodies.forEach(body => {
-        // Example: Animate body removal
-        fadeOutBody(body);
+        if (!body.isStatic) { // Check if the body is not static (walls and floor)
+            // Example: Animate body removal
+            fadeOutBody(body);
+        }
     });
 
     // Clear world after animation completes
     setTimeout(() => {
-        Matter.World.clear(world, false); // Clear bodies without removing static bodies (walls)
+        // Remove only dynamic bodies, keeping static bodies (walls and floor)
+        bodies.forEach(body => {
+            if (!body.isStatic) { // Check if the body is not static (walls and floor)
+                Matter.Composite.remove(world, body); // Remove the body from the world
+            }
+        });
     }, 1000); // Adjust delay as needed for animation duration
 }
+
 
 function fadeOutBody(body) {
     // Example: Animate fading out of body
