@@ -220,78 +220,81 @@ function setupFeatureButtons() {
     buttonsContainer.appendChild(teleportGatesButton);
 }
 
-// Toggle Teleportation Gates Mode
 function toggleTeleportationGates() {
     teleportationActive = !teleportationActive;
-    if (!teleportationActive) {
-        // Remove gates if deactivating
-        [gateA, gateB].forEach(gate => {
-            if (gate) Matter.Composite.remove(world, gate);
-        });
-        gateA = gateB = null;
-        gates = [];
+    if (teleportationActive) {
+        document.body.style.cursor = 'crosshair'; // Visual cue for placement mode
     } else {
-        // Enter placement mode for gate A
-        placingGateA = true;
-        document.querySelector('.feature-buttons').textContent = 'Place Gate A';
+        clearTeleportationGates();
+        document.body.style.cursor = 'default';
     }
 }
 
-// Visual Preview and Placement of Gates
+function clearTeleportationGates() {
+    if (gateA) Matter.World.remove(world, gateA);
+    if (gateB) Matter.World.remove(world, gateB);
+    gateA = gateB = null;
+    gates = [];
+    placingGateA = placingGateB = false;
+}
+
 document.addEventListener('mousemove', function(event) {
-    if (!teleportationActive) return;
-    const mousePosition = { x: event.clientX, y: event.clientY };
-    if (placingGateA || placingGateB) {
-        let previewGate = placingGateA ? gateA : gateB;
-        // Update preview gate position
-        if (previewGate) {
-            Matter.Body.setPosition(previewGate, Matter.Vector.create(mousePosition.x, mousePosition.y));
-        } else {
-            // Create preview gate
-            const options = { 
-                isSensor: true, 
-                isStatic: true,
-                render: { 
-                    fillStyle: placingGateA ? 'rgba(0, 255, 0, 0.5)' : 'rgba(255, 0, 0, 0.5)'
-                }
-            };
-            previewGate = Matter.Bodies.rectangle(mousePosition.x, mousePosition.y, 50, 10, options);
-            Matter.World.add(world, previewGate);
-            if (placingGateA) gateA = previewGate;
-            else gateB = previewGate;
+    if (!teleportationActive || !placingGateA && !placingGateB) return;
+    const mousePos = { x: event.clientX, y: event.clientY };
+    const options = {
+        isSensor: true,
+        render: {
+            strokeStyle: placingGateA ? 'rgba(0,255,0,0.5)' : 'rgba(255,0,0,0.5)',
+            lineWidth: 1
         }
+    };
+    // Preview placement for Gate A or B
+    if (!gateA || !gateB) {
+        let tempGate = Matter.Bodies.rectangle(mousePos.x, mousePos.y, 100, 20, options);
+        Matter.Render.lookAt(render, tempGate.bounds);
     }
 });
 
-document.addEventListener('click', function() {
+document.addEventListener('click', function(event) {
+    if (!teleportationActive) return;
+    if (placingGateA || placingGateB) {
+        placeTeleportGate(event.clientX, event.clientY);
+    }
+});
+
+function placeTeleportGate(x, y) {
     if (placingGateA) {
+        gateA = createGate(x, y, 'gateA');
         placingGateA = false;
         placingGateB = true;
-        document.querySelector('.feature-buttons').textContent = 'Place Gate B';
     } else if (placingGateB) {
+        gateB = createGate(x, y, 'gateB');
+        teleportationActive = false; // Disable teleportation gate placement
         placingGateB = false;
-        teleportationActive = false; // End teleportation gate placement
-        document.querySelector('.feature-buttons').textContent = '';
-        gates.push(gateA, gateB); // Add gates to the array for teleportation functionality
-        gateA.render.fillStyle = '#00FF00'; // Make gate A fully visible
-        gateB.render.fillStyle = '#FF0000'; // Make gate B fully visible
+        gates = [gateA, gateB];
     }
-});
+}
 
-// Teleportation Logic
+function createGate(x, y, label) {
+    let gate = Matter.Bodies.rectangle(x, y, 100, 20, {
+        isStatic: true,
+        isSensor: true,
+        label: label,
+        render: { fillStyle: label === 'gateA' ? 'green' : 'red' }
+    });
+    Matter.World.add(world, gate);
+    return gate;
+}
+
 Matter.Events.on(engine, 'collisionStart', function(event) {
     event.pairs.forEach(function(pair) {
-        const labels = [pair.bodyA.label, pair.bodyB.label];
-        if ((labels.includes('teleportA') || labels.includes('teleportB')) && gates.length === 2) {
-            const teleportFrom = labels.includes('teleportA') ? gateA : gateB;
-            const teleportTo = teleportFrom === gateA ? gateB : gateA;
-            const bodyToTeleport = pair.bodyA.label.startsWith('teleport') ? pair.bodyB : pair.bodyA;
-            
-            // Teleport the body
-            Matter.Body.setPosition(bodyToTeleport, { x: teleportTo.position.x, y: teleportTo.position.y - 50 });
+        if ((pair.bodyA === gateA && pair.bodyB !== gateB) || (pair.bodyA === gateB && pair.bodyB !== gateA)) {
+            let otherGate = pair.bodyA === gateA ? gateB : gateA;
+            Matter.Body.setPosition(pair.bodyB, { x: otherGate.position.x, y: otherGate.position.y - 100 });
         }
     });
 });
+
 
 function setupCustomMaterialCreator() {
     const customMaterialButton = createFeatureButton('Create Material', openMaterialCreator);
@@ -426,49 +429,50 @@ function createFeatureButtonsContainer() {
 }
 
 
+// Setup event listeners for mouse interactions
 function setupEventListeners() {
     document.addEventListener('mousedown', handleMouseDown);
     document.addEventListener('mouseup', handleMouseUp);
     document.addEventListener('mousemove', handleMouseMove);
 }
 
+// Handles mouse down event
 function handleMouseDown(event) {
-    // Check if the click is not on a UI element like a material button
-    if (!event.target.matches('.materialButton')) {
+    // Prevent material placement if the click is on UI elements or if teleportation gates are active
+    if (!event.target.closest('.materialButton, .feature-buttons') && !teleportationActive) {
         isMouseDown = true;
         placeMaterial(event);
     }
 }
 
+// Handles mouse up event
 function handleMouseUp() {
     isMouseDown = false;
 }
 
+// Handles mouse move event
 function handleMouseMove(event) {
     if (isMouseDown) {
         placeMaterial(event);
     }
 }
 
+// Places material at mouse position
 function placeMaterial(event) {
-    // Convert screen coordinates to world coordinates
-    const point = screenToWorld(event.clientX, event.clientY, render);
+    const point = screenToWorld(event.clientX, event.clientY);
     createBody(point.x, point.y, currentMaterial);
 }
 
-
-function createBodyAtMousePosition(event) {
-    const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-    // Corrected to use the existing createBody function
-    createBody(x, y, currentMaterial);
+// Converts screen coordinates to world coordinates
+function screenToWorld(screenX, screenY) {
+    const bounds = render.bounds;
+    const scale = render.options.width / bounds.max.x;
+    const worldX = screenX / scale + bounds.min.x;
+    const worldY = screenY / scale + bounds.min.y;
+    return { x: worldX, y: worldY };
 }
 
-function createMaterialBody(event) {
-    const { x, y } = screenToWorld(event.clientX, event.clientY, render);
-    // Assuming a function 'createBody' that takes material properties and adds a new body to the world
-    createBody(x, y, currentMaterial);
-}
-
+// Creates a body at a given position with the specified material
 function createBody(x, y, materialKey) {
     const material = materials[materialKey];
     const body = Matter.Bodies.circle(x, y, material.size / 2, {
@@ -476,11 +480,13 @@ function createBody(x, y, materialKey) {
         friction: material.friction,
         restitution: material.restitution,
         render: { fillStyle: material.color },
-        // Add a material property to the body
-        material: materialKey // This is important for interactions.js to identify the body's material
+        material: materialKey // To identify the material during interactions
     });
     Matter.World.add(world, body);
 }
+
+
+
 
 
 
