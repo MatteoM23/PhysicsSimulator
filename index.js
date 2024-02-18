@@ -102,6 +102,25 @@ function init() {
     setupFeatureButtons();
 }
 
+
+// Ensure this is called after engine and other objects have been initialized
+function attachEvents() {
+    if (engine) { // This checks that engine is not undefined
+        Matter.Events.on(engine, 'afterUpdate', () => {
+            // Example event logic here
+        });
+    } else {
+        console.error('Engine not initialized before attaching events');
+    }
+}
+
+// Call this function at the end of your initialization process
+document.addEventListener('DOMContentLoaded', () => {
+    initPhysics(); // Make sure this function initializes engine, world, etc.
+    attachEvents(); // Now it's safe to attach events
+});
+
+
 function addEventListeners() {
     document.addEventListener('mousedown', handleMouseDown);
     document.addEventListener('mouseup', handleMouseUp);
