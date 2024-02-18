@@ -1,11 +1,11 @@
 :root {
-    /* Color Scheme Enhancements */
-    --button-bg-color: #607D8B;
-    --button-hover-bg-color: #78909C;
-    --button-active-bg-color: #455A64;
-    --container-bg-color: #ECEFF1;
-    --text-color: #37474F;
-    --selected-material-color: #FFC107; /* Highlight selected material */
+    /* New Color Scheme */
+    --button-bg-color: #333840; /* Darker Gray for Buttons */
+    --button-hover-bg-color: #4A5159; /* Medium Gray for Button Hover */
+    --button-active-bg-color: #1C2024; /* Almost Black for Button Active */
+    --container-bg-color: #2C3035; /* Dark Gray for Container Background */
+    --text-color: #ECEFF1; /* Soft White for Text */
+    --selected-material-color: #FFC107; /* Highlight selected material remains */
 
     /* UI Enhancements */
     --font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
@@ -15,8 +15,8 @@
     --shadow-color: rgba(38, 50, 56, 0.3);
     --hover-scale: 1.05;
     --active-transform: translateY(2px);
-    --background-animation-color-start: #546E7A;
-    --background-animation-color-end: #29434E;
+    --background-animation-color-start: #484E58; /* Dark Space Gray */
+    --background-animation-color-end: #2C3035; /* Deep Space Gray */
 }
 
 body, html {
