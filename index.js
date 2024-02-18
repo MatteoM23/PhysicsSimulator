@@ -84,24 +84,25 @@ function initPhysics() {
     engine = Matter.Engine.create();
     world = engine.world;
 
-    // Create the renderer with dynamic size
     createRenderer();
 
-    // Add the initial environment
-    addEnvironment();
+    addEnvironment(); // This will now include dynamic adjustment for floor alignment
 
-    // Start the engine and rendering
+    Matter.Events.on(engine, 'collisionStart', function(event) {
+        handleCollisions(event, engine); // Ensure this function is defined or adjust as needed
+    });
+
     Matter.Runner.run(engine);
     Matter.Render.run(render);
 
-    // Handle window resize
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize); // Adjust rendering and environment on resize
 }
+
 
 function createRenderer() {
     const existingCanvas = document.querySelector('canvas');
     if (existingCanvas) {
-        existingCanvas.remove(); // Prevents multiple canvases from being created
+        existingCanvas.remove(); // Remove any existing canvas
     }
 
     render = Matter.Render.create({
@@ -110,44 +111,37 @@ function createRenderer() {
         options: {
             width: window.innerWidth,
             height: window.innerHeight,
-            wireframes: false,
-            background: 'linear-gradient(135deg, #333333, #1b2838)',
+            wireframes: false, // Set to true if you prefer wireframe view
+            background: 'linear-gradient(135deg, #333333, #1b2838)', // Adjust the background as needed
         }
     });
 }
 
+
+function addEnvironment() {
+    // Clear existing static bodies to prevent duplication
+    Matter.World.clear(world, false); // Keep the false flag to not remove all bodies, just static ones if needed
+
+    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - 10, window.innerWidth, 20, {
+        isStatic: true,
+        render: { fillStyle: '#868e96' } // Adjust the color as needed
+    });
+
+    // Optionally add walls or other elements here
+
+    Matter.World.add(world, [ground]);
+}
+
 function handleResize() {
+    // Update renderer dimensions
     render.canvas.width = window.innerWidth;
     render.canvas.height = window.innerHeight;
     render.options.width = window.innerWidth;
     render.options.height = window.innerHeight;
 
-    // Recreate the environment to adjust to new dimensions
+    // Re-adjust the environment elements to fit the new size
     addEnvironment();
 }
-
-
-
-function addEnvironment() {
-    // Clear existing environment elements before adding new ones
-    Matter.World.clear(world);
-    
-    // Recalculate positions based on the current window size
-    const groundHeight = 50; // Fixed ground height
-    const groundY = window.innerHeight - groundHeight / 2; // Adjust ground position to bottom
-
-    const ground = Matter.Bodies.rectangle(window.innerWidth / 2, groundY, window.innerWidth, groundHeight, {
-        isStatic: true,
-        render: { fillStyle: '#868e96' }
-    });
-
-    const leftWall = Matter.Bodies.rectangle(0, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true });
-    const rightWall = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 20, window.innerHeight, { isStatic: true });
-
-    Matter.World.add(world, [ground, leftWall, rightWall]);
-}
-
-document.addEventListener('DOMContentLoaded', initPhysics);
 
 
 function setButtonTextColorBasedOnBackground() {
