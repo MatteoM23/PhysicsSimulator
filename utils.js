@@ -83,6 +83,11 @@ export const invertColor = (hex, bw) => {
     return hexInv;
 };
 
+export const padZero = (str, length = 2) => {
+    const zeros = new Array(length).join('0');
+    return (zeros + str).slice(-length);
+};
+
 export {
     screenToWorld,
     isInside,
