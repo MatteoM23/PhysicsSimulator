@@ -58,6 +58,31 @@ function rotateBodyAroundPoint(body, point, angle) {
     });
 }
 
+export const invertColor = (hex, bw) => {
+    if (hex.indexOf('#') === 0) {
+        hex = hex.slice(1);
+    }
+    // Convert hex to RGB
+    const r = parseInt(hex.substr(0,2), 16);
+    const g = parseInt(hex.substr(2,2), 16);
+    const b = parseInt(hex.substr(4,2), 16);
+    // Invert color components
+    const rInv = (255 - r).toString(16).padStart(2, '0');
+    const gInv = (255 - g).toString(16).padStart(2, '0');
+    const bInv = (255 - b).toString(16).padStart(2, '0');
+    // Reconstruct inverted hex color
+    const hexInv = `#${rInv}${gInv}${bInv}`;
+    
+    // If black and white conversion is needed
+    if (bw) {
+        // Convert to grayscale and check if the color is closer to black or white
+        const isBright = (r * 0.299 + g * 0.587 + b * 0.114) > 186;
+        return isBright ? '#000000' : '#FFFFFF';
+    }
+    
+    return hexInv;
+};
+
 export {
     screenToWorld,
     isInside,
