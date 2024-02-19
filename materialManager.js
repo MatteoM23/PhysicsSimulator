@@ -51,12 +51,3 @@ export const createBody = (clientX, clientY) => {
     Matter.World.add(engine.world, body);
 };
 
-
-export const handleTeleportationCollision = (event) => {
-    // Example implementation
-    event.pairs.forEach(pair => {
-        const { bodyA, bodyB } = pair;
-        // Additional logic for teleportation collisions could be implemented here,
-        // such as checking for special material interactions or teleportation gate logic.
-    });
-};
