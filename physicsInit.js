@@ -2,6 +2,7 @@ import Matter from 'https://cdn.skypack.dev/matter-js';
 
 // Create an engine
 export const engine = Matter.Engine.create();
+let render;
 export const world = engine.world;
 
 // Create a renderer
@@ -32,16 +33,27 @@ const addWalls = () => {
     Matter.World.add(world, [ground, ceiling, leftWall, rightWall]);
 };
 
-// Function to initialize the physics
 export const initPhysics = () => {
-    // Add walls to the scene
-    addWalls();
+    // Create a renderer
+    render = Matter.Render.create({
+        element: document.body, // Assuming you want the renderer to attach to the body
+        engine: engine,
+        options: {
+            width: window.innerWidth - uiBoxWidth,
+            height: window.innerHeight - uiBoxHeight,
+            wireframes: false,
+            background: '#f0f0f0'
+        }
+    });
+
+    // Add walls or additional setup here
 
     // Run the renderer
     Matter.Render.run(render);
 
-    // Create a runner
+    // Create a runner to run the engine
     const runner = Matter.Runner.create();
-    // Run the engine
     Matter.Runner.run(runner, engine);
 };
+
+export { render }; // Export render so it can be used elsewhere
