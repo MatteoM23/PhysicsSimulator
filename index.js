@@ -79,14 +79,13 @@ function initPhysics() {
 }
 
 function handleClick(event) {
-    if (!event.target.matches('.materialButton')) {
-        if (teleportationActive) {
-            placeTeleportGate(event.clientX, event.clientY);
-        } else {
-            placeMaterial(event.clientX, event.clientY);
-        }
+    if (teleportationActive) {
+        placeTeleportGate(event.clientX, event.clientY);
+    } else {
+        placeMaterial(event.clientX, event.clientY);
     }
 }
+
 
 function setupEventListeners() {
     // Mouse event listeners for material placement and teleportation gate creation
@@ -104,6 +103,7 @@ function setupEventListeners() {
         console.error('Error: Engine is not initialized.');
     }
 }
+
 
 
 function setupMaterialSelector(materials) {
@@ -361,17 +361,16 @@ document.addEventListener('click', function(event) {
 });
 
 function placeTeleportGate(x, y) {
-    if (placingGateA) {
-        gateA = createGate(x, y, 'gateA');
-        placingGateA = false;
-        placingGateB = true;
-    } else if (placingGateB) {
-        gateB = createGate(x, y, 'gateB');
-        teleportationActive = false; // Disable teleportation gate placement
-        placingGateB = false;
-        gates = [gateA, gateB];
-    }
+    // Create teleporter gate at the specified coordinates
+    const gate = Matter.Bodies.circle(x, y, 20, {
+        isStatic: true,
+        render: {
+            fillStyle: 'green' // Adjust color as needed
+        }
+    });
+    Matter.World.add(world, gate);
 }
+
 
 function handleTeleportationCollision(event) {
     event.pairs.forEach(function(pair) {
