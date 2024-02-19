@@ -4,7 +4,11 @@ import Matter from 'https://cdn.skypack.dev/matter-js';
 const { Body, Vertices, Vector } = Matter;
 
 // Improved screenToWorld function for accuracy and efficiency
-function screenToWorld(clientX, clientY, render) {
+export const screenToWorld = (clientX, clientY, render) => {
+    if (!render || !render.canvas) {
+        console.error("Render object or its canvas is not available.");
+        return { x: 0, y: 0 };
+    }
     const bounds = render.canvas.getBoundingClientRect();
     const scaleX = render.options.width / bounds.width;
     const scaleY = render.options.height / bounds.height;
@@ -12,7 +16,7 @@ function screenToWorld(clientX, clientY, render) {
         x: (clientX - bounds.left) * scaleX,
         y: (clientY - bounds.top) * scaleY
     };
-}
+};
 
 // Enhanced isInside function for better readability
 function isInside(body, x, y) {
@@ -89,7 +93,6 @@ export const padZero = (str, length = 2) => {
 };
 
 export {
-    screenToWorld,
     isInside,
     adjustMaterialProperties,
     calculateMagnitude,
