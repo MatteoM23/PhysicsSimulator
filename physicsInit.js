@@ -25,12 +25,11 @@ export const initPhysics = () => {
         }
     });
 
-    // Create floor with higher restitution
-    const floor = Matter.Bodies.rectangle(adjustedWidth / 2, adjustedHeight + 50, adjustedWidth, 100, { isStatic: true, restitution: 1.0 });
-    
-    // Create side walls with higher restitution
-    const leftWall = Matter.Bodies.rectangle(-25, adjustedHeight / 2, 50, adjustedHeight, { isStatic: true, restitution: 1.0 });
-    const rightWall = Matter.Bodies.rectangle(adjustedWidth + 25, adjustedHeight / 2, 50, adjustedHeight, { isStatic: true, restitution: 1.0 });
+        // Set the collision filter for the floor and walls to ensure accurate collision detection
+    const floor = Matter.Bodies.rectangle(adjustedWidth / 2, adjustedHeight + 50, adjustedWidth, 100, { isStatic: true, collisionFilter: { category: 0x0001, mask: 0x0002 } });
+    const leftWall = Matter.Bodies.rectangle(-25, adjustedHeight / 2, 50, adjustedHeight, { isStatic: true, collisionFilter: { category: 0x0001, mask: 0x0002 } });
+    const rightWall = Matter.Bodies.rectangle(adjustedWidth + 25, adjustedHeight / 2, 50, adjustedHeight, { isStatic: true, collisionFilter: { category: 0x0001, mask: 0x0002 } });
+
 
     
     // Add walls to the world
