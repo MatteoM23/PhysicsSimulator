@@ -9,15 +9,17 @@
 </head>
 <body>
     <div id="uiContainer" class="uiElement">
-        <div id="materialsContainer"></div>
-        <!-- Materials buttons will be dynamically inserted here -->
+        <div class="dropdown">
+            <button class="dropbtn">Select Material</button>
+            <div class="dropdown-content" id="materialsContainer">
+                <!-- Material options will be dynamically inserted here -->
+            </div>
+        </div>
 
         <div class="feature-buttons">
             <!-- Feature buttons will be dynamically inserted here -->
         </div>
     </div>
-
-    <!-- JavaScript files included as modules -->
     <script type="module" src="https://cdn.skypack.dev/matter-js"></script>
     <script type="module" src="index.js"></script>
     <script type="module" src="interactions.js"></script>
