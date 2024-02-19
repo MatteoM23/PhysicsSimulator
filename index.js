@@ -10,6 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize the physics engine
     initPhysics();
 
+
+     // Set up UI interactions
+    initDropdown();
+    initFeatureButtons();
+    
     // Set up event listeners for user interactions
     setupEventListeners();
 
