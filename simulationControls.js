@@ -1,10 +1,20 @@
-// simulationControls.js
 import { world } from './physicsInit.js';
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
 export const clearWorld = () => {
-    Matter.World.clear(world);
-    console.log('World cleared!');
+    // Get all bodies in the world
+    const bodies = Matter.Composite.allBodies(world);
+
+    // Iterate over each body
+    bodies.forEach(body => {
+        // Check if the body is not a barrier (floor or wall)
+        if (!body.isStatic || (body.label !== 'Wall' && body.label !== 'Floor')) {
+            // Remove the body from the world
+            Matter.World.remove(world, body);
+        }
+    });
+
+    console.log('Material bodies cleared!');
 };
 
 export const toggleGravity = () => {
