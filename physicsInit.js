@@ -1,25 +1,47 @@
-// physicsInit.js
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
-export let engine, render, world;
+// Create an engine
+export const engine = Matter.Engine.create();
+export const world = engine.world;
 
-export const initPhysics = () => {
-    engine = Matter.Engine.create();
-    world = engine.world;
-    createRenderer();
-    Matter.Runner.run(Matter.Runner.create(), engine);
+// Create a renderer
+export const render = Matter.Render.create({
+    element: document.body, // Assuming the simulation is attached to the body
+    engine: engine,
+    options: {
+        width: Math.min(document.documentElement.clientWidth, 800),
+        height: Math.min(document.documentElement.clientHeight, 600),
+        wireframes: false, // Set to false for solid rendering
+        background: '#f0f0f0' // Light grey background
+    }
+});
+
+// Function to add walls
+const addWalls = () => {
+    const { width, height } = render.options;
+    // Thickness of the walls
+    const thickness = 50;
+
+    // Parameters: x, y, width, height, [options]
+    const ground = Matter.Bodies.rectangle(width / 2, height + thickness / 2, width, thickness, { isStatic: true });
+    const ceiling = Matter.Bodies.rectangle(width / 2, -thickness / 2, width, thickness, { isStatic: true });
+    const leftWall = Matter.Bodies.rectangle(-thickness / 2, height / 2, thickness, height, { isStatic: true });
+    const rightWall = Matter.Bodies.rectangle(width + thickness / 2, height / 2, thickness, height, { isStatic: true });
+
+    // Add the walls to the world
+    Matter.World.add(world, [ground, ceiling, leftWall, rightWall]);
 };
 
-const createRenderer = () => {
-    render = Matter.Render.create({
-        element: document.body,
-        engine: engine,
-        options: {
-            width: window.innerWidth,
-            height: window.innerHeight,
-            wireframes: false,
-            background: 'linear-gradient(135deg, #333333, #1b2838)',
-        }
-    });
+// Function to initialize the physics
+export const initPhysics = () => {
+    // Add walls to the scene
+    addWalls();
+
+    // Run the renderer
     Matter.Render.run(render);
+
+    // Create a runner
+    const runner = Matter.Runner.create();
+    // Run the engine
+    Matter.Runner.run(runner, engine);
 };
