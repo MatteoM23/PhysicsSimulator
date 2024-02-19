@@ -41,13 +41,6 @@ const materials = {
     photonGel: { label: 'Photon Gel', color: '#ffa07a', density: 0.0008, size: 25, friction: 0.05, restitution: 0.9 },
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    initPhysics();
-    setupEventListeners();
-    setupMaterialSelector(materials);
-    setupFeatureButtons();
-});
-
 
 function initPhysics() {
     // Initialize engine
@@ -171,11 +164,14 @@ function createBody(x, y, materialKey) {
     Matter.World.add(world, body);
 }
 
+
+
 function addBoundaries() {
     const thickness = 50;
+    const floorHeight = window.innerHeight - 200; // Adjust the floor height as needed
     const walls = [
         // Bottom
-        Matter.Bodies.rectangle(render.options.width / 2, render.options.height, render.options.width, thickness, { isStatic: true }),
+        Matter.Bodies.rectangle(render.options.width / 2, floorHeight, render.options.width, thickness, { isStatic: true }),
         // Top
         Matter.Bodies.rectangle(render.options.width / 2, 0, render.options.width, thickness, { isStatic: true }),
         // Left
@@ -185,6 +181,7 @@ function addBoundaries() {
     ];
     Matter.World.add(world, walls);
 }
+
 
 
 function createRenderer() {
@@ -535,7 +532,12 @@ function createFeatureButtonsContainer() {
 }
 
 
-
+document.addEventListener('DOMContentLoaded', () => {
+    initPhysics();
+    setupEventListeners();
+    setupMaterialSelector(materials);
+    setupFeatureButtons(); // Call setupFeatureButtons after the DOM content has loaded
+});
 
 
 
