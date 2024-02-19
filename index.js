@@ -44,8 +44,10 @@ const materials = {
 document.addEventListener('DOMContentLoaded', () => {
     initPhysics();
     setupEventListeners();
-    // Additional setup logic can go here
+    setupMaterialSelector(materials);
+    setupFeatureButtons();
 });
+
 
 function initPhysics() {
     // Initialize engine
@@ -53,16 +55,7 @@ function initPhysics() {
     world = engine.world;
 
     // Initialize renderer
-    render = Matter.Render.create({
-        element: document.body,
-        engine: engine,
-        options: {
-            width: window.innerWidth,
-            height: window.innerHeight,
-            wireframes: false,
-            background: 'transparent',
-        },
-    });
+    createRenderer(); // Call createRenderer here
 
     // Initialize runner
     runner = Matter.Runner.create(); // Make sure this is properly initialized
@@ -77,6 +70,7 @@ function initPhysics() {
     Matter.Runner.run(runner, engine); // Use the initialized runner
     Matter.Render.run(render);
 }
+
 
 function handleClick(event) {
     if (teleportationActive) {
@@ -104,8 +98,6 @@ function setupEventListeners() {
         console.error('Error: Engine is not initialized.');
     }
 }
-
-
 
 function setupMaterialSelector(materials) {
     const materialsContainer = document.getElementById('materialsContainer') || createMaterialsContainer();
@@ -141,14 +133,6 @@ function selectMaterial(key) {
     });
     console.log(`Material ${key} selected`);
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    initPhysics();
-    setupEventListeners();
-    setupMaterialSelector(materials); // Add this line to initialize the material selector
-    setupFeatureButtons(); // Add this line to initialize feature buttons
-});
-
 
 function handleMouseDown(event) {
     if (!event.target.matches('.materialButton') && !teleportationActive) {
