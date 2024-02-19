@@ -55,4 +55,3 @@ export const initPhysics = () => {
     Matter.Runner.run(runner, engine);
 };
 
-export { render }; // Export render so it can be used elsewhere
