@@ -2,7 +2,6 @@ import Matter from 'https://cdn.skypack.dev/matter-js';
 
 // Create an engine
 export const engine = Matter.Engine.create();
-let render;
 export const world = engine.world;
 
 // Create a renderer
