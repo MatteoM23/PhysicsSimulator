@@ -168,7 +168,7 @@ function createBody(x, y, materialKey) {
 
 function addBoundaries() {
     const thickness = 50;
-    const floorHeight = window.innerHeight - 200; // Adjust the floor height as needed
+    const floorHeight = window.innerHeight - thickness / 2; // Adjust the floor height as needed
     const walls = [
         // Bottom
         Matter.Bodies.rectangle(render.options.width / 2, floorHeight, render.options.width, thickness, { isStatic: true }),
@@ -181,6 +181,7 @@ function addBoundaries() {
     ];
     Matter.World.add(world, walls);
 }
+
 
 
 
