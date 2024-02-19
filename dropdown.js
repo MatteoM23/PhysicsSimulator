@@ -7,7 +7,14 @@ export const initDropdown = () => {
     const materialsDropdown = document.createElement('select');
     materialsDropdown.id = 'materialsDropdown';
 
-    document.body.appendChild(materialsDropdown); // Append dropdown to body or specific container
+    // Append dropdown to body or specific container
+    const dropdownContainer = document.getElementById('materialsContainer');
+    if (dropdownContainer) {
+        dropdownContainer.appendChild(materialsDropdown);
+    } else {
+        console.error('Materials container not found');
+        return;
+    }
 
     Object.keys(materials).forEach(materialKey => {
         const option = document.createElement('option');
