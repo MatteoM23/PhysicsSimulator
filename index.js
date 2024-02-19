@@ -115,12 +115,26 @@ function selectMaterial(key) {
     console.log(`Material ${key} selected`);
 }
 
-
 function setupEventListeners() {
     document.addEventListener('mousedown', handleMouseDown);
     document.addEventListener('mouseup', handleMouseUp);
     document.addEventListener('mousemove', handleMouseMove);
+
+    // Ensure engine is properly initialized before using it
+    if (engine) {
+        Matter.Events.on(engine, 'collisionStart', function(event) {
+            event.pairs.forEach(function(pair) {
+                if ((pair.bodyA === gateA && pair.bodyB !== gateB) || (pair.bodyA === gateB && pair.bodyB !== gateA)) {
+                    let otherGate = pair.bodyA === gateA ? gateB : gateA;
+                    Matter.Body.setPosition(pair.bodyB, { x: otherGate.position.x, y: otherGate.position.y - 100 });
+                }
+            });
+        });
+    } else {
+        console.error('Error: Engine is not initialized.');
+    }
 }
+
 
 function handleMouseDown(event) {
     if (!event.target.matches('.materialButton') && !teleportationActive) {
