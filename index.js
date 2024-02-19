@@ -79,19 +79,30 @@ function initPhysics() {
 }
 
 function handleClick(event) {
-    // Handle general click events here
-    // For example, you can add specific functionalities based on the target element or event details
-
-    // Example: Log the clicked element's tag name and class
-    console.log('Clicked element:', event.target.tagName, event.target.className);
-
-    // Example: Check if the clicked element is a button with a specific class
-    if (event.target.tagName === 'BUTTON' && event.target.classList.contains('special-button')) {
-        // Perform a specific action for special buttons
-        console.log('Special button clicked!');
+    if (!event.target.matches('.materialButton')) {
+        if (teleportationActive) {
+            placeTeleportGate(event.clientX, event.clientY);
+        } else {
+            placeMaterial(event.clientX, event.clientY);
+        }
     }
+}
 
-    // Add more logic based on your application's requirements
+function setupEventListeners() {
+    // Mouse event listeners for material placement and teleportation gate creation
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('click', handleClick);
+
+    // Mouse event listener for creating teleportation gates
+    document.addEventListener('mousedown', handleMouseDown);
+
+    // Additional collision event listener for handling teleportation
+    if (engine) {
+        Matter.Events.on(engine, 'collisionStart', handleTeleportationCollision);
+    } else {
+        console.error('Error: Engine is not initialized.');
+    }
 }
 
 
@@ -130,39 +141,7 @@ function selectMaterial(key) {
     console.log(`Material ${key} selected`);
 }
 
-function setupEventListeners() {
-    document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('click', handleClick);
-    document.addEventListener('mousedown', function(event) {
-        // Get the coordinates of the click event
-        const clickX = event.clientX;
-        const clickY = event.clientY;
 
-        // Determine the label for the gate based on which mouse button was clicked
-        const gateLabel = event.button === 0 ? 'gateA' : 'gateB';
-
-        // Create the gate at the clicked coordinates
-        setupCollisionListenerAndCreateGate(clickX, clickY, gateLabel);
-    });
-
-    document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('mousemove', handleMouseMove);
-
-    // Ensure engine is properly initialized before using it
-    if (engine) {
-        Matter.Events.on(engine, 'collisionStart', function(event) {
-            event.pairs.forEach(function(pair) {
-                if ((pair.bodyA === gateA && pair.bodyB !== gateB) || (pair.bodyA === gateB && pair.bodyB !== gateA)) {
-                    let otherGate = pair.bodyA === gateA ? gateB : gateA;
-                    Matter.Body.setPosition(pair.bodyB, { x: otherGate.position.x, y: otherGate.position.y - 100 });
-                }
-            });
-        });
-    } else {
-        console.error('Error: Engine is not initialized.');
-    }
-}
 
 document.addEventListener('DOMContentLoaded', () => {
     initPhysics();
@@ -394,6 +373,15 @@ function placeTeleportGate(x, y) {
     }
 }
 
+function handleTeleportationCollision(event) {
+    event.pairs.forEach(function(pair) {
+        if ((pair.bodyA === gateA && pair.bodyB !== gateB) || (pair.bodyA === gateB && pair.bodyB !== gateA)) {
+            let otherGate = pair.bodyA === gateA ? gateB : gateA;
+            Matter.Body.setPosition(pair.bodyB, { x: otherGate.position.x, y: otherGate.position.y - 100 });
+        }
+    });
+}
+
 
 function setupCollisionListenerAndCreateGate(x, y, label) {
     // Ensure gateA and gateB are properly initialized before using them
@@ -428,8 +416,6 @@ function setupCollisionListenerAndCreateGate(x, y, label) {
 
     return gate;
 }
-
-
 
 
 function setupCustomMaterialCreator() {
