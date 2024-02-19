@@ -8,7 +8,7 @@ export const clearWorld = () => {
     // Iterate over each body
     bodies.forEach(body => {
         // Check if the body is not a barrier (floor or wall)
-        if (!body.isStatic || (body.label !== 'Wall' && body.label !== 'Floor')) {
+        if (!body.isStatic || (body.label === 'Sand' || body.label === 'Water' || body.label === 'Oil' || body.label === 'Rock' || body.label === 'Lava' || body.label === 'Ice' || body.label === 'Rubber' || body.label === 'Steel' || body.label === 'Glass' || body.label === 'Wood' || body.label === 'Antimatter' || body.label === 'DarkMatter' || body.label === 'Neutronium' || body.label === 'QuantumFoam' || body.label === 'ExoticMatter' || body.label === 'PlasmaCrystal' || body.label === 'VoidEssence' || body.label === 'Ether' || body.label === 'SolarFlare' || body.label === 'CosmicDust' || body.label === 'MagneticField' || body.label === 'PhotonGel')) {
             // Remove the body from the world
             Matter.World.remove(world, body);
         }
@@ -16,6 +16,7 @@ export const clearWorld = () => {
 
     console.log('Material bodies cleared!');
 };
+
 
 let gravityReversed = false; // Variable to track gravity state
 
