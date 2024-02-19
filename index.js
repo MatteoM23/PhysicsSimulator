@@ -116,6 +116,9 @@ function selectMaterial(key) {
 }
 
 function setupEventListeners() {
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('click', handleClick);
     document.addEventListener('mousedown', function(event) {
         // Get the coordinates of the click event
         const clickX = event.clientX;
@@ -146,6 +149,12 @@ function setupEventListeners() {
     }
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    initPhysics();
+    setupEventListeners();
+    setupMaterialSelector(materials); // Add this line to initialize the material selector
+    setupFeatureButtons(); // Add this line to initialize feature buttons
+});
 
 
 function handleMouseDown(event) {
