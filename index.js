@@ -278,28 +278,39 @@ document.addEventListener('DOMContentLoaded', setButtonTextColorBasedOnBackgroun
 
 
 // Enhance the features in the setupFeatureButtons() function
-function setupFeatureButtons() {
-    const buttonsContainer = document.querySelector('.feature-buttons');
-    if (!buttonsContainer) {
-        console.error('Feature buttons container not found');
-        return;
-    }
-
+function setupFeatureButtons(container) {
     // Existing buttons
     const clearWorldButton = document.createElement('button');
     clearWorldButton.textContent = 'Clear World';
     clearWorldButton.onclick = clearMaterialBodiesWithEffect;
-    buttonsContainer.appendChild(clearWorldButton);
+    container.appendChild(clearWorldButton);
 
     const invertGravityButton = createFeatureButton('Invert Gravity', () => {
         engine.world.gravity.y *= -1;
     });
-    buttonsContainer.appendChild(invertGravityButton);
+    container.appendChild(invertGravityButton);
 
     // Teleportation Gates Button
     const teleportGatesButton = createFeatureButton('Toggle Teleport Gates', toggleTeleportationGates);
-    buttonsContainer.appendChild(teleportGatesButton);
+    container.appendChild(teleportGatesButton);
 }
+
+
+function setupFeatureButtonsContainer() {
+    const container = document.createElement('div');
+    container.className = 'feature-buttons';
+    document.body.appendChild(container);
+    return container;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initPhysics();
+    setupEventListeners();
+    setupMaterialSelector(materials);
+    const featureButtonsContainer = setupFeatureButtonsContainer(); // Create container for feature buttons
+    setupFeatureButtons(featureButtonsContainer); // Call setupFeatureButtons after the DOM content has loaded
+});
+
 
 function toggleTeleportationGates() {
     teleportationActive = !teleportationActive;
