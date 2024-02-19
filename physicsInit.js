@@ -47,6 +47,17 @@ export const initPhysics = () => {
         render.options.width = window.innerWidth - uiBoxWidth;
         render.options.height = window.innerHeight - uiBoxHeight;
     });
+
+    // Register global collision event listener for handling custom material interactions
+    Matter.Events.on(engine, 'collisionStart', (event) => {
+        event.pairs.forEach((pair) => {
+            // Execute interaction rules based on the materials of the colliding bodies
+            handleCollisions(event, engine);
+        });
+    });
+
+    // Log to indicate successful initialization
+    console.log("Physics simulation initialized and ready for interaction.");
 };
 
 export { render }; // Export render so it can be used elsewhere
