@@ -1,57 +1,40 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
-// Create an engine
+// Define dimensions for the UI box
+const uiBoxWidth = 200; // Reserve space for UI on the right
+const uiBoxHeight = 100; // Reserve space for UI at the bottom
+
 export const engine = Matter.Engine.create();
-export const world = engine.world;
-
-// Create a renderer
-export const render = Matter.Render.create({
-    element: document.body, // Assuming the simulation is attached to the body
-    engine: engine,
-    options: {
-        width: Math.min(document.documentElement.clientWidth, 800),
-        height: Math.min(document.documentElement.clientHeight, 600),
-        wireframes: false, // Set to false for solid rendering
-        background: '#f0f0f0' // Light grey background
-    }
-});
-
-// Function to add walls
-const addWalls = () => {
-    const { width, height } = render.options;
-    // Thickness of the walls
-    const thickness = 50;
-
-    // Parameters: x, y, width, height, [options]
-    const ground = Matter.Bodies.rectangle(width / 2, height + thickness / 2, width, thickness, { isStatic: true });
-    const ceiling = Matter.Bodies.rectangle(width / 2, -thickness / 2, width, thickness, { isStatic: true });
-    const leftWall = Matter.Bodies.rectangle(-thickness / 2, height / 2, thickness, height, { isStatic: true });
-    const rightWall = Matter.Bodies.rectangle(width + thickness / 2, height / 2, thickness, height, { isStatic: true });
-
-    // Add the walls to the world
-    Matter.World.add(world, [ground, ceiling, leftWall, rightWall]);
-};
+let render;
 
 export const initPhysics = () => {
-    // Create a renderer
+    // Adjust the width and height to account for the UI box
+    const adjustedWidth = window.innerWidth - uiBoxWidth;
+    const adjustedHeight = window.innerHeight - uiBoxHeight;
+
     render = Matter.Render.create({
-        element: document.body, // Assuming you want the renderer to attach to the body
+        element: document.body,
         engine: engine,
         options: {
-            width: window.innerWidth - uiBoxWidth,
-            height: window.innerHeight - uiBoxHeight,
+            width: adjustedWidth,
+            height: adjustedHeight,
             wireframes: false,
             background: '#f0f0f0'
         }
     });
 
-    // Add walls or additional setup here
-
-    // Run the renderer
+    // Add walls or additional setup here if necessary
+    
     Matter.Render.run(render);
 
-    // Create a runner to run the engine
     const runner = Matter.Runner.create();
     Matter.Runner.run(runner, engine);
-};
 
+    // Resize listener to adjust canvas size dynamically
+    window.addEventListener('resize', function() {
+        render.canvas.width = window.innerWidth - uiBoxWidth;
+        render.canvas.height = window.innerHeight - uiBoxHeight;
+        render.options.width = window.innerWidth - uiBoxWidth;
+        render.options.height = window.innerHeight - uiBoxHeight;
+    });
+};
