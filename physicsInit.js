@@ -25,23 +25,24 @@ export const initPhysics = () => {
         }
     });
 
-        // Set the collision filter for the floor and walls to ensure accurate collision detection
-    // Create floor with higher restitution and proper collision filtering
-    const floor = Matter.Bodies.rectangle(adjustedWidth / 2, adjustedHeight + 50, adjustedWidth, 100, { 
-        isStatic: true, 
-        restitution: 1.0, 
-        collisionFilter: { category: 0x0001, mask: 0x0002 } // Adjust category and mask as needed
-    });
-        const leftWall = Matter.Bodies.rectangle(-25, adjustedHeight / 2, 50, adjustedHeight, { isStatic: true, collisionFilter: { category: 0x0001, mask: 0x0002 } });
-        const rightWall = Matter.Bodies.rectangle(adjustedWidth + 25, adjustedHeight / 2, 50, adjustedHeight, { isStatic: true, collisionFilter: { category: 0x0001, mask: 0x0002 } });
+       // Create floor with increased thickness
+    const floor = Matter.Bodies.rectangle(
+        adjustedWidth / 2, 
+        adjustedHeight + 50, // Adjust the vertical position as needed
+        adjustedWidth, 
+        200, // Increase the height to make the floor thicker
+        { 
+            isStatic: true 
+        }
+    );
 
-        // Increase simulation accuracy
-    engine.world.positionIterations = 10;
-    engine.world.velocityIterations = 10;
-    
+
+    // Create side walls
+    const leftWall = Matter.Bodies.rectangle(-25, adjustedHeight / 2, 50, adjustedHeight, { isStatic: true });
+    const rightWall = Matter.Bodies.rectangle(adjustedWidth + 25, adjustedHeight / 2, 50, adjustedHeight, { isStatic: true });
+
     // Add walls to the world
     Matter.World.add(world, [floor, leftWall, rightWall]);
-
 
     Matter.Render.run(render);
 
