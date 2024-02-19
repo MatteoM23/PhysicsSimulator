@@ -1,7 +1,7 @@
-// materialManager.js
 import Matter from 'https://cdn.skypack.dev/matter-js';
-import { engine, world } from './physicsInit.js';
-import { screenToWorld } from './utils.js';
+import { engine, render } from './physicsInit.js'; // Ensure these are correctly imported
+import { materials } from './materialManager.js'; // Assuming this is where materials are defined
+import { screenToWorld } from './utils.js'; // Ensure this utility function is correctly imported
 
 // Expanded list of materials with detailed properties.
 export const materials = {
@@ -31,29 +31,34 @@ export const materials = {
 };
 
 
-export const createBody = (clientX, clientY, materialKey) => {
-    const { x, y } = screenToWorld(clientX, clientY, engine.render); // Convert screen coordinates to world coordinates
-    const material = materials[materialKey];
-    const options = {
-        density: material.density,
-        friction: material.friction,
-        restitution: material.restitution,
-        render: { fillStyle: material.color }
-    };
 
-    // Example: Adjust the body creation based on the material type
-    let body;
-    if (materialKey === 'water' || materialKey === 'oil') {
-        // For fluid-like materials, you might use smaller, more numerous particles
-        body = Matter.Bodies.circle(x, y, 5, options);
-    } else {
-        // Default to a medium-sized particle for other materials
-        body = Matter.Bodies.circle(x, y, 20, options);
+
+export const createBody = (clientX, clientY, materialKey) => {
+    // Convert screen coordinates to world coordinates.
+    const { x, y } = screenToWorld(clientX, clientY, render);
+
+    // Retrieve the material properties.
+    const material = materials[materialKey];
+    if (!material) {
+        console.error(`Material '${materialKey}' not found.`);
+        return;
     }
 
-    Matter.World.add(world, body);
-    return body;
+    // Create a body with the specified material properties.
+    const body = Matter.Bodies.circle(x, y, material.size || 20, {
+        isStatic: material.isStatic || false,
+        render: {
+            fillStyle: material.color
+        },
+        density: material.density,
+        friction: material.friction,
+        restitution: material.restitution
+    });
+
+    // Add the body to the world.
+    Matter.World.add(engine.world, body);
 };
+
 
 export const handleTeleportationCollision = (event) => {
     // Example implementation
