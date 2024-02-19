@@ -4,8 +4,9 @@ import Matter from 'https://cdn.skypack.dev/matter-js';
 const uiBoxWidth = 200; // Reserve space for UI on the right
 const uiBoxHeight = 100; // Reserve space for UI at the bottom
 
-export const world = engine.world;
+
 export const engine = Matter.Engine.create();
+export const world = engine.world;
 
 let render;
 
