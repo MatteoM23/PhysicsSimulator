@@ -7,6 +7,8 @@ const uiBoxHeight = 100; // Reserve space for UI at the bottom
 export const world = engine.world;
 export const engine = Matter.Engine.create();
 
+let render;
+
 
 export const initPhysics = () => {
     // Adjust the width and height to account for the UI box
