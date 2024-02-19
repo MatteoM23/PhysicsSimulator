@@ -41,7 +41,7 @@ body, html {
     text-transform: uppercase;
     letter-spacing: 1px;
     padding: 20px;
-    margin-top: 20px;
+    margin-top: 0; /* Updated margin-top to 0 */
     border-radius: var(--border-radius);
     background-color: var(--container-bg-color);
     box-shadow: 0 4px 8px var(--shadow-color);
@@ -49,6 +49,10 @@ body, html {
     flex-direction: column;
     align-items: center;
     transition: all var(--transition-speed) ease-in-out;
+    position: fixed; /* Fixed positioning */
+    top: 0; /* Positioned at the top of the screen */
+    width: 100%; /* Full width */
+    z-index: 2; /* Ensure the container is above the environment */
 }
 
 /* Button Enhancements */
