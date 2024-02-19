@@ -82,9 +82,10 @@ function handleClick(event) {
     if (teleportationActive) {
         placeTeleportGate(event.clientX, event.clientY);
     } else {
-        placeMaterial(event.clientX, event.clientY);
+        createBody(event.clientX, event.clientY, currentMaterial);
     }
 }
+
 
 
 function setupEventListeners() {
@@ -141,8 +142,6 @@ function selectMaterial(key) {
     console.log(`Material ${key} selected`);
 }
 
-
-
 document.addEventListener('DOMContentLoaded', () => {
     initPhysics();
     setupEventListeners();
@@ -154,7 +153,10 @@ document.addEventListener('DOMContentLoaded', () => {
 function handleMouseDown(event) {
     if (!event.target.matches('.materialButton') && !teleportationActive) {
         isMouseDown = true;
-        placeMaterial(event.clientX, event.clientY);
+        const screenX = event.clientX;
+        const screenY = event.clientY;
+        const point = screenToWorld(screenX, screenY, render);
+        createBody(point.x, point.y, currentMaterial);
     }
 }
 
@@ -164,14 +166,14 @@ function handleMouseUp() {
 
 function handleMouseMove(event) {
     if (isMouseDown) {
-        placeMaterial(event.clientX, event.clientY);
+        const screenX = event.clientX;
+        const screenY = event.clientY;
+        const point = screenToWorld(screenX, screenY, render);
+        createBody(point.x, point.y, currentMaterial);
     }
 }
 
-function placeMaterial(screenX, screenY) {
-    const point = screenToWorld(screenX, screenY, render);
-    createBody(point.x, point.y, currentMaterial);
-}
+
 
 function createBody(x, y, materialKey) {
     const material = materials[materialKey];
@@ -337,7 +339,7 @@ function clearTeleportationGates() {
 }
 
 document.addEventListener('mousemove', function(event) {
-    if (!teleportationActive || !placingGateA && !placingGateB) return;
+    if (!teleportationActive || (!placingGateA && !placingGateB)) return;
     const mousePos = { x: event.clientX, y: event.clientY };
     const options = {
         isSensor: true,
@@ -371,7 +373,6 @@ function placeTeleportGate(x, y) {
     Matter.World.add(world, gate);
 }
 
-
 function handleTeleportationCollision(event) {
     event.pairs.forEach(function(pair) {
         if ((pair.bodyA === gateA && pair.bodyB !== gateB) || (pair.bodyA === gateB && pair.bodyB !== gateA)) {
@@ -380,7 +381,6 @@ function handleTeleportationCollision(event) {
         }
     });
 }
-
 
 function setupCollisionListenerAndCreateGate(x, y, label) {
     // Ensure gateA and gateB are properly initialized before using them
@@ -415,6 +415,7 @@ function setupCollisionListenerAndCreateGate(x, y, label) {
 
     return gate;
 }
+
 
 
 function setupCustomMaterialCreator() {
