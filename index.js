@@ -1,7 +1,7 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
 import { initPhysics, engine } from './physicsInit.js';
 import { setupEventListeners } from './eventListeners.js';
-import { initFeatureButtons  } from './featureButtons.js';
+import { initFeatureButtons  } from './featureButton.js';
 import { initDropdown } from './dropdown.js';
 import { materials, createBody } from './materialManager.js';
 import { interactionRules, handleCollisions } from './interactions.js';
