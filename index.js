@@ -6,24 +6,24 @@ import { interactionRules, handleCollisions } from './interactions.js'; // Assum
 import { screenToWorld, invertColor, padZero } from './utils.js';
 import { materials, createBody, handleTeleportationCollision } from './materialManager.js';
 
+// Assuming you have a function `initDropdown` that wasn't explicitly imported.
+// This function should be defined in another module (e.g., 'dropdown.js') to handle dropdown UI interactions.
+// import { initDropdown } from './dropdown.js';
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize the physics engine
+    // Initialize the physics engine and rendering
     initPhysics();
 
-
-     // Set up UI interactions
-    initDropdown();
-    initFeatureButtons();
+    // Setup UI interactions for dropdowns and feature buttons
+    // initDropdown(); // Uncomment if you have this function defined
+    setupFeatureButtons();
     
-    // Set up event listeners for user interactions
+    // Setup event listeners for user interactions
     setupEventListeners();
 
-    // Initialize UI elements like feature buttons
-    setupFeatureButtons();
-
     // Register global collision event listener for handling custom interactions
-    Matter.Events.on(engine, 'collisionStart', function(event) {
-        event.pairs.forEach(function(pair) {
+    Matter.Events.on(engine, 'collisionStart', (event) => {
+        event.pairs.forEach((pair) => {
             const { bodyA, bodyB } = pair;
             // Execute interaction rules based on the materials of the colliding bodies
             interactionRules(bodyA, bodyB, engine);
@@ -31,4 +31,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Additional initialization code can be added as needed
+    console.log("Physics simulation initialized and ready.");
 });
