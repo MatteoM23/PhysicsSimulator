@@ -99,4 +99,8 @@ body, html {
         justify-content: center;
         gap: 10px;
     }
+
+    .materialButton, .feature-buttons button {
+        width: calc(50% - 10px); /* Adjust button width for smaller screens */
+    }
 }
