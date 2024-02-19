@@ -25,21 +25,36 @@ export const initPhysics = () => {
         }
     });
 
-       // Create floor with increased thickness
+    // Create floor with increased thickness
     const floor = Matter.Bodies.rectangle(
         adjustedWidth / 2, 
         adjustedHeight + 50, // Adjust the vertical position as needed
         adjustedWidth, 
         200, // Increase the height to make the floor thicker
         { 
-            isStatic: true 
+            isStatic: true,
+            collisionFilter: {
+                category: 0x0001, // Set collision category
+                mask: 0x0001 // Set collision mask
+            }
         }
     );
 
-
     // Create side walls
-    const leftWall = Matter.Bodies.rectangle(-25, adjustedHeight / 2, 50, adjustedHeight, { isStatic: true });
-    const rightWall = Matter.Bodies.rectangle(adjustedWidth + 25, adjustedHeight / 2, 50, adjustedHeight, { isStatic: true });
+    const leftWall = Matter.Bodies.rectangle(-25, adjustedHeight / 2, 50, adjustedHeight, { 
+        isStatic: true,
+        collisionFilter: {
+            category: 0x0001, // Set collision category
+            mask: 0x0001 // Set collision mask
+        }
+    });
+    const rightWall = Matter.Bodies.rectangle(adjustedWidth + 25, adjustedHeight / 2, 50, adjustedHeight, { 
+        isStatic: true,
+        collisionFilter: {
+            category: 0x0001, // Set collision category
+            mask: 0x0001 // Set collision mask
+        }
+    });
 
     // Add walls to the world
     Matter.World.add(world, [floor, leftWall, rightWall]);
@@ -48,6 +63,14 @@ export const initPhysics = () => {
 
     const runner = Matter.Runner.create();
     Matter.Runner.run(runner, engine);
+
+    // Enable continuous collision detection
+    engine.enableSleeping = true; // Optional, can improve performance
+    engine.positionIterations = 10; // Optional, adjust as needed
+    engine.constraintIterations = 5; // Optional, adjust as needed
+    engine.velocityIterations = 8; // Optional, adjust as needed
+    engine.enableSleeping = true; // Optional, can improve performance
+    engine.enableContinuousCollisionDetection = true; // Enable CCD
 
     // Resize listener to adjust canvas size dynamically
     window.addEventListener('resize', function() {
