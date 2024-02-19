@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Setup UI interactions and feature buttons
     initDropdown(); // Initializes the dropdown for material selection
-    setupFeatureButtons(); // Initializes feature buttons for user interactions
+    initFeatureButtons (); // Initializes feature buttons for user interactions
 
     // Setup event listeners for user actions and physics events
     setupEventListeners();
