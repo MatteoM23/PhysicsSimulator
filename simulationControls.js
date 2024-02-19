@@ -1,4 +1,4 @@
-import { world } from './physicsInit.js';
+import { engine, world } from './physicsInit.js';
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
 export const clearWorld = () => {
@@ -18,19 +18,28 @@ export const clearWorld = () => {
 };
 
 export const toggleGravity = () => {
-    // Assuming engine is imported or accessible globally
-    engine.world.gravity.y = engine.world.gravity.y === 0 ? 1 : 0;
+    // Toggle gravity by setting it to -1 if currently 0, and vice versa
+    engine.world.gravity.y = engine.world.gravity.y === 0 ? -1 : 0;
     console.log('Gravity toggled!');
 };
 
-export const randomizeMaterials = () => {
-    // This would require you to iterate over all bodies in the world
-    // and change their material properties randomly.
-    Matter.Composite.allBodies(world).forEach(body => {
-        // Just a conceptual example. Adjust materials and properties as needed.
-        const materials = ['sand', 'water', 'oil']; // Ensure you have a better way to handle materials
-        const randomMaterial = materials[Math.floor(Math.random() * materials.length)];
-        body.render.fillStyle = randomMaterial.color; // This line is conceptual; implement proper material handling
-    });
-    console.log('Materials randomized!');
+export const materialRain = () => {
+    const materials = ['sand', 'water', 'oil', 'rock', 'lava', 'ice', 'rubber', 'steel', 'glass', 'wood', 'antimatter', 'darkMatter', 'neutronium', 'quantumFoam', 'exoticMatter', 'plasmaCrystal', 'voidEssence', 'ether', 'solarFlare', 'cosmicDust', 'magneticField', 'photonGel'];
+
+    // Number of materials to rain
+    const numMaterials = 20;
+
+    // Create material rain
+    for (let i = 0; i < numMaterials; i++) {
+        const material = materials[Math.floor(Math.random() * materials.length)];
+
+        // Generate random position within the canvas
+        const x = Math.random() * engine.render.canvas.width;
+        const y = Math.random() * engine.render.canvas.height;
+
+        // Create body at random position with selected material
+        createBody(x, y, material);
+    }
+
+    console.log('Material rain started!');
 };
