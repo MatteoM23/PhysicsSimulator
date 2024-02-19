@@ -1,6 +1,7 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
 import { engine, render } from './physicsInit.js'; // Ensure these are correctly imported
 import { screenToWorld } from './utils.js'; // Ensure this utility function is correctly imported
+import { currentMaterial } from './dropdown.js';
 
 // Expanded list of materials with detailed properties.
 export const materials = {
