@@ -70,10 +70,14 @@ function initPhysics() {
     // Add walls or other static bodies
     addBoundaries();
 
+    // Setup event listeners AFTER initializing engine
+    setupEventListeners();
+
     // Start everything
     Matter.Runner.run(runner, engine); // Use the initialized runner
     Matter.Render.run(render);
 }
+
 
 
 function setupMaterialSelector(materials) {
