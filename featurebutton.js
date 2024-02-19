@@ -1,12 +1,10 @@
-// Assuming the existence of some functions to be called for each feature.
-// These functions should be defined based on your application's needs.
-import { clearWorld, toggleGravity, randomizeMaterials } from './simulationControls.js';
+import { clearWorld, toggleGravity, materialRain } from './simulationControls.js';
 
 export const initFeatureButtons = () => {
     const features = [
         { name: 'Clear World', action: clearWorld },
         { name: 'Toggle Gravity', action: toggleGravity },
-        { name: 'Randomize Materials', action: randomizeMaterials }
+        { name: 'Material Rain', action: materialRain } // Updated feature
     ];
     const featuresContainer = document.querySelector('.feature-buttons');
 
