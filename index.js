@@ -405,10 +405,6 @@ function setupCollisionListenerAndCreateGate(x, y, label) {
     return gate;
 }
 
-// Usage:
-// Call this function when you want to create a gate
-setupCollisionListenerAndCreateGate(x, y, label);
-
 
 
 
