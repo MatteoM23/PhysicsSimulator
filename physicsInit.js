@@ -32,45 +32,53 @@ export const initPhysics = () => {
         adjustedWidth, 
         200, // Increase the height to make the floor thicker
         { 
-            isStatic: true,
-            collisionFilter: {
-                category: 0x0001, // Set collision category for floor
-                mask: 0x0002 // Set collision mask to collide with dynamic bodies only
-            }
+            isStatic: true
         }
     );
 
     // Create side walls
     const leftWall = Matter.Bodies.rectangle(-25, adjustedHeight / 2, 50, adjustedHeight, { 
-        isStatic: true,
-        collisionFilter: {
-            category: 0x0001, // Set collision category for walls
-            mask: 0x0002 // Set collision mask to collide with dynamic bodies only
-        }
+        isStatic: true
     });
     const rightWall = Matter.Bodies.rectangle(adjustedWidth + 25, adjustedHeight / 2, 50, adjustedHeight, { 
-        isStatic: true,
-        collisionFilter: {
-            category: 0x0001, // Set collision category for walls
-            mask: 0x0002 // Set collision mask to collide with dynamic bodies only
-        }
+        isStatic: true
     });
 
     // Add walls to the world
     Matter.World.add(world, [floor, leftWall, rightWall]);
 
+    // Add constraints to lock the floor and walls in place
+    const floorConstraint = Matter.Constraint.create({
+        bodyA: floor,
+        pointA: { x: 0, y: 0 },
+        pointB: { x: 0, y: 0 },
+        stiffness: 1,
+        length: 0
+    });
+
+    const leftWallConstraint = Matter.Constraint.create({
+        bodyA: leftWall,
+        pointA: { x: 0, y: 0 },
+        pointB: { x: 0, y: 0 },
+        stiffness: 1,
+        length: 0
+    });
+
+    const rightWallConstraint = Matter.Constraint.create({
+        bodyA: rightWall,
+        pointA: { x: 0, y: 0 },
+        pointB: { x: 0, y: 0 },
+        stiffness: 1,
+        length: 0
+    });
+
+    // Add constraints to the world
+    Matter.World.add(world, [floorConstraint, leftWallConstraint, rightWallConstraint]);
+
     Matter.Render.run(render);
 
     const runner = Matter.Runner.create();
     Matter.Runner.run(runner, engine);
-
-    // Enable continuous collision detection
-    engine.enableSleeping = true; // Optional, can improve performance
-    engine.positionIterations = 10; // Optional, adjust as needed
-    engine.constraintIterations = 5; // Optional, adjust as needed
-    engine.velocityIterations = 8; // Optional, adjust as needed
-    engine.enableSleeping = true; // Optional, can improve performance
-    engine.enableContinuousCollisionDetection = true; // Enable CCD
 
     // Resize listener to adjust canvas size dynamically
     window.addEventListener('resize', function() {
