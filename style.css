@@ -80,7 +80,7 @@ body, html {
     display: block;
 }
 
-.dropdown-content a:hover {background-color: var(--button-hover-bg-color)}
+.dropdown-content a:hover {background-color: var(--button-hover-bg-color);}
 
 .dropdown:hover .dropdown-content {display: block;}
 
