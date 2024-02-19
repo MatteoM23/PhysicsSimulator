@@ -78,6 +78,21 @@ function initPhysics() {
     Matter.Render.run(render);
 }
 
+function handleClick(event) {
+    // Handle general click events here
+    // For example, you can add specific functionalities based on the target element or event details
+
+    // Example: Log the clicked element's tag name and class
+    console.log('Clicked element:', event.target.tagName, event.target.className);
+
+    // Example: Check if the clicked element is a button with a specific class
+    if (event.target.tagName === 'BUTTON' && event.target.classList.contains('special-button')) {
+        // Perform a specific action for special buttons
+        console.log('Special button clicked!');
+    }
+
+    // Add more logic based on your application's requirements
+}
 
 
 function setupMaterialSelector(materials) {
