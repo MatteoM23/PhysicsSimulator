@@ -34,8 +34,8 @@ export const initPhysics = () => {
         { 
             isStatic: true,
             collisionFilter: {
-                category: 0x0001, // Set collision category
-                mask: 0x0001 // Set collision mask
+                category: 0x0001, // Set collision category for floor
+                mask: 0x0002 // Set collision mask to collide with dynamic bodies only
             }
         }
     );
@@ -44,15 +44,15 @@ export const initPhysics = () => {
     const leftWall = Matter.Bodies.rectangle(-25, adjustedHeight / 2, 50, adjustedHeight, { 
         isStatic: true,
         collisionFilter: {
-            category: 0x0001, // Set collision category
-            mask: 0x0001 // Set collision mask
+            category: 0x0001, // Set collision category for walls
+            mask: 0x0002 // Set collision mask to collide with dynamic bodies only
         }
     });
     const rightWall = Matter.Bodies.rectangle(adjustedWidth + 25, adjustedHeight / 2, 50, adjustedHeight, { 
         isStatic: true,
         collisionFilter: {
-            category: 0x0001, // Set collision category
-            mask: 0x0001 // Set collision mask
+            category: 0x0001, // Set collision category for walls
+            mask: 0x0002 // Set collision mask to collide with dynamic bodies only
         }
     });
 
