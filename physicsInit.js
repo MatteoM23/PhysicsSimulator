@@ -38,3 +38,5 @@ export const initPhysics = () => {
         render.options.height = window.innerHeight - uiBoxHeight;
     });
 };
+
+export { render }; // Export render so it can be used elsewhere
