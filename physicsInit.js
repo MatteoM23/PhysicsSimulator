@@ -4,12 +4,10 @@ import Matter from 'https://cdn.skypack.dev/matter-js';
 const uiBoxWidth = 200; // Reserve space for UI on the right
 const uiBoxHeight = 100; // Reserve space for UI at the bottom
 
-
 export const engine = Matter.Engine.create();
 export const world = engine.world;
 
 let render;
-
 
 export const initPhysics = () => {
     // Adjust the width and height to account for the UI box
@@ -27,8 +25,16 @@ export const initPhysics = () => {
         }
     });
 
-    // Add walls or additional setup here if necessary
-    
+    // Create floor
+    const floor = Matter.Bodies.rectangle(adjustedWidth / 2, adjustedHeight + 50, adjustedWidth, 100, { isStatic: true });
+
+    // Create side walls
+    const leftWall = Matter.Bodies.rectangle(-25, adjustedHeight / 2, 50, adjustedHeight, { isStatic: true });
+    const rightWall = Matter.Bodies.rectangle(adjustedWidth + 25, adjustedHeight / 2, 50, adjustedHeight, { isStatic: true });
+
+    // Add walls to the world
+    Matter.World.add(world, [floor, leftWall, rightWall]);
+
     Matter.Render.run(render);
 
     const runner = Matter.Runner.create();
