@@ -4,6 +4,7 @@ import { setupEventListeners } from './eventListeners.js';
 import { setupFeatureButtons } from './featureButtons.js';
 import { interactionRules, handleCollisions } from './interactions.js'; // Assuming interaction rules are encapsulated here
 import { screenToWorld, invertColor, padZero } from './utils.js';
+import { materials, createBody, handleTeleportationCollision } from './materialManager.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize the physics engine
