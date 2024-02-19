@@ -116,7 +116,18 @@ function selectMaterial(key) {
 }
 
 function setupEventListeners() {
-    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mousedown', function(event) {
+        // Get the coordinates of the click event
+        const clickX = event.clientX;
+        const clickY = event.clientY;
+
+        // Determine the label for the gate based on which mouse button was clicked
+        const gateLabel = event.button === 0 ? 'gateA' : 'gateB';
+
+        // Create the gate at the clicked coordinates
+        setupCollisionListenerAndCreateGate(clickX, clickY, gateLabel);
+    });
+
     document.addEventListener('mouseup', handleMouseUp);
     document.addEventListener('mousemove', handleMouseMove);
 
@@ -134,6 +145,7 @@ function setupEventListeners() {
         console.error('Error: Engine is not initialized.');
     }
 }
+
 
 
 function handleMouseDown(event) {
