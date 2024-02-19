@@ -1,7 +1,7 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
-import { engine, render } from './physicsInit.js'; // Ensure these are correctly imported
-import { screenToWorld } from './utils.js'; // Ensure this utility function is correctly imported
-import { currentMaterial } from './dropdown.js';
+import { engine, render } from './physicsInit.js';
+import { screenToWorld } from './utils.js';
+import { currentMaterial } from './dropdown.js'; // Ensure this import is correct
 
 // Expanded list of materials with detailed properties.
 export const materials = {
@@ -30,32 +30,24 @@ export const materials = {
     // Feel free to add or modify materials as you see fit for your simulation's requirements.
 };
 
-
-
-
-export const createBody = (clientX, clientY, materialKey) => {
-    // Convert screen coordinates to world coordinates.
+export const createBody = (clientX, clientY) => {
+    // Use currentMaterial directly instead of materialKey parameter
     const { x, y } = screenToWorld(clientX, clientY, render);
+    const material = materials[currentMaterial]; // Use currentMaterial here
 
-    // Retrieve the material properties.
-    const material = materials[materialKey];
     if (!material) {
-        console.error(`Material '${materialKey}' not found.`);
+        console.error(`Material '${currentMaterial}' not found.`);
         return;
     }
 
-    // Create a body with the specified material properties.
     const body = Matter.Bodies.circle(x, y, material.size || 20, {
         isStatic: material.isStatic || false,
-        render: {
-            fillStyle: material.color
-        },
+        render: { fillStyle: material.color },
         density: material.density,
         friction: material.friction,
         restitution: material.restitution
     });
 
-    // Add the body to the world.
     Matter.World.add(engine.world, body);
 };
 
