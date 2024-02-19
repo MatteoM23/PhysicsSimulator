@@ -344,7 +344,14 @@ function placeTeleportGate(x, y) {
     }
 }
 
+
 function createGate(x, y, label) {
+    // Ensure gateA and gateB are properly initialized before using them
+    if (!gateA || !gateB) {
+        console.error('Error: GateA or GateB is not initialized.');
+        return null; // Return null if gateA or gateB is not initialized
+    }
+
     let gate = Matter.Bodies.rectangle(x, y, 100, 20, {
         isStatic: true,
         isSensor: true,
@@ -355,14 +362,20 @@ function createGate(x, y, label) {
     return gate;
 }
 
-Matter.Events.on(engine, 'collisionStart', function(event) {
-    event.pairs.forEach(function(pair) {
-        if ((pair.bodyA === gateA && pair.bodyB !== gateB) || (pair.bodyA === gateB && pair.bodyB !== gateA)) {
-            let otherGate = pair.bodyA === gateA ? gateB : gateA;
-            Matter.Body.setPosition(pair.bodyB, { x: otherGate.position.x, y: otherGate.position.y - 100 });
-        }
+// Ensure engine is properly initialized before using it
+if (engine) {
+    Matter.Events.on(engine, 'collisionStart', function(event) {
+        event.pairs.forEach(function(pair) {
+            if ((pair.bodyA === gateA && pair.bodyB !== gateB) || (pair.bodyA === gateB && pair.bodyB !== gateA)) {
+                let otherGate = pair.bodyA === gateA ? gateB : gateA;
+                Matter.Body.setPosition(pair.bodyB, { x: otherGate.position.x, y: otherGate.position.y - 100 });
+            }
+        });
     });
-});
+} else {
+    console.error('Error: Engine is not initialized.');
+}
+
 
 
 function setupCustomMaterialCreator() {
