@@ -304,14 +304,6 @@ function setupFeatureButtonsContainer() {
     return container;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    initPhysics();
-    setupEventListeners();
-    setupMaterialSelector(materials);
-    const featureButtonsContainer = setupFeatureButtonsContainer(); // Create container for feature buttons
-    setupFeatureButtons(featureButtonsContainer); // Call setupFeatureButtons after the DOM content has loaded
-});
-
 
 function toggleTeleportationGates() {
     teleportationActive = !teleportationActive;
@@ -548,7 +540,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initPhysics();
     setupEventListeners();
     setupMaterialSelector(materials);
-    setupFeatureButtons(); // Call setupFeatureButtons after the DOM content has loaded
+    const featureButtonsContainer = setupFeatureButtonsContainer(); // Create container for feature buttons
+    setupFeatureButtons(featureButtonsContainer); // Call setupFeatureButtons after the DOM content has loaded
 });
 
 
