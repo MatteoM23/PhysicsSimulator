@@ -436,29 +436,34 @@ function createWormhole(bodyA, bodyB, engine) {
         y: (bodyA.position.y + bodyB.position.y) / 2
     };
 
+    // Apply gravitational pull to nearby bodies
+    applyGravitationalPullTowardsWormhole(engine, midPoint);
+
+    // If using teleportation, implement logic here (optional)
+
     // Ensure the drawing function is called correctly
     if (engine.render && engine.render.canvas) {
         drawWormholeAnimation(engine, midPoint); // Pass the engine to use its rendering context
     } else {
         console.error("Canvas context not found. Ensure you are using Matter.js's built-in renderer or adjust accordingly.");
     }
+}
 
-    // Physics effect as before
-    const wormholeForceMagnitude = 0.05;
-    Matter.Composite.allBodies(engine.world).forEach((body) => {
-        if (!body.isStatic && body !== bodyA && body !== bodyB) {
-            const direction = Matter.Vector.sub(body.position, midPoint);
-            const distance = Matter.Vector.magnitude(direction);
-            const forceMagnitude = Math.min(wormholeForceMagnitude / distance, 0.01);
-            const force = Matter.Vector.normalise(direction);
-            Matter.Body.applyForce(body, body.position, Matter.Vector.mult(force, -forceMagnitude));
-        }
+function applyGravitationalPullTowardsWormhole(engine, midPoint) {
+    const wormholeForceMagnitude = 0.0005; // Adjust based on desired strength
+    Matter.Events.on(engine, 'beforeUpdate', function() {
+        Matter.Composite.allBodies(engine.world).forEach((body) => {
+            if (!body.isStatic) {
+                const direction = Matter.Vector.sub(midPoint, body.position);
+                const distance = Matter.Vector.magnitude(direction);
+                if (distance > 0 && distance < 500) { // Adjust influence radius as needed
+                    const forceMagnitude = Math.min(wormholeForceMagnitude / (distance * distance), 0.0001); // Prevent too strong force
+                    const force = Matter.Vector.mult(Matter.Vector.normalise(direction), forceMagnitude);
+                    Matter.Body.applyForce(body, body.position, force);
+                }
+            }
+        });
     });
-
-    // Teleportation effect as before
-    setTimeout(() => {
-        // Implement teleportBody function or similar logic here
-    }, 1000);
 }
 
 function drawWormholeAnimation(engine, midPoint) {
@@ -474,27 +479,23 @@ function drawWormholeAnimation(engine, midPoint) {
     const totalFrames = 100;
     let currentFrame = 0;
 
-    // Use the engine's event to hook the animation for synchronization with the physics simulation
-    Matter.Events.on(engine, 'afterUpdate', function() {
-        if (currentFrame >= totalFrames) {
-            // Remove the event listener to stop the animation
-            Matter.Events.off(engine, 'afterUpdate');
-            return;
-        }
-
+    const draw = () => {
         ctx.beginPath();
-        ctx.arc(midPoint.x, midPoint.y, 50 + currentFrame * 0.5, 0, 2 * Math.PI);
+        ctx.arc(midPoint.x, midPoint.y, 20 + currentFrame * 2, 0, 2 * Math.PI);
         ctx.strokeStyle = `rgba(0, 0, 255, ${1 - currentFrame / totalFrames})`;
-        ctx.lineWidth = 5;
+        ctx.lineWidth = 2;
         ctx.stroke();
         ctx.closePath();
 
         currentFrame++;
-    });
+        if (currentFrame < totalFrames) {
+            requestAnimationFrame(draw); // Continue animation
+        } else {
+            // Animation complete, remove the event listener if needed
+        }
+    };
+    draw();
 }
-
-
-
 
 
 function createAuroraEffect(bodyA, bodyB, engine) {
