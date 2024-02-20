@@ -49,8 +49,14 @@ export const interactionRules = (bodyA, bodyB, engine) => {
             Matter.World.remove(engine.world, bodyB);
             break;
         case 'ice+rock':
-            shatterIce(bodyA, bodyB, engine);
-            Matter.World.remove(engine.world, bodyA); 
+            // Determine which body is ice and then shatter it
+            if (bodyA.material === 'ice') {
+                shatterIce(bodyA, engine);
+                Matter.World.remove(engine.world, bodyA); // Remove only the ice body
+            } else if (bodyB.material === 'ice') {
+                shatterIce(bodyB, engine);
+                Matter.World.remove(engine.world, bodyB); // Remove only the ice body
+            }
             break;
         case 'water+sand':
             createQuicksandArea(bodyA, bodyB, engine);
@@ -267,12 +273,8 @@ function shatterIce(bodyA, bodyB, engine) {
 }
 
 function createIceFragments(iceBody, engine) {
-    // Determine the number and properties of fragments
     const numberOfFragments = 5; // Example value
-    const fragmentProperties = {
-        // Define properties for fragments
-    };
-
+    
     for (let i = 0; i < numberOfFragments; i++) {
         // Calculate position and size for each fragment
         let fragment = Matter.Bodies.polygon(
@@ -280,12 +282,22 @@ function createIceFragments(iceBody, engine) {
             iceBody.position.y + Math.random() * 10 - 5,
             3, // Triangle fragments for example
             5, // Size
-            fragmentProperties
+            {
+                render: {
+                    // Set the fillStyle to the same color as the ice body
+                    fillStyle: iceBody.render.fillStyle
+                },
+                density: iceBody.density, // Optional: match the density of the ice
+                friction: iceBody.friction, // Optional: match the friction of the ice
+                restitution: iceBody.restitution // Optional: match the restitution of the ice
+            }
         );
 
+        // Add each fragment to the world
         Matter.World.add(engine.world, fragment);
     }
 }
+
 
 function createFireballs(bodyA, bodyB, engine) {
     if (!bodyA || !bodyB || !bodyA.position || !bodyB.position) {
