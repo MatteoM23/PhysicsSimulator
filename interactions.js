@@ -245,34 +245,47 @@ function createQuicksandArea(pair, engine) {
 
 
 
-function shatterIce(iceBody, engine) {
-    if (!iceBody || !iceBody.position) {
-        console.error('Invalid ice body for shattering');
-        return;
+function shatterIce(bodyA, bodyB, engine) {
+    // Assuming bodyA is the ice body. Add logic to determine this if necessary.
+    let iceBody;
+    if (bodyA.material === 'ice') {
+        iceBody = bodyA;
+    } else if (bodyB.material === 'ice') {
+        iceBody = bodyB;
     }
 
-    Matter.World.remove(engine.world, iceBody); // Remove the original ice body
+    // Verify iceBody is valid and exists in the world before attempting removal
+    if (iceBody && Matter.Composite.get(engine.world, iceBody.id, 'body')) {
+        // Remove the ice body safely
+        Matter.Composite.remove(engine.world, iceBody, true); // The true flag for deep removal
 
-    for (let i = 0; i < 10; i++) { // Create 10 ice fragments as an example
-        const angle = Math.random() * 2 * Math.PI; // Random angle for direction
-        const speed = 0.005; // Speed of the fragments
-        const fragment = Matter.Bodies.polygon(iceBody.position.x, iceBody.position.y, 5, 2, {
-            density: 0.0009,
-            friction: 0.01,
-            restitution: 0.95,
-            render: { fillStyle: '#a8e0ff' } // Ice color
-        });
+        // Optionally, simulate shattering by creating smaller ice fragments
+        createIceFragments(iceBody, engine);
+    } else {
+        console.error('Attempted to shatter an undefined or non-ice body.');
+    }
+}
 
-        Matter.Body.setVelocity(fragment, {
-            x: Math.cos(angle) * speed,
-            y: Math.sin(angle) * speed
-        });
+function createIceFragments(iceBody, engine) {
+    // Determine the number and properties of fragments
+    const numberOfFragments = 5; // Example value
+    const fragmentProperties = {
+        // Define properties for fragments
+    };
+
+    for (let i = 0; i < numberOfFragments; i++) {
+        // Calculate position and size for each fragment
+        let fragment = Matter.Bodies.polygon(
+            iceBody.position.x + Math.random() * 10 - 5, // Random position near original ice body
+            iceBody.position.y + Math.random() * 10 - 5,
+            3, // Triangle fragments for example
+            5, // Size
+            fragmentProperties
+        );
 
         Matter.World.add(engine.world, fragment);
     }
 }
-
-
 
 function createFireballs(bodyA, bodyB, engine) {
     if (!bodyA || !bodyB || !bodyA.position || !bodyB.position) {
@@ -285,7 +298,7 @@ function createFireballs(bodyA, bodyB, engine) {
         y: (bodyA.position.y + bodyB.position.y) / 2,
     };
 
-    for (let i = 0; i < 5; i++) { // Create 5 fireballs as an example
+    for (let i = 0; i < 8; i++) { // Create 5 fireballs as an example
         const angle = Math.random() * 2 * Math.PI; // Random angle for direction
         const speed = 0.01; // Speed of the fireballs
         const fireball = Matter.Bodies.circle(midpoint.x, midpoint.y, 3, {
