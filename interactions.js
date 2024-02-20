@@ -2,70 +2,54 @@ import Matter from 'https://cdn.skypack.dev/matter-js';
 
 // Define new material interactions with advanced effects
 export const interactionRules = (bodyA, bodyB, engine) => {
+    // Skip removal if one of the bodies is static or if both bodies share the same material
+    if (bodyA.isStatic || bodyB.isStatic || bodyA.material === bodyB.material) {
+        return;
+    }
+
     const typeA = bodyA.material;
     const typeB = bodyB.material;
     const interactionKey = [typeA, typeB].sort().join('+');
 
     switch (interactionKey) {
+        // Reintegrated existing interactions
         case 'water+lava':
-            convertToSteamAndObsidian(bodyA, bodyB, engine); // Preserve this effect
+            convertToSteamAndObsidian(bodyA, bodyB, engine);
             break;
         case 'ice+lava':
-            convertLavaToRockRemoveIce(bodyA, bodyB, engine); // Preserve this effect
+            convertLavaToRockRemoveIce(bodyA, bodyB, engine);
             break;
         case 'oil+lava':
-            simulateExplosion(bodyA, bodyB, engine.world, 150, 0.1); // Preserve explosion effect
+            simulateExplosion(bodyA, bodyB, engine.world, 150, 0.1);
             break;
         case 'sand+water':
-            createMud(bodyA, bodyB, engine); // Create mud before removal
-            break;
-        case 'rubber+steel':
-            increaseRestitution(bodyA, bodyB); // Temporarily increase restitution, then remove
-            break;
-        case 'ice+steel':
-            makeSlippery(bodyA, bodyB); // Make surface slippery before removal
+            createMud(bodyA, bodyB, engine);
             break;
         case 'glass+rock':
-            shatterGlass(bodyA, bodyB, engine); // Shatter glass effect
+            shatterGlass(bodyA, bodyB, engine);
             break;
-        case 'antimatter+any':
-            simulateExplosion(bodyA, bodyB, engine.world, 200, 0.2); // Preserve explosion effect
+        case 'steel+electric':
+            createMagneticField(bodyA, bodyB, engine);
             break;
-        case 'darkMatter+any':
-            gravitationalPull(bodyA, bodyB, engine); // Apply gravitational pull effect
+        case 'water+light':
+            createBioluminescentGrowth(bodyA, bodyB, engine);
             break;
-        case 'lava+wood':
-            igniteWood(bodyA, bodyB, engine); // Ignite wood effect
+        
+        // New interactions
+        case 'quantumFoam+darkMatter':
+            createWormhole(bodyA, bodyB, engine);
             break;
-        case 'water+ice':
-            increaseIceSize(bodyA, bodyB); // Increase ice size before removal
+        case 'solarFlare+magneticField':
+            createAuroraEffect(bodyA, bodyB, engine);
             break;
-        case 'oil+water':
-            createOilSlickAndDisappear(bodyA, bodyB, engine); // Create oil slick effect
-            break;
-        case 'rubber+water':
-            createSplashOrWaves(bodyA, bodyB, engine); // Create splash or waves effect
-            break;
-        case 'wood+water':
-            absorbWater(bodyA, bodyB); // Wood absorbs water effect
-            break;
-        case 'sand+lava':
-            formGlassyStructures(bodyA, bodyB, engine); // Form glassy structures effect
-            break;
-        case 'antimatter+antimatter':
-            createExplosionOrImplosion(bodyA, bodyB, engine); // Explosion or implosion effect
-            break;
-        case 'darkMatter+lava':
-            createGravitationalDistortion(bodyA, bodyB, engine); // Gravitational distortion effect
+
+        // Handle removal of bodies only for specific interactions
+        default:
+            Matter.World.remove(engine.world, bodyA);
+            Matter.World.remove(engine.world, bodyB);
             break;
     }
-
-    // After the effects are applied, remove the bodies to ensure instant disappearance
-    // This assumes all interactions result in both bodies being removed after their effects are triggered
-    Matter.World.remove(engine.world, bodyA);
-    Matter.World.remove(engine.world, bodyB);
 };
-
 
 
 function convertToSteamAndObsidian(bodyA, bodyB, engine) {
@@ -476,6 +460,22 @@ function createGravitationalDistortion(engine, collisionPoint) {
     });
 }
 
+
+// Example implementation of the new effects
+function createWormhole(bodyA, bodyB, engine) {
+    // This is a placeholder for the wormhole creation logic
+    // For instance, you can temporarily modify the canvas to show a wormhole animation
+    // and apply forces to nearby bodies to simulate being pulled into the wormhole
+    console.log("Wormhole created between", bodyA, "and", bodyB);
+    // Remember not to remove the bodies here to allow for continuous interaction
+}
+
+function createAuroraEffect(bodyA, bodyB, engine) {
+    // Placeholder for the aurora creation logic
+    // This could involve changing background colors or drawing light patterns on the canvas
+    console.log("Aurora effect generated by", bodyA, "and", bodyB);
+    // Similar to the wormhole, we don't remove the bodies to maintain the interaction
+}
 
 
 export function handleCollisions(event, engine) {
