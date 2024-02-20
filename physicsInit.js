@@ -25,55 +25,14 @@ export const initPhysics = () => {
         }
     });
 
-    // Create floor with increased thickness
-    const floor = Matter.Bodies.rectangle(
-        adjustedWidth / 2, 
-        adjustedHeight + 50, // Adjust the vertical position as needed
-        adjustedWidth, 
-        200, // Increase the height to make the floor thicker
-        { 
-            isStatic: true
-        }
-    );
+    // Create floor and walls with appropriate dimensions and positions
+    const floor = Matter.Bodies.rectangle(adjustedWidth / 2, adjustedHeight, adjustedWidth, 100, { isStatic: true });
+    const leftWall = Matter.Bodies.rectangle(0, adjustedHeight / 2, 100, adjustedHeight, { isStatic: true });
+    const rightWall = Matter.Bodies.rectangle(adjustedWidth, adjustedHeight / 2, 100, adjustedHeight, { isStatic: true });
+    const ceiling = Matter.Bodies.rectangle(adjustedWidth / 2, 0, adjustedWidth, 100, { isStatic: true });
 
-    // Create side walls
-    const leftWall = Matter.Bodies.rectangle(-25, adjustedHeight / 2, 50, adjustedHeight, { 
-        isStatic: true
-    });
-    const rightWall = Matter.Bodies.rectangle(adjustedWidth + 25, adjustedHeight / 2, 50, adjustedHeight, { 
-        isStatic: true
-    });
-
-    // Add walls to the world
-    Matter.World.add(world, [floor, leftWall, rightWall]);
-
-    // Add constraints to lock the floor and walls in place
-    const floorConstraint = Matter.Constraint.create({
-        bodyA: floor,
-        pointA: { x: 0, y: 0 },
-        pointB: { x: 0, y: 0 },
-        stiffness: 1,
-        length: 0
-    });
-
-    const leftWallConstraint = Matter.Constraint.create({
-        bodyA: leftWall,
-        pointA: { x: 0, y: 0 },
-        pointB: { x: 0, y: 0 },
-        stiffness: 1,
-        length: 0
-    });
-
-    const rightWallConstraint = Matter.Constraint.create({
-        bodyA: rightWall,
-        pointA: { x: 0, y: 0 },
-        pointB: { x: 0, y: 0 },
-        stiffness: 1,
-        length: 0
-    });
-
-    // Add constraints to the world
-    Matter.World.add(world, [floorConstraint, leftWallConstraint, rightWallConstraint]);
+    // Add the floor and walls to the world
+    Matter.World.add(world, [floor, leftWall, rightWall, ceiling]);
 
     Matter.Render.run(render);
 
@@ -92,7 +51,7 @@ export const initPhysics = () => {
     Matter.Events.on(engine, 'collisionStart', (event) => {
         event.pairs.forEach((pair) => {
             // Execute interaction rules based on the materials of the colliding bodies
-            handleCollisions(event, engine);
+            // handleCollisions(event, engine); // Implement this function as needed
         });
     });
 
