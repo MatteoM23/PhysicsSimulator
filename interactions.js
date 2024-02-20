@@ -244,80 +244,64 @@ function createQuicksandArea(pair, engine) {
 
 
 
-function shatterIce(pair, engine) {
-    const iceBody = pair.bodyA.material === 'ice' ? pair.bodyA : pair.bodyB;
-    const numberOfFragments = 8; // Number of fragments the ice shatters into
-    const fragmentSize = iceBody.circleRadius / 4; // Smaller size of fragments
+function shatterIce(iceBody, engine) {
+    if (!iceBody || !iceBody.position) {
+        console.error('Invalid ice body for shattering');
+        return;
+    }
 
-    for (let i = 0; i < numberOfFragments; i++) {
-        const angle = (i / numberOfFragments) * 2 * Math.PI; // Evenly distribute fragments around the circle
-        const speed = Math.random() * 0.005 + 0.005; // Random speed for each fragment
+    Matter.World.remove(engine.world, iceBody); // Remove the original ice body
 
-        // Create a fragment body
-        let fragment = Matter.Bodies.polygon(iceBody.position.x, iceBody.position.y, 5, fragmentSize, {
-            render: {
-                fillStyle: '#a8e0ff'
-            },
-            density: iceBody.density,
-            friction: iceBody.friction,
-            restitution: iceBody.restitution,
+    for (let i = 0; i < 10; i++) { // Create 10 ice fragments as an example
+        const angle = Math.random() * 2 * Math.PI; // Random angle for direction
+        const speed = 0.005; // Speed of the fragments
+        const fragment = Matter.Bodies.polygon(iceBody.position.x, iceBody.position.y, 5, 2, {
+            density: 0.0009,
+            friction: 0.01,
+            restitution: 0.95,
+            render: { fillStyle: '#a8e0ff' } // Ice color
         });
 
-        // Apply force to scatter the fragments
-        Matter.Body.applyForce(fragment, iceBody.position, {
+        Matter.Body.setVelocity(fragment, {
             x: Math.cos(angle) * speed,
             y: Math.sin(angle) * speed
         });
 
-        // Add the fragment to the world
         Matter.World.add(engine.world, fragment);
     }
-
-    // Remove the original ice body to simulate it being shattered
-    Matter.World.remove(engine.world, iceBody);
 }
 
 
-function createFireballs(pair, engine) {
-    const { bodyA, bodyB } = pair;
-    const collisionPoint = { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 };
 
-    const numberOfFireballs = 5; // Number of fireballs to create
-    for (let i = 0; i < numberOfFireballs; i++) {
+function createFireballs(bodyA, bodyB, engine) {
+    if (!bodyA || !bodyB || !bodyA.position || !bodyB.position) {
+        console.error('Invalid bodies for creating fireballs');
+        return;
+    }
+
+    const midpoint = {
+        x: (bodyA.position.x + bodyB.position.x) / 2,
+        y: (bodyA.position.y + bodyB.position.y) / 2,
+    };
+
+    for (let i = 0; i < 5; i++) { // Create 5 fireballs as an example
         const angle = Math.random() * 2 * Math.PI; // Random angle for direction
-        const speed = Math.random() * 0.01 + 0.005; // Random speed
-        const radius = 5; // Size of the fireballs
-
-        // Create a fireball body
-        let fireball = Matter.Bodies.circle(collisionPoint.x, collisionPoint.y, radius, {
-            render: {
-                sprite: {
-                    texture: 'fireball.png', // Assuming you have a fireball texture
-                    xScale: 0.1,
-                    yScale: 0.1
-                }
-            },
-            density: 0.0005,
+        const speed = 0.01; // Speed of the fireballs
+        const fireball = Matter.Bodies.circle(midpoint.x, midpoint.y, 3, {
+            density: 0.001,
             frictionAir: 0.05,
-            restitution: 0.9,
+            restitution: 0.5,
+            render: { fillStyle: '#ff4500' } // Fireball color
         });
 
-        // Apply force to the fireball to send it in a random direction
-        Matter.Body.applyForce(fireball, collisionPoint, {
+        Matter.Body.setVelocity(fireball, {
             x: Math.cos(angle) * speed,
             y: Math.sin(angle) * speed
         });
 
-        // Add the fireball to the world
         Matter.World.add(engine.world, fireball);
-
-        // Schedule the fireball to be removed after 3 seconds to simulate fading out
-        setTimeout(() => {
-            Matter.World.remove(engine.world, fireball);
-        }, 3000);
     }
 }
-
 
 
 
