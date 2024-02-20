@@ -29,11 +29,6 @@ export const interactionRules = (bodyA, bodyB, engine) => {
             Matter.World.remove(engine.world, bodyA); // Oil is consumed
             Matter.World.remove(engine.world, bodyB); // Lava is dispersed
             break;
-        case 'sand+water':
-            createMud(bodyA, bodyB, engine);
-            Matter.World.remove(engine.world, bodyA); 
-            Matter.World.remove(engine.world, bodyB);
-            break;
         case 'glass+rock':
             formGlassyStructures(bodyA, bodyB, engine);
             Matter.World.remove(engine.world, bodyA); // Glass shatters
