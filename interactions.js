@@ -8,61 +8,64 @@ export const interactionRules = (bodyA, bodyB, engine) => {
 
     switch (interactionKey) {
         case 'water+lava':
-            convertToSteamAndObsidian(bodyA, bodyB, typeA, typeB, engine);
+            convertToSteamAndObsidian(bodyA, bodyB, engine); // Preserve this effect
             break;
         case 'ice+lava':
-            convertLavaToRockRemoveIce(bodyA, bodyB, engine);
+            convertLavaToRockRemoveIce(bodyA, bodyB, engine); // Preserve this effect
             break;
         case 'oil+lava':
-            simulateExplosion(bodyA, bodyB, engine.world, 150, 0.1);
+            simulateExplosion(bodyA, bodyB, engine.world, 150, 0.1); // Preserve explosion effect
             break;
         case 'sand+water':
-            createMud(bodyA, bodyB, engine);
+            createMud(bodyA, bodyB, engine); // Create mud before removal
             break;
         case 'rubber+steel':
-            increaseRestitution(bodyA, bodyB);
+            increaseRestitution(bodyA, bodyB); // Temporarily increase restitution, then remove
             break;
         case 'ice+steel':
-            makeSlippery(bodyA, bodyB);
+            makeSlippery(bodyA, bodyB); // Make surface slippery before removal
             break;
         case 'glass+rock':
-            shatterGlass(bodyA, bodyB, engine);
+            shatterGlass(bodyA, bodyB, engine); // Shatter glass effect
             break;
         case 'antimatter+any':
-            simulateExplosion(bodyA, bodyB, engine.world, 200, 0.2);
+            simulateExplosion(bodyA, bodyB, engine.world, 200, 0.2); // Preserve explosion effect
             break;
         case 'darkMatter+any':
-            gravitationalPull(bodyA, bodyB, engine);
+            gravitationalPull(bodyA, bodyB, engine); // Apply gravitational pull effect
             break;
         case 'lava+wood':
-            igniteWood(bodyA, bodyB, engine);
+            igniteWood(bodyA, bodyB, engine); // Ignite wood effect
             break;
         case 'water+ice':
-            increaseIceSize(bodyA, bodyB);
+            increaseIceSize(bodyA, bodyB); // Increase ice size before removal
             break;
         case 'oil+water':
-            const collisionPoint = { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 };
-            createOilSlickAndDisappear(engine, collisionPoint);
-            fadeOutAndRemoveBody(engine, bodyA, 3000); // Start fading immediately, over 3 seconds
-            fadeOutAndRemoveBody(engine, bodyB, 3000);
+            createOilSlickAndDisappear(bodyA, bodyB, engine); // Create oil slick effect
             break;
         case 'rubber+water':
-            createSplashOrWaves(engine, { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 });
+            createSplashOrWaves(bodyA, bodyB, engine); // Create splash or waves effect
             break;
         case 'wood+water':
-            absorbWater(bodyA, bodyB);
+            absorbWater(bodyA, bodyB); // Wood absorbs water effect
             break;
         case 'sand+lava':
-            formGlassyStructures(engine, { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 });
+            formGlassyStructures(bodyA, bodyB, engine); // Form glassy structures effect
             break;
         case 'antimatter+antimatter':
-            createExplosionOrImplosion(engine, { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 });
+            createExplosionOrImplosion(bodyA, bodyB, engine); // Explosion or implosion effect
             break;
         case 'darkMatter+lava':
-            createGravitationalDistortion(engine, { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 });
+            createGravitationalDistortion(bodyA, bodyB, engine); // Gravitational distortion effect
             break;
     }
+
+    // After the effects are applied, remove the bodies to ensure instant disappearance
+    // This assumes all interactions result in both bodies being removed after their effects are triggered
+    Matter.World.remove(engine.world, bodyA);
+    Matter.World.remove(engine.world, bodyB);
 };
+
 
 
 function convertToSteamAndObsidian(bodyA, bodyB, engine) {
