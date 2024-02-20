@@ -21,9 +21,12 @@ export const initPhysics = () => {
             width: adjustedWidth,
             height: adjustedHeight,
             wireframes: false,
-            background: '#f0f0f0'
+            background: 'transparent' // Set to transparent to allow custom drawing below
         }
     });
+
+    // Draw gradient background
+    drawGradientBackground(render.canvas);
 
     // Create floor and walls with appropriate dimensions and positions
     const floor = Matter.Bodies.rectangle(adjustedWidth / 2, adjustedHeight, adjustedWidth, 100, { isStatic: true });
@@ -40,11 +43,14 @@ export const initPhysics = () => {
     Matter.Runner.run(runner, engine);
 
     // Resize listener to adjust canvas size dynamically
-    window.addEventListener('resize', function() {
+    window.addEventListener('resize', () => {
         render.canvas.width = window.innerWidth - uiBoxWidth;
         render.canvas.height = window.innerHeight - uiBoxHeight;
         render.options.width = window.innerWidth - uiBoxWidth;
         render.options.height = window.innerHeight - uiBoxHeight;
+
+        // Redraw the gradient to fit the new dimensions
+        drawGradientBackground(render.canvas);
     });
 
     // Register global collision event listener for handling custom material interactions
@@ -58,5 +64,16 @@ export const initPhysics = () => {
     // Log to indicate successful initialization
     console.log("Physics simulation initialized and ready for interaction.");
 };
+
+function drawGradientBackground(canvas) {
+    const ctx = canvas.getContext('2d');
+    // Ensure the gradient covers the full canvas at all times
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, '#333333'); // Dark gray at the top
+    gradient.addColorStop(1, '#1a1a1a'); // Space gray at the bottom
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
 
 export { render }; // Export render so it can be used elsewhere
