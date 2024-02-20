@@ -14,8 +14,8 @@ export const interactionRules = (bodyA, bodyB, engine) => {
     switch (interactionKey) {
         case 'water+lava':
             convertToSteamAndObsidian(bodyA, bodyB, engine);
-            Matter.World.remove(engine.world, bodyA); // Water evaporates
-            // Note: Lava turns into obsidian, consider if you want to remove or transform it.
+            Matter.World.remove(engine.world, bodyA); 
+            Matter.World.remove(engine.world, bodyB);
             break;
         case 'ice+lava':
             convertLavaToRockRemoveIce(bodyA, bodyB, engine);
