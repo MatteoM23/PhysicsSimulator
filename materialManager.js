@@ -31,12 +31,12 @@ export const materials = {
 };
 
 export const createBody = (clientX, clientY) => {
-    // Use currentMaterial directly instead of materialKey parameter
     const { x, y } = screenToWorld(clientX, clientY, render);
-    const material = materials[currentMaterial]; // Use currentMaterial here
+    const materialKey = currentMaterial; // This should be the key of the material, like 'sand', 'water', etc.
+    const material = materials[materialKey]; // Access material properties using the materialKey
 
     if (!material) {
-        console.error(`Material '${currentMaterial}' not found.`);
+        console.error(`Material '${materialKey}' not found.`);
         return;
     }
 
@@ -45,8 +45,13 @@ export const createBody = (clientX, clientY) => {
         render: { fillStyle: material.color },
         density: material.density,
         friction: material.friction,
-        restitution: material.restitution
+        restitution: material.restitution,
+        material: materialKey // Assign the material key here
     });
+
+    Matter.World.add(engine.world, body);
+};
+
 
     Matter.World.add(engine.world, body);
 };
