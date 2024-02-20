@@ -1,10 +1,9 @@
+// Define new material interactions with advanced effects
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
-// Define new material interactions with advanced effects
 export const interactionRules = (bodyA, bodyB, engine) => {
-    // Skip removal if one of the bodies is static or if both bodies share the same material
-    if (bodyA.isStatic || bodyB.isStatic || bodyA.material === bodyB.material) {
-        return;
+    if (bodyA.isStatic || bodyB.isStatic) {
+        return; // Skip interaction if any body is static.
     }
 
     const typeA = bodyA.material;
@@ -12,44 +11,51 @@ export const interactionRules = (bodyA, bodyB, engine) => {
     const interactionKey = [typeA, typeB].sort().join('+');
 
     switch (interactionKey) {
-        // Reintegrated existing interactions
         case 'water+lava':
             convertToSteamAndObsidian(bodyA, bodyB, engine);
+            Matter.World.remove(engine.world, bodyA); // Water evaporates
+            // No removal for lavaBody here; it's transformed into obsidian in the effect function.
             break;
         case 'ice+lava':
             convertLavaToRockRemoveIce(bodyA, bodyB, engine);
+            Matter.World.remove(engine.world, bodyA); // Ice is removed
+            Matter.World.remove(engine.world, bodyB); // Lava turns to rock and is removed
             break;
         case 'oil+lava':
             simulateExplosion(bodyA, bodyB, engine.world, 150, 0.1);
+            Matter.World.remove(engine.world, bodyA); // Oil is consumed
+            Matter.World.remove(engine.world, bodyB); // Lava is dispersed
             break;
         case 'sand+water':
             createMud(bodyA, bodyB, engine);
+            // Optionally keep both for mud creation, or remove based on your logic.
             break;
         case 'glass+rock':
             shatterGlass(bodyA, bodyB, engine);
+            Matter.World.remove(engine.world, bodyA); // Glass shatters
+            // Optionally keep or remove the rock based on your logic.
             break;
-        case 'steel+electric':
-            createMagneticField(bodyA, bodyB, engine);
+        // Implementing antimatter interactions
+        case 'antimatter+any':
+            handleAntimatterInteractions(bodyA, bodyB, engine);
             break;
-        case 'water+light':
-            createBioluminescentGrowth(bodyA, bodyB, engine);
-            break;
-        
-        // New interactions
+        // Additional interactions
         case 'quantumFoam+darkMatter':
             createWormhole(bodyA, bodyB, engine);
+            // No removal; effect is ongoing.
             break;
         case 'solarFlare+magneticField':
             createAuroraEffect(bodyA, bodyB, engine);
+            // No removal; visual effect only.
             break;
-
-        // Handle removal of bodies only for specific interactions
         default:
+            // Default action for unhandled material pairs
             Matter.World.remove(engine.world, bodyA);
             Matter.World.remove(engine.world, bodyB);
             break;
     }
 };
+
 
 
 function convertToSteamAndObsidian(bodyA, bodyB, engine) {
@@ -461,20 +467,76 @@ function createGravitationalDistortion(engine, collisionPoint) {
 }
 
 
-// Example implementation of the new effects
 function createWormhole(bodyA, bodyB, engine) {
-    // This is a placeholder for the wormhole creation logic
-    // For instance, you can temporarily modify the canvas to show a wormhole animation
-    // and apply forces to nearby bodies to simulate being pulled into the wormhole
     console.log("Wormhole created between", bodyA, "and", bodyB);
-    // Remember not to remove the bodies here to allow for continuous interaction
+    const midPoint = {
+        x: (bodyA.position.x + bodyB.position.x) / 2,
+        y: (bodyA.position.y + bodyB.position.y) / 2
+    };
+
+    // Visualization (pseudo-code)
+    drawWormholeAnimation(midPoint); // Implement this based on your graphics context
+
+    // Physics effect
+    const wormholeForceMagnitude = 0.05; // Adjust based on desired intensity
+    Matter.Composite.allBodies(engine.world).forEach((body) => {
+        if (!body.isStatic && body !== bodyA && body !== bodyB) {
+            const direction = Matter.Vector.sub(body.position, midPoint);
+            const distance = Matter.Vector.magnitude(direction);
+            const forceMagnitude = Math.min(wormholeForceMagnitude / distance, 0.01); // Limit max force
+            const force = Matter.Vector.normalise(direction);
+            Matter.Body.applyForce(body, body.position, Matter.Vector.mult(force, -forceMagnitude));
+        }
+    });
+
+    // Optionally, teleport bodies to a new location after a brief moment
+    setTimeout(() => {
+        teleportBody(bodyA, { x: newLocationX, y: newLocationY }); // Define teleportBody and new locations
+        teleportBody(bodyB, { x: newLocationX, y: newLocationY });
+    }, 1000); // Delay before teleporting
 }
 
+function drawWormholeAnimation(engine, midPoint) {
+    const ctx = engine.render.context; // Assuming you're using Matter.js's Renderer
+    const totalFrames = 100;
+    let currentFrame = 0;
+
+    const animate = () => {
+        if (currentFrame >= totalFrames) return; // Stop animation after totalFrames
+
+        ctx.beginPath();
+        ctx.arc(midPoint.x, midPoint.y, 50 + currentFrame * 0.5, 0, 2 * Math.PI); // Dynamic radius for animation
+        ctx.strokeStyle = `rgba(0, 0, 255, ${1 - currentFrame / totalFrames})`; // Fading effect
+        ctx.lineWidth = 5;
+        ctx.stroke();
+        ctx.closePath();
+
+        currentFrame++;
+        requestAnimationFrame(animate); // Continue animation
+    };
+
+    animate();
+}
+
+
+
+
 function createAuroraEffect(bodyA, bodyB, engine) {
-    // Placeholder for the aurora creation logic
-    // This could involve changing background colors or drawing light patterns on the canvas
     console.log("Aurora effect generated by", bodyA, "and", bodyB);
-    // Similar to the wormhole, we don't remove the bodies to maintain the interaction
+    // Assuming a canvas context or a similar graphics rendering context is available
+    drawAuroraAnimation(engine.canvas); // Your custom function to animate auroras
+}
+
+// Example of a simple aurora drawing function (highly simplified for demonstration)
+function drawAuroraAnimation(canvas) {
+    const ctx = canvas.getContext('2d');
+    // Use canvas API to create gradients and animate them across the canvas
+    // This is a placeholder: actual implementation would involve complex gradient manipulation and animation frames
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, 'rgba(68, 206, 246, 0.6)');
+    gradient.addColorStop(1, 'rgba(146, 244, 255, 0.6)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 
