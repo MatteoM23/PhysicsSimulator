@@ -29,10 +29,10 @@ export const initPhysics = () => {
     drawGradientBackground(render.canvas);
 
     // Create floor and walls with appropriate dimensions and positions
-    const floor = Matter.Bodies.rectangle(adjustedWidth / 2, adjustedHeight, adjustedWidth, 100, { isStatic: true });
-    const leftWall = Matter.Bodies.rectangle(0, adjustedHeight / 2, 100, adjustedHeight, { isStatic: true });
-    const rightWall = Matter.Bodies.rectangle(adjustedWidth, adjustedHeight / 2, 100, adjustedHeight, { isStatic: true });
-    const ceiling = Matter.Bodies.rectangle(adjustedWidth / 2, 0, adjustedWidth, 100, { isStatic: true });
+    const floor = Matter.Bodies.rectangle(adjustedWidth / 2, adjustedHeight + 50, adjustedWidth, 100, { isStatic: true });
+    const leftWall = Matter.Bodies.rectangle(-50, adjustedHeight / 2, 100, adjustedHeight, { isStatic: true });
+    const rightWall = Matter.Bodies.rectangle(adjustedWidth + 50, adjustedHeight / 2, 100, adjustedHeight, { isStatic: true });
+    const ceiling = Matter.Bodies.rectangle(adjustedWidth / 2, -50, adjustedWidth, 100, { isStatic: true });
 
     // Add the floor and walls to the world
     Matter.World.add(world, [floor, leftWall, rightWall, ceiling]);
