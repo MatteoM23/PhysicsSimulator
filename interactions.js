@@ -29,7 +29,8 @@ export const interactionRules = (bodyA, bodyB, engine) => {
             break;
         case 'sand+water':
             createMud(bodyA, bodyB, engine);
-            // Keeping both bodies for mud creation, no removal here.
+            Matter.World.remove(engine.world, bodyA); 
+            Matter.World.remove(engine.world, bodyB);
             break;
         case 'glass+rock':
             shatterGlass(bodyA, bodyB, engine);
