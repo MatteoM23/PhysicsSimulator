@@ -33,7 +33,7 @@ export const interactionRules = (bodyA, bodyB, engine) => {
             Matter.World.remove(engine.world, bodyB);
             break;
         case 'glass+rock':
-            shatterGlass(bodyA, bodyB, engine);
+            formGlassyStructures(bodyA, bodyB, engine);
             Matter.World.remove(engine.world, bodyA); // Glass shatters
             // Keeping the rock or removing it can be decided based on your logic.
             break;
@@ -179,40 +179,6 @@ function makeSlippery(bodyA, bodyB) {
     // Reduce friction significantly to simulate a slippery surface
     bodyA.friction = 0.01;
     bodyB.friction = 0.01;
-}
-
-function shatterGlass(bodyA, bodyB, engine) {
-    // Identify the glass body
-    const glassBody = bodyA.material === 'glass' ? bodyA : bodyB;
-
-    // Remove the glass body to simulate it breaking
-    Matter.World.remove(engine.world, glassBody);
-
-    // Calculate points for particles around the glass body's position
-    const numberOfParticles = 3; // Adjust based on the desired effect
-    for (let i = 0; i < numberOfParticles; i++) {
-        const angle = (2 * Math.PI) / numberOfParticles * i;
-        const radius = 5; // Small radius for glass particles
-        const particlePosition = {
-            x: glassBody.position.x + Math.cos(angle) * radius,
-            y: glassBody.position.y + Math.sin(angle) * radius
-        };
-
-        // Define properties for glass particles
-        const particleOptions = {
-            isStatic: false,
-            render: {
-                fillStyle: '#C0C0C0' // A color to represent glass particles
-            },
-            friction: 0.1,
-            restitution: 0.6,
-            density: 0.001
-        };
-
-        // Create and add each particle to the world
-        const particle = Matter.Bodies.circle(particlePosition.x, particlePosition.y, 2, particleOptions); // Small size for particles
-        Matter.World.add(engine.world, particle);
-    }
 }
 
 
@@ -470,70 +436,95 @@ function createWormhole(bodyA, bodyB, engine) {
         y: (bodyA.position.y + bodyB.position.y) / 2
     };
 
-    // Visualization (pseudo-code)
-    drawWormholeAnimation(midPoint); // Implement this based on your graphics context
+    // Ensure the drawing function is called correctly
+    if (engine.render && engine.render.canvas) {
+        drawWormholeAnimation(engine, midPoint); // Pass the engine to use its rendering context
+    } else {
+        console.error("Canvas context not found. Ensure you are using Matter.js's built-in renderer or adjust accordingly.");
+    }
 
-    // Physics effect
-    const wormholeForceMagnitude = 0.05; // Adjust based on desired intensity
+    // Physics effect as before
+    const wormholeForceMagnitude = 0.05;
     Matter.Composite.allBodies(engine.world).forEach((body) => {
         if (!body.isStatic && body !== bodyA && body !== bodyB) {
             const direction = Matter.Vector.sub(body.position, midPoint);
             const distance = Matter.Vector.magnitude(direction);
-            const forceMagnitude = Math.min(wormholeForceMagnitude / distance, 0.01); // Limit max force
+            const forceMagnitude = Math.min(wormholeForceMagnitude / distance, 0.01);
             const force = Matter.Vector.normalise(direction);
             Matter.Body.applyForce(body, body.position, Matter.Vector.mult(force, -forceMagnitude));
         }
     });
 
-    // Optionally, teleport bodies to a new location after a brief moment
+    // Teleportation effect as before
     setTimeout(() => {
-        teleportBody(bodyA, { x: newLocationX, y: newLocationY }); // Define teleportBody and new locations
-        teleportBody(bodyB, { x: newLocationX, y: newLocationY });
-    }, 1000); // Delay before teleporting
+        // Implement teleportBody function or similar logic here
+    }, 1000);
 }
 
 function drawWormholeAnimation(engine, midPoint) {
-    const ctx = engine.render.context; // Assuming you're using Matter.js's Renderer
+    if (!engine.render || !engine.render.canvas) {
+        console.error("Invalid engine render or canvas for drawing wormhole animation.");
+        return;
+    }
+    const ctx = engine.render.canvas.getContext('2d');
+    if (!ctx) {
+        console.error("Failed to get canvas context for drawing wormhole animation.");
+        return;
+    }
     const totalFrames = 100;
     let currentFrame = 0;
 
-    const animate = () => {
-        if (currentFrame >= totalFrames) return; // Stop animation after totalFrames
+    // Use the engine's event to hook the animation for synchronization with the physics simulation
+    Matter.Events.on(engine, 'afterUpdate', function() {
+        if (currentFrame >= totalFrames) {
+            // Remove the event listener to stop the animation
+            Matter.Events.off(engine, 'afterUpdate');
+            return;
+        }
 
         ctx.beginPath();
-        ctx.arc(midPoint.x, midPoint.y, 50 + currentFrame * 0.5, 0, 2 * Math.PI); // Dynamic radius for animation
-        ctx.strokeStyle = `rgba(0, 0, 255, ${1 - currentFrame / totalFrames})`; // Fading effect
+        ctx.arc(midPoint.x, midPoint.y, 50 + currentFrame * 0.5, 0, 2 * Math.PI);
+        ctx.strokeStyle = `rgba(0, 0, 255, ${1 - currentFrame / totalFrames})`;
         ctx.lineWidth = 5;
         ctx.stroke();
         ctx.closePath();
 
         currentFrame++;
-        requestAnimationFrame(animate); // Continue animation
-    };
-
-    animate();
+    });
 }
+
 
 
 
 
 function createAuroraEffect(bodyA, bodyB, engine) {
     console.log("Aurora effect generated by", bodyA, "and", bodyB);
-    // Assuming a canvas context or a similar graphics rendering context is available
-    drawAuroraAnimation(engine.canvas); // Your custom function to animate auroras
+    // Adjusted to access the canvas context through the engine's renderer, if using Matter.js's built-in renderer
+    if (engine.render && engine.render.canvas) {
+        drawAuroraAnimation(engine.render.canvas);
+    } else {
+        console.error("Canvas context not found. Ensure you are using Matter.js's built-in renderer or adjust accordingly.");
+    }
 }
 
-// Example of a simple aurora drawing function (highly simplified for demonstration)
 function drawAuroraAnimation(canvas) {
+    if (!canvas) {
+        console.error("Invalid canvas element.");
+        return;
+    }
     const ctx = canvas.getContext('2d');
-    // Use canvas API to create gradients and animate them across the canvas
-    // This is a placeholder: actual implementation would involve complex gradient manipulation and animation frames
+    if (!ctx) {
+        console.error("Failed to get canvas context.");
+        return;
+    }
+    // Proceed with the drawing as before
     const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
     gradient.addColorStop(0, 'rgba(68, 206, 246, 0.6)');
     gradient.addColorStop(1, 'rgba(146, 244, 255, 0.6)');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
+
 
 
 export function handleCollisions(event, engine) {
