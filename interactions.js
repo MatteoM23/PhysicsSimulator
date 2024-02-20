@@ -2,8 +2,9 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
 export const interactionRules = (bodyA, bodyB, engine) => {
-    if (bodyA.isStatic || bodyB.isStatic) {
-        return; // Skip interaction if any body is static.
+    if (bodyA.isStatic || bodyB.isStatic || bodyA.material === bodyB.material) {
+        // Skip interaction if any body is static or if both bodies share the same material.
+        return;
     }
 
     const typeA = bodyA.material;
@@ -14,12 +15,12 @@ export const interactionRules = (bodyA, bodyB, engine) => {
         case 'water+lava':
             convertToSteamAndObsidian(bodyA, bodyB, engine);
             Matter.World.remove(engine.world, bodyA); // Water evaporates
-            // No removal for lavaBody here; it's transformed into obsidian in the effect function.
+            // Note: Lava turns into obsidian, consider if you want to remove or transform it.
             break;
         case 'ice+lava':
             convertLavaToRockRemoveIce(bodyA, bodyB, engine);
             Matter.World.remove(engine.world, bodyA); // Ice is removed
-            Matter.World.remove(engine.world, bodyB); // Lava turns to rock and is removed
+            Matter.World.remove(engine.world, bodyB); // Lava turns to rock
             break;
         case 'oil+lava':
             simulateExplosion(bodyA, bodyB, engine.world, 150, 0.1);
@@ -28,34 +29,28 @@ export const interactionRules = (bodyA, bodyB, engine) => {
             break;
         case 'sand+water':
             createMud(bodyA, bodyB, engine);
-            // Optionally keep both for mud creation, or remove based on your logic.
+            // Keeping both bodies for mud creation, no removal here.
             break;
         case 'glass+rock':
             shatterGlass(bodyA, bodyB, engine);
             Matter.World.remove(engine.world, bodyA); // Glass shatters
-            // Optionally keep or remove the rock based on your logic.
+            // Keeping the rock or removing it can be decided based on your logic.
             break;
-        // Implementing antimatter interactions
         case 'antimatter+any':
             handleAntimatterInteractions(bodyA, bodyB, engine);
+            // Specific logic in handleAntimatterInteractions decides removal.
             break;
-        // Additional interactions
         case 'quantumFoam+darkMatter':
             createWormhole(bodyA, bodyB, engine);
-            // No removal; effect is ongoing.
+            // No removal, effect is ongoing.
             break;
         case 'solarFlare+magneticField':
             createAuroraEffect(bodyA, bodyB, engine);
-            // No removal; visual effect only.
+            // No removal, visual effect only.
             break;
-        default:
-            // Default action for unhandled material pairs
-            Matter.World.remove(engine.world, bodyA);
-            Matter.World.remove(engine.world, bodyB);
-            break;
+        // Removed the default case to avoid automatic removal of unhandled material pairs
     }
 };
-
 
 
 function convertToSteamAndObsidian(bodyA, bodyB, engine) {
