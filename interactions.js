@@ -43,17 +43,282 @@ export const interactionRules = (bodyA, bodyB, engine) => {
             handleAntimatterInteractions(bodyA, bodyB, engine);
             // Specific logic in handleAntimatterInteractions decides removal.
             break;
-        case 'quantumFoam+darkMatter':
-            createWormhole(bodyA, bodyB, engine);
-            // No removal, effect is ongoing.
-            break;
-        case 'solarFlare+magneticField':
-            createAuroraEffect(bodyA, bodyB, engine);
+        case 'lava+rubber':
+            createFireballs(bodyA, bodyB, engine);
             // No removal, visual effect only.
             break;
-        // Removed the default case to avoid automatic removal of unhandled material pairs
+        case 'ice+rock':
+            shatterIce(bodyA, bodyB, engine);
+            // No removal, visual effect only.
+            break;
+        case 'water+sand':
+            createQuicksandArea(bodyA, bodyB, engine);
+            // No removal, visual effect only.
+            break;
+        case 'photonGel+darkMatter':
+            createIlluminatedFieldEffect(bodyA, bodyB, engine);
+            // No removal, visual effect only
+            break;
+        case 'neutronium+any':
+            createGravityWellEffect(bodyA, bodyB, engine);
+            // No removal, visual effect only.
+            break;
+        case 'exoticMatter+steel':
+            createAntiGravityZone(bodyA, bodyB, engine);
+            // No removal, visual effect only.
+            break;
+        case 'voidEssence+cosmicDust':
+            createCosmicStorm(bodyA, bodyB, engine);
+            // No removal, visual effect only.
+            break;
     }
 };
+
+
+function createCosmicStorm(collisionPoint, engine) {
+    const stormRadius = 200; // Define the radius of the cosmic storm effect
+    const particleCount = 50; // Number of particles to simulate the cosmic dust
+    const stormDuration = 3000; // Duration of the storm effect in milliseconds
+
+    for (let i = 0; i < particleCount; i++) {
+        // Create particles around the collision point
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * stormRadius;
+        const particle = Matter.Bodies.circle(
+            collisionPoint.x + Math.cos(angle) * distance,
+            collisionPoint.y + Math.sin(angle) * distance,
+            2, // Small size for dust particles
+            {
+                render: {
+                    fillStyle: '#6c7b8b'
+                },
+                density: 0.001,
+                frictionAir: 0.05,
+                // Optional: Custom properties for unique behaviors
+            }
+        );
+
+        // Optionally, apply forces to create swirling motion
+        // This example applies a simple force, but you can adjust for more complex behaviors
+        const forceMagnitude = 0.0001 * (Math.random() + 1);
+        Matter.Body.applyForce(particle, {
+            x: particle.position.x,
+            y: particle.position.y
+        }, {
+            x: Math.cos(angle) * forceMagnitude,
+            y: Math.sin(angle) * forceMagnitude
+        });
+
+        Matter.World.add(engine.world, particle);
+
+        // Optionally, remove particles after the storm duration to clean up
+        setTimeout(() => {
+            Matter.World.remove(engine.world, particle);
+        }, stormDuration);
+    }
+
+    // Optional: Additional visual effects or behaviors to simulate the cosmic storm
+}
+
+
+function createAntiGravityZone(collisionPoint, engine) {
+    const antiGravityRadius = 150; // Radius of the anti-gravity effect
+    const antiGravityForce = -0.005; // Upward force magnitude
+
+    Matter.Events.on(engine, 'beforeUpdate', function(event) {
+        Matter.Composite.allBodies(engine.world).forEach(function(body) {
+            if (body.isStatic) return; // Skip static bodies
+
+            const dx = collisionPoint.x - body.position.x;
+            const dy = collisionPoint.y - body.position.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < antiGravityRadius) {
+                // Apply an upward force to bodies within the radius
+                Matter.Body.applyForce(body, body.position, { x: 0, y: antiGravityForce });
+            }
+        });
+    });
+
+    // Optional: Remove the effect after a certain duration
+    setTimeout(() => {
+        // Remove the 'beforeUpdate' event listener to stop the anti-gravity effect
+        // Note: This requires keeping a reference to the event listener function
+    }, 5000); // Duration of the anti-gravity effect in milliseconds
+}
+
+
+function createGravityWellEffect(neutroniumBody, engine) {
+    const gravityWellRadius = 200; // Define the effective radius of the gravity well
+
+    Matter.Events.on(engine, 'beforeUpdate', function() {
+        Matter.Composite.allBodies(engine.world).forEach(function(body) {
+            if (body === neutroniumBody || body.isStatic) return; // Skip the neutronium body itself and static bodies
+
+            const dx = neutroniumBody.position.x - body.position.x;
+            const dy = neutroniumBody.position.y - body.position.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < gravityWellRadius) {
+                const forceMagnitude = 0.0005 * neutroniumBody.mass / (distance * distance);
+                const force = {
+                    x: (dx / distance) * forceMagnitude,
+                    y: (dy / distance) * forceMagnitude,
+                };
+
+                Matter.Body.applyForce(body, body.position, force);
+            }
+        });
+    });
+}
+
+
+function createIlluminatedFieldEffect(bodyA, bodyB, engine) {
+    const collisionPoint = { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 };
+    const effectRadius = 100; // Define the radius of the effect
+
+    // Temporarily change the render style of bodies within the effect radius to simulate illumination
+    Matter.Composite.allBodies(engine.world).forEach(body => {
+        const distance = Matter.Vector.magnitude(Matter.Vector.sub(body.position, collisionPoint));
+        if (distance < effectRadius) {
+            // Save original render properties if not already saved
+            if (!body.originalRender) {
+                body.originalRender = { ...body.render };
+            }
+
+            // Apply the illuminated effect
+            body.render.fillStyle = '#ffff99'; // Example: a light yellow to simulate illumination
+        }
+    });
+
+    // Optionally, set a timeout to remove the effect after a certain duration
+    setTimeout(() => {
+        Matter.Composite.allBodies(engine.world).forEach(body => {
+            // Restore original render properties
+            if (body.originalRender) {
+                body.render.fillStyle = body.originalRender.fillStyle;
+                delete body.originalRender; // Clean up
+            }
+        });
+    }, 5000); // Remove the effect after 5 seconds
+}
+
+
+function createQuicksandArea(pair, engine) {
+    const { bodyA, bodyB } = pair;
+    const collisionPoint = { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 };
+
+    // Create a large sensor body at the collision point to represent the quicksand area
+    const quicksandArea = Matter.Bodies.circle(collisionPoint.x, collisionPoint.y, 100, {
+        isSensor: true, // Make it a sensor so it doesn't physically interact with other bodies
+        isStatic: true,
+        render: { visible: false }, // Make it invisible
+    });
+
+    // Add the quicksand area to the world
+    Matter.World.add(engine.world, quicksandArea);
+
+    // Listen for collisions with the quicksand area
+    Matter.Events.on(engine, 'collisionStart', function(event) {
+        event.pairs.forEach(function(pair) {
+            if (pair.bodyA === quicksandArea || pair.bodyB === quicksandArea) {
+                const trappedBody = pair.bodyA === quicksandArea ? pair.bodyB : pair.bodyA;
+                
+                // Simulate the quicksand effect on the trapped body
+                // Increase friction and reduce restitution
+                trappedBody.friction = 1.0;
+                trappedBody.frictionStatic = 1.0;
+                trappedBody.restitution = 0.1;
+
+                // Optionally, slowly sink the body by applying a downward force
+                Matter.Body.applyForce(trappedBody, trappedBody.position, { x: 0, y: 0.0005 });
+            }
+        });
+    });
+
+    // Optionally, remove the quicksand area after a certain duration
+    setTimeout(() => {
+        Matter.World.remove(engine.world, quicksandArea);
+    }, 10000); // Quicksand effect lasts for 10 seconds
+}
+
+
+
+function shatterIce(pair, engine) {
+    const iceBody = pair.bodyA.material === 'ice' ? pair.bodyA : pair.bodyB;
+    const numberOfFragments = 8; // Number of fragments the ice shatters into
+    const fragmentSize = iceBody.circleRadius / 4; // Smaller size of fragments
+
+    for (let i = 0; i < numberOfFragments; i++) {
+        const angle = (i / numberOfFragments) * 2 * Math.PI; // Evenly distribute fragments around the circle
+        const speed = Math.random() * 0.005 + 0.005; // Random speed for each fragment
+
+        // Create a fragment body
+        let fragment = Matter.Bodies.polygon(iceBody.position.x, iceBody.position.y, 5, fragmentSize, {
+            render: {
+                fillStyle: '#a8e0ff'
+            },
+            density: iceBody.density,
+            friction: iceBody.friction,
+            restitution: iceBody.restitution,
+        });
+
+        // Apply force to scatter the fragments
+        Matter.Body.applyForce(fragment, iceBody.position, {
+            x: Math.cos(angle) * speed,
+            y: Math.sin(angle) * speed
+        });
+
+        // Add the fragment to the world
+        Matter.World.add(engine.world, fragment);
+    }
+
+    // Remove the original ice body to simulate it being shattered
+    Matter.World.remove(engine.world, iceBody);
+}
+
+
+function createFireballs(pair, engine) {
+    const { bodyA, bodyB } = pair;
+    const collisionPoint = { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 };
+
+    const numberOfFireballs = 5; // Number of fireballs to create
+    for (let i = 0; i < numberOfFireballs; i++) {
+        const angle = Math.random() * 2 * Math.PI; // Random angle for direction
+        const speed = Math.random() * 0.01 + 0.005; // Random speed
+        const radius = 5; // Size of the fireballs
+
+        // Create a fireball body
+        let fireball = Matter.Bodies.circle(collisionPoint.x, collisionPoint.y, radius, {
+            render: {
+                sprite: {
+                    texture: 'fireball.png', // Assuming you have a fireball texture
+                    xScale: 0.1,
+                    yScale: 0.1
+                }
+            },
+            density: 0.0005,
+            frictionAir: 0.05,
+            restitution: 0.9,
+        });
+
+        // Apply force to the fireball to send it in a random direction
+        Matter.Body.applyForce(fireball, collisionPoint, {
+            x: Math.cos(angle) * speed,
+            y: Math.sin(angle) * speed
+        });
+
+        // Add the fireball to the world
+        Matter.World.add(engine.world, fireball);
+
+        // Schedule the fireball to be removed after 3 seconds to simulate fading out
+        setTimeout(() => {
+            Matter.World.remove(engine.world, fireball);
+        }, 3000);
+    }
+}
+
+
 
 
 function convertToSteamAndObsidian(bodyA, bodyB, engine) {
