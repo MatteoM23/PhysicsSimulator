@@ -65,10 +65,6 @@ export const interactionRules = (bodyA, bodyB, engine) => {
             createGravityWellEffect(bodyA, bodyB, engine);
             // No removal, visual effect only.
             break;
-        case 'exoticMatter+steel':
-            createAntiGravityZone(bodyA, bodyB, engine);
-            // No removal, visual effect only.
-            break;
         case 'voidEssence+cosmicDust':
             createCosmicStorm(bodyA, bodyB, engine);
             // No removal, visual effect only.
@@ -123,33 +119,6 @@ function createCosmicStorm(collisionPoint, engine) {
 }
 
 
-function createAntiGravityZone(collisionPoint, engine) {
-    const antiGravityRadius = 150; // Radius of the anti-gravity effect
-    const antiGravityForce = -0.005; // Upward force magnitude
-
-    Matter.Events.on(engine, 'beforeUpdate', function(event) {
-        Matter.Composite.allBodies(engine.world).forEach(function(body) {
-            if (body.isStatic) return; // Skip static bodies
-
-            const dx = collisionPoint.x - body.position.x;
-            const dy = collisionPoint.y - body.position.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-
-            if (distance < antiGravityRadius) {
-                // Apply an upward force to bodies within the radius
-                Matter.Body.applyForce(body, body.position, { x: 0, y: antiGravityForce });
-            }
-        });
-    });
-
-    // Optional: Remove the effect after a certain duration
-    setTimeout(() => {
-        // Remove the 'beforeUpdate' event listener to stop the anti-gravity effect
-        // Note: This requires keeping a reference to the event listener function
-    }, 5000); // Duration of the anti-gravity effect in milliseconds
-}
-
-
 function createGravityWellEffect(neutroniumBody, engine) {
     const gravityWellRadius = 200; // Define the effective radius of the gravity well
 
@@ -176,34 +145,39 @@ function createGravityWellEffect(neutroniumBody, engine) {
 
 
 function createIlluminatedFieldEffect(bodyA, bodyB, engine) {
-    const collisionPoint = { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 };
+    const collisionPoint = { 
+        x: (bodyA.position.x + bodyB.position.x) / 2, 
+        y: (bodyA.position.y + bodyB.position.y) / 2 
+    };
     const effectRadius = 100; // Define the radius of the effect
 
-    // Temporarily change the render style of bodies within the effect radius to simulate illumination
     Matter.Composite.allBodies(engine.world).forEach(body => {
-        const distance = Matter.Vector.magnitude(Matter.Vector.sub(body.position, collisionPoint));
+        const dx = body.position.x - collisionPoint.x;
+        const dy = body.position.y - collisionPoint.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
         if (distance < effectRadius) {
-            // Save original render properties if not already saved
+            // Check if the originalRender property exists
             if (!body.originalRender) {
-                body.originalRender = { ...body.render };
+                body.originalRender = { fillStyle: body.render.fillStyle };
             }
 
-            // Apply the illuminated effect
-            body.render.fillStyle = '#ffff99'; // Example: a light yellow to simulate illumination
+            // Change the fillStyle to simulate illumination
+            body.render.fillStyle = '#ffff99';
         }
     });
 
-    // Optionally, set a timeout to remove the effect after a certain duration
+    // Optionally, revert the effect after a duration
     setTimeout(() => {
         Matter.Composite.allBodies(engine.world).forEach(body => {
-            // Restore original render properties
             if (body.originalRender) {
                 body.render.fillStyle = body.originalRender.fillStyle;
-                delete body.originalRender; // Clean up
+                delete body.originalRender;
             }
         });
-    }, 5000); // Remove the effect after 5 seconds
+    }, 5000); // Duration after which the effect is reverted
 }
+
 
 
 function createQuicksandArea(pair, engine) {
