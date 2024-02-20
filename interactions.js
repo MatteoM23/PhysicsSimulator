@@ -123,7 +123,7 @@ function simulateExplosion(bodyA, bodyB, world, radius, force) {
 
 
 function createExplosionParticles(world, center, radius) {
-    const numberOfParticles = 20; // Adjust for the desired visual effect
+    const numberOfParticles = 5; // Adjust for the desired visual effect
     for (let i = 0; i < numberOfParticles; i++) {
         let angle = Math.random() * Math.PI * 2;
         let distance = Math.random() * radius;
