@@ -45,11 +45,12 @@ export const interactionRules = (bodyA, bodyB, engine) => {
             break;
         case 'lava+rubber':
             createFireballs(bodyA, bodyB, engine);
-            // No removal, visual effect only.
+            Matter.World.remove(engine.world, bodyA); 
+            Matter.World.remove(engine.world, bodyB);
             break;
         case 'ice+rock':
             shatterIce(bodyA, bodyB, engine);
-            // No removal, visual effect only.
+            Matter.World.remove(engine.world, bodyA); 
             break;
         case 'water+sand':
             createQuicksandArea(bodyA, bodyB, engine);
