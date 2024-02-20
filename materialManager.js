@@ -53,6 +53,4 @@ export const createBody = (clientX, clientY) => {
 };
 
 
-    Matter.World.add(engine.world, body);
-};
 
