@@ -1,12 +1,26 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
+const lastInteractionTimeMap = {};
+
+// Cooldown period in milliseconds
+const INTERACTION_COOLDOWN = 2000;
+
 // Define new material interactions with advanced effects
 export const interactionRules = (bodyA, bodyB, engine) => {
-    const typeA = bodyA.material;
-    const typeB = bodyB.material;
-    const interactionKey = [typeA, typeB].sort().join('+');
+    const now = Date.now();
+    const materialsPair = [bodyA.material, bodyB.material].sort().join('+');
+    const lastInteractionTime = lastInteractionTimeMap[materialsPair];
 
-    switch (interactionKey) {
+    // Check if the interaction is within the cooldown period
+    if (lastInteractionTime && (now - lastInteractionTime) < INTERACTION_COOLDOWN) {
+        // Interaction is within cooldown, do not proceed
+        return;
+    }
+
+    // Update the last interaction time for this pair
+    lastInteractionTimeMap[materialsPair] = now;
+
+    switch (materialsPair) {
         case 'water+lava':
             convertToSteamAndObsidian(bodyA, bodyB, typeA, typeB, engine);
             break;
