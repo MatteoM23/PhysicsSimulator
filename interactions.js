@@ -248,6 +248,9 @@ function shatterIce(bodyA, bodyB, engine) {
 function createIceFragments(iceBody, engine) {
     const numberOfFragments = 5; // Example value
     
+    // Add debug statement
+    console.log('Creating ice fragments for ice body:', iceBody);
+
     for (let i = 0; i < numberOfFragments; i++) {
         // Calculate position and size for each fragment
         let fragment = Matter.Bodies.polygon(
@@ -270,6 +273,7 @@ function createIceFragments(iceBody, engine) {
         Matter.World.add(engine.world, fragment);
     }
 }
+
 
 
 function createFireballs(bodyA, bodyB, engine) {
