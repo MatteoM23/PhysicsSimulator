@@ -27,6 +27,16 @@ export const initPhysics = () => {
     // Draw gradient background
     drawGradientBackground(render.canvas);
 
+    // Create walls around the perimeter of the screen
+    const wallThickness = 50;
+    const wallOptions = { isStatic: true, render: { visible: false } };
+    const leftWall = Matter.Bodies.rectangle(0, adjustedHeight / 2, wallThickness, adjustedHeight, wallOptions);
+    const rightWall = Matter.Bodies.rectangle(window.innerWidth, adjustedHeight / 2, wallThickness, adjustedHeight, wallOptions);
+    const bottomWall = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, wallThickness, wallOptions);
+
+    // Add the walls to the world
+    Matter.World.add(world, [leftWall, rightWall, bottomWall]);
+
     // Create floor just above the bottom of the screen
     const floor = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - 50, window.innerWidth, 100, { isStatic: true });
 
@@ -50,7 +60,10 @@ export const initPhysics = () => {
         // Redraw the gradient to fit the new dimensions
         drawGradientBackground(render.canvas);
 
-        // Reposition the floor
+        // Reposition the walls and floor
+        Matter.Body.setPosition(leftWall, { x: 0 + wallThickness / 2, y: adjustedHeight / 2 });
+        Matter.Body.setPosition(rightWall, { x: window.innerWidth - wallThickness / 2, y: adjustedHeight / 2 });
+        Matter.Body.setPosition(bottomWall, { x: window.innerWidth / 2, y: window.innerHeight });
         Matter.Body.setPosition(floor, { x: window.innerWidth / 2, y: window.innerHeight - 50 });
     });
 
