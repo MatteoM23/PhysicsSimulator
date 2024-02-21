@@ -15,8 +15,9 @@ export const initPhysics = () => {
     render = Matter.Render.create({
         element: document.body,
         engine: engine,
-        canvas: document.querySelector('canvas'), // Select the canvas element
         options: {
+            width: window.innerWidth,
+            height: adjustedHeight,
             wireframes: false,
             background: 'transparent' // Set to transparent to allow custom drawing below
         }
@@ -52,6 +53,8 @@ export const initPhysics = () => {
         
         render.canvas.width = window.innerWidth;
         render.canvas.height = adjustedHeight;
+        render.options.width = window.innerWidth;
+        render.options.height = adjustedHeight;
 
         // Redraw the gradient to fit the new dimensions
         drawGradientBackground(render.canvas);
@@ -61,6 +64,14 @@ export const initPhysics = () => {
         Matter.Body.setPosition(rightWall, { x: window.innerWidth + wallThickness / 2, y: adjustedHeight / 2 });
         Matter.Body.setPosition(bottomWall, { x: window.innerWidth / 2, y: window.innerHeight + wallThickness / 2 });
         Matter.Body.setPosition(floor, { x: window.innerWidth / 2, y: window.innerHeight - 50 });
+    });
+
+    // Register global collision event listener for handling custom material interactions
+    Matter.Events.on(engine, 'collisionStart', (event) => {
+        event.pairs.forEach((pair) => {
+            // Execute interaction rules based on the materials of the colliding bodies
+            // handleCollisions(event, engine); // Implement this function as needed
+        });
     });
 
     // Log to indicate successful initialization
