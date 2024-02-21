@@ -15,54 +15,33 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
     switch (interactionKey) {
         case 'water+lava':
             convertToSteamAndObsidian(bodyA, bodyB, engine, collisionPoint);
-            Matter.World.remove(engine.world, bodyA); 
-            Matter.World.remove(engine.world, bodyB);
             break;
         case 'ice+lava':
             convertLavaToRockRemoveIce(bodyA, bodyB, engine, collisionPoint);
-            Matter.World.remove(engine.world, bodyA); // Ice is removed
-            Matter.World.remove(engine.world, bodyB); // Lava turns to rock
             break;
         case 'oil+lava':
             simulateExplosion(bodyA, bodyB, engine.world, 150, 0.1, collisionPoint);
-            Matter.World.remove(engine.world, bodyA); // Oil is consumed
-            Matter.World.remove(engine.world, bodyB); // Lava is dispersed
             break;
         case 'glass+rock':
             formGlassyStructures(bodyA, bodyB, engine, collisionPoint);
-            Matter.World.remove(engine.world, bodyA); // Glass shatters
-            // Keeping the rock or removing it can be decided based on your logic.
             break;
         case 'antimatter+any':
             handleAntimatterInteractions(bodyA, bodyB, engine, collisionPoint);
-            // Specific logic in handleAntimatterInteractions decides removal.
             break;
         case 'lava+rubber':
             createFireballs(bodyA, bodyB, engine, collisionPoint);
-            Matter.World.remove(engine.world, bodyA); 
-            Matter.World.remove(engine.world, bodyB);
             break;
         case 'ice+rock':
-            // Determine which body is ice and then shatter it
-            if (bodyA.material === 'ice') {
-                shatterIce(bodyA, engine, collisionPoint);
-                Matter.World.remove(engine.world, bodyA); // Remove only the ice body
-            } else if (bodyB.material === 'ice') {
-                shatterIce(bodyB, engine, collisionPoint);
-                Matter.World.remove(engine.world, bodyB); // Remove only the ice body
-            }
+            shatterIce(bodyA, bodyB, engine, collisionPoint);
             break;
         case 'neutronium+any':
-            createGravityWellEffect(bodyA, bodyB, engine, collisionPoint);
-            // No removal, visual effect only.
+            createGravityWellEffect(bodyA, engine, collisionPoint);
             break;
         case 'voidEssence+cosmicDust':
-            createCosmicStorm(bodyA, bodyB, engine, collisionPoint);
-            // No removal, visual effect only.
+            createCosmicStorm(collisionPoint, engine);
             break;
     }
 };
-
 
 function createCosmicStorm(collisionPoint, engine) {
     const stormRadius = 200; // Define the radius of the cosmic storm effect
