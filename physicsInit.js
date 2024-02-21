@@ -81,13 +81,28 @@ export const initPhysics = () => {
 
 function drawGradientBackground(canvas) {
     const ctx = canvas.getContext('2d');
+    const starsCount = 200; // Number of stars
+    const starRadius = 1; // Radius of stars
+
     // Ensure the gradient covers the full canvas at all times
     const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, '#333333'); // Dark gray at the top
-    gradient.addColorStop(1, '#1a1a1a'); // Space gray at the bottom
+    gradient.addColorStop(0, '#000000'); // Black at the top
+    gradient.addColorStop(1, '#131722'); // Dark space grey at the bottom
 
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw stars
+    for (let i = 0; i < starsCount; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const brightness = Math.random() * 0.4; // Random brightness between 0 and 0.4
+
+        ctx.fillStyle = `rgba(255, 255, 255, ${brightness})`; // White with varying opacity
+        ctx.beginPath();
+        ctx.arc(x, y, starRadius, 0, Math.PI * 2);
+        ctx.fill();
+    }
 }
 
 export { render }; // Export render so it can be used elsewhere
