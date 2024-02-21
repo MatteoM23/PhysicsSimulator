@@ -105,5 +105,4 @@ function drawGradientBackground(canvas) {
     }
 }
 
-
 export { render }; // Export render so it can be used elsewhere
