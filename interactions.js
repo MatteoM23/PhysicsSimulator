@@ -351,27 +351,16 @@ function convertLavaToRockRemoveIce(bodyA, bodyB, engine) {
     lavaBody.material = 'rock';
 }
 
-function simulateExplosion(bodyA, bodyB, world, radius, force) {
-    const explosionPoint = { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 };
-
-    // Apply forces to nearby bodies to simulate the explosion's impact
-    Matter.Composite.allBodies(world).forEach(body => {
-        if (!body.isStatic) {
-            const dx = body.position.x - explosionPoint.x;
-            const dy = body.position.y - explosionPoint.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            if (distance < radius) {
-                const forceMagnitude = (force * (1 - distance / radius)) / distance;
-                Matter.Body.applyForce(body, body.position, {
-                    x: dx * forceMagnitude,
-                    y: dy * forceMagnitude,
-                });
-            }
-        }
+function simulateExplosion(bodyA, bodyB, world, explosionForce, explosionRadius, collisionPoint) {
+    // Simulate an explosion effect at the collision point
+    Matter.Query.world(world, Matter.Bounds.create([collisionPoint], explosionRadius)).forEach(body => {
+        const forceVector = Matter.Vector.sub(body.position, collisionPoint);
+        const distance = Matter.Vector.magnitude(forceVector);
+        const intensity = (explosionRadius - distance) / explosionRadius;
+        const forceMagnitude = explosionForce * intensity;
+        const force = Matter.Vector.mult(Matter.Vector.normalise(forceVector), forceMagnitude);
+        Matter.Body.applyForce(body, body.position, force);
     });
-
-    // Create visual explosion particles at the epicenter
-    createExplosionParticles(world, explosionPoint, radius);
 }
 
 
