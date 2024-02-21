@@ -24,7 +24,6 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
             break;
         case 'glass+rock':
             formGlassyStructures(bodyA, bodyB, engine, collisionPoint);
-            Matter.World.remove(engine.world, bodyA); // Glass is dispersed
             break;
         case 'antimatter+any':
             handleAntimatterInteractions(bodyA, bodyB, engine, collisionPoint);
