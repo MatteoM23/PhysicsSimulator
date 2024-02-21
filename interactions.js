@@ -52,14 +52,6 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
                 Matter.World.remove(engine.world, bodyB); // Remove only the ice body
             }
             break;
-        case 'water+sand':
-            createQuicksandArea(bodyA, bodyB, engine, collisionPoint);
-            // No removal, visual effect only.
-            break;
-        case 'photonGel+darkMatter':
-            createIlluminatedFieldEffect(bodyA, bodyB, engine, collisionPoint);
-            // No removal, visual effect only
-            break;
         case 'neutronium+any':
             createGravityWellEffect(bodyA, bodyB, engine, collisionPoint);
             // No removal, visual effect only.
@@ -141,82 +133,6 @@ function createGravityWellEffect(neutroniumBody, engine, collisionPoint) {
         });
     });
 }
-
-
-function createIlluminatedFieldEffect(bodyA, bodyB, engine, collisionPoint) {
-    const collisionPoint = { 
-        x: (bodyA.position.x + bodyB.position.x) / 2, 
-        y: (bodyA.position.y + bodyB.position.y) / 2 
-    };
-    const effectRadius = 100; // Define the radius of the effect
-
-    Matter.Composite.allBodies(engine.world).forEach(body => {
-        const dx = body.position.x - collisionPoint.x;
-        const dy = body.position.y - collisionPoint.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < effectRadius) {
-            // Check if the originalRender property exists
-            if (!body.originalRender) {
-                body.originalRender = { fillStyle: body.render.fillStyle };
-            }
-
-            // Change the fillStyle to simulate illumination
-            body.render.fillStyle = '#ffff99';
-        }
-    });
-
-    // Optionally, revert the effect after a duration
-    setTimeout(() => {
-        Matter.Composite.allBodies(engine.world).forEach(body => {
-            if (body.originalRender) {
-                body.render.fillStyle = body.originalRender.fillStyle;
-                delete body.originalRender;
-            }
-        });
-    }, 5000); // Duration after which the effect is reverted
-}
-
-
-
-function createQuicksandArea(pair, engine, collisionPoint) {
-    const { bodyA, bodyB } = pair;
-    const collisionPoint = { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 };
-
-    // Create a large sensor body at the collision point to represent the quicksand area
-    const quicksandArea = Matter.Bodies.circle(collisionPoint.x, collisionPoint.y, 100, {
-        isSensor: true, // Make it a sensor so it doesn't physically interact with other bodies
-        isStatic: true,
-        render: { visible: false }, // Make it invisible
-    });
-
-    // Add the quicksand area to the world
-    Matter.World.add(engine.world, quicksandArea);
-
-    // Listen for collisions with the quicksand area
-    Matter.Events.on(engine, 'collisionStart', function(event) {
-        event.pairs.forEach(function(pair) {
-            if (pair.bodyA === quicksandArea || pair.bodyB === quicksandArea) {
-                const trappedBody = pair.bodyA === quicksandArea ? pair.bodyB : pair.bodyA;
-                
-                // Simulate the quicksand effect on the trapped body
-                // Increase friction and reduce restitution
-                trappedBody.friction = 1.0;
-                trappedBody.frictionStatic = 1.0;
-                trappedBody.restitution = 0.1;
-
-                // Optionally, slowly sink the body by applying a downward force
-                Matter.Body.applyForce(trappedBody, trappedBody.position, { x: 0, y: 0.0005 });
-            }
-        });
-    });
-
-    // Optionally, remove the quicksand area after a certain duration
-    setTimeout(() => {
-        Matter.World.remove(engine.world, quicksandArea);
-    }, 10000); // Quicksand effect lasts for 10 seconds
-}
-
 
 
 function shatterIce(bodyA, bodyB, engine, collisionPoint) {
