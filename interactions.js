@@ -668,10 +668,17 @@ export function handleCollisions(event, engine) {
         const bodyA = pair.bodyA;
         const bodyB = pair.bodyB;
 
-        // Handle general material interactions
-        interactionRules(bodyA, bodyB, engine);
+        // Calculate collision point as the midpoint between the positions of bodyA and bodyB
+        const collisionPoint = {
+            x: (bodyA.position.x + bodyB.position.x) / 2,
+            y: (bodyA.position.y + bodyB.position.y) / 2
+        };
+
+        // Pass collisionPoint to the interactionRules function
+        interactionRules(bodyA, bodyB, engine, collisionPoint);
 
         // Additional handling for antimatter interactions, including special cases with dark matter
-        handleAntimatterInteractions(pair, engine);
+        handleAntimatterInteractions(pair, engine, collisionPoint);
     });
 }
+
