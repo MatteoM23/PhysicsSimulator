@@ -24,21 +24,26 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
             break;
         case 'glass+rock':
             formGlassyStructures(bodyA, bodyB, engine, collisionPoint);
+            Matter.World.remove(engine.world, bodyB); // Rock is dispersed
             break;
         case 'antimatter+any':
             handleAntimatterInteractions(bodyA, bodyB, engine, collisionPoint);
             break;
         case 'lava+rubber':
             createFireballs(bodyA, bodyB, engine, collisionPoint);
+            Matter.World.remove(engine.world, bodyA); 
+            Matter.World.remove(engine.world, bodyB); 
             break;
         case 'ice+rock':
             shatterIce(bodyA, bodyB, engine, collisionPoint);
+            Matter.World.remove(engine.world, bodyB); 
             break;
         case 'neutronium+any':
             createGravityWellEffect(bodyA, engine, collisionPoint);
             break;
         case 'voidEssence+cosmicDust':
             createCosmicStorm(collisionPoint, engine);
+            
             break;
     }
 };
