@@ -11,8 +11,8 @@ let render;
 
 export const initPhysics = () => {
     // Adjust the width and height to account for the UI box
-    const adjustedWidth = window.innerWidth - uiBoxWidth;
     const adjustedHeight = window.innerHeight - uiBoxHeight;
+    const adjustedWidth = adjustedHeight * (16/9); // Maintain aspect ratio (16:9)
 
     render = Matter.Render.create({
         element: document.body,
@@ -44,10 +44,13 @@ export const initPhysics = () => {
 
     // Resize listener to adjust canvas size dynamically
     window.addEventListener('resize', () => {
-        render.canvas.width = window.innerWidth - uiBoxWidth;
-        render.canvas.height = window.innerHeight - uiBoxHeight;
-        render.options.width = window.innerWidth - uiBoxWidth;
-        render.options.height = window.innerHeight - uiBoxHeight;
+        const adjustedHeight = window.innerHeight - uiBoxHeight;
+        const adjustedWidth = adjustedHeight * (16/9); // Maintain aspect ratio (16:9)
+        
+        render.canvas.width = adjustedWidth;
+        render.canvas.height = adjustedHeight;
+        render.options.width = adjustedWidth;
+        render.options.height = adjustedHeight;
 
         // Redraw the gradient to fit the new dimensions
         drawGradientBackground(render.canvas);
