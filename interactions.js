@@ -3,7 +3,7 @@ import Matter from 'https://cdn.skypack.dev/matter-js';
 
 let auroraEffectApplied = false;
 
-export const interactionRules = (bodyA, bodyB, engine) => {
+export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
     if (bodyA.isStatic || bodyB.isStatic || bodyA.material === bodyB.material) {
         // Skip interaction if any body is static or if both bodies share the same material.
         return;
@@ -676,6 +676,8 @@ export function handleCollisions(event, engine) {
 
         // Pass collisionPoint to the interactionRules function
         interactionRules(bodyA, bodyB, engine, collisionPoint);
+        // Pass collisionPoint to the formGlassyStructures function
+        formGlassyStructures(collisionPoint);
 
         // Additional handling for antimatter interactions, including special cases with dark matter
         handleAntimatterInteractions(pair, engine, collisionPoint);
