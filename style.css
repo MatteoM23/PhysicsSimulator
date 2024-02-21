@@ -1,10 +1,10 @@
 :root {
-    --button-bg-color: #1e88e5; /* Vibrant blue */
-    --button-hover-bg-color: #1565c0; /* Darker shade of blue on hover */
-    --button-active-bg-color: #0d47a1; /* Even darker shade of blue when active */
-    --container-bg-color: #37474f; /* Professional grayish-blue */
+    --button-bg-color: #455a64; /* Dark grayish-blue for buttons */
+    --button-hover-bg-color: #546e7a; /* Darker shade of grayish-blue on hover */
+    --button-active-bg-color: #37474f; /* Even darker shade of grayish-blue when active */
+    --container-bg-color: #263238; /* Darker blue-gray for container background */
     --text-color: #ffffff; /* White text for contrast */
-    --dropdown-bg-color: #455a64; /* Darker gray for dropdown */
+    --dropdown-bg-color: #37474f; /* Darker gray for dropdown */
     --selected-material-color: #ff9800; /* Contrasting orange for selected items */
     --font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif; /* Professional font */
     --font-family-title: 'Poppins', sans-serif; /* Sophisticated font for titles */
@@ -20,7 +20,7 @@ body, html {
     padding: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to bottom, #212121, #424242); /* Space gray gradient background */
+    background: transparent; /* Transparent background */
     color: var(--text-color);
     font-family: var(--font-family);
     display: flex;
