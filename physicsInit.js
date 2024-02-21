@@ -10,15 +10,14 @@ export const world = engine.world;
 let render;
 
 export const initPhysics = () => {
-    // Adjust the width and height to account for the UI box
+    // Adjust the height to account for the UI box
     const adjustedHeight = window.innerHeight - uiBoxHeight;
-    const adjustedWidth = adjustedHeight * (16/9); // Maintain aspect ratio (16:9)
-
+    
     render = Matter.Render.create({
         element: document.body,
         engine: engine,
         options: {
-            width: adjustedWidth,
+            width: window.innerWidth,
             height: adjustedHeight,
             wireframes: false,
             background: 'transparent' // Set to transparent to allow custom drawing below
@@ -28,14 +27,11 @@ export const initPhysics = () => {
     // Draw gradient background
     drawGradientBackground(render.canvas);
 
-    // Create floor and walls with appropriate dimensions and positions
-    const floor = Matter.Bodies.rectangle(adjustedWidth / 2, adjustedHeight + 50, adjustedWidth, 100, { isStatic: true });
-    const leftWall = Matter.Bodies.rectangle(-50, adjustedHeight / 2, 100, adjustedHeight, { isStatic: true });
-    const rightWall = Matter.Bodies.rectangle(adjustedWidth + 50, adjustedHeight / 2, 100, adjustedHeight, { isStatic: true });
-    const ceiling = Matter.Bodies.rectangle(adjustedWidth / 2, -50, adjustedWidth, 100, { isStatic: true });
+    // Create floor just above the bottom of the screen
+    const floor = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight - 50, window.innerWidth, 100, { isStatic: true });
 
-    // Add the floor and walls to the world
-    Matter.World.add(world, [floor, leftWall, rightWall, ceiling]);
+    // Add the floor to the world
+    Matter.World.add(world, floor);
 
     Matter.Render.run(render);
 
@@ -45,15 +41,17 @@ export const initPhysics = () => {
     // Resize listener to adjust canvas size dynamically
     window.addEventListener('resize', () => {
         const adjustedHeight = window.innerHeight - uiBoxHeight;
-        const adjustedWidth = adjustedHeight * (16/9); // Maintain aspect ratio (16:9)
         
-        render.canvas.width = adjustedWidth;
+        render.canvas.width = window.innerWidth;
         render.canvas.height = adjustedHeight;
-        render.options.width = adjustedWidth;
+        render.options.width = window.innerWidth;
         render.options.height = adjustedHeight;
 
         // Redraw the gradient to fit the new dimensions
         drawGradientBackground(render.canvas);
+
+        // Reposition the floor
+        Matter.Body.setPosition(floor, { x: window.innerWidth / 2, y: window.innerHeight - 50 });
     });
 
     // Register global collision event listener for handling custom material interactions
