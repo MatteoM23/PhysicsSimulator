@@ -231,6 +231,9 @@ function shatterIce(bodyA, bodyB, engine) {
 
     // Verify iceBody is valid and exists in the world before attempting removal
     if (iceBody && Matter.Composite.get(engine.world, iceBody.id, 'body')) {
+        // Add debug statement
+        console.log('Ice body shattered:', iceBody);
+
         // Remove the ice body safely
         Matter.Composite.remove(engine.world, iceBody, true); // The true flag for deep removal
 
@@ -240,6 +243,7 @@ function shatterIce(bodyA, bodyB, engine) {
         console.error('Attempted to shatter an undefined or non-ice body.');
     }
 }
+
 
 function createIceFragments(iceBody, engine) {
     const numberOfFragments = 5; // Example value
@@ -385,32 +389,6 @@ function createExplosionParticles(world, center, radius) {
         });
         Matter.World.add(world, particle);
     }
-}
-
-
-function createMud(bodyA, bodyB, engine) {
-    // Determine the collision point. For simplicity, we'll just use the midpoint between the two bodies.
-    const collisionPoint = {
-        x: (bodyA.position.x + bodyB.position.x) / 2,
-        y: (bodyA.position.y + bodyB.position.y) / 2,
-    };
-
-    // Define properties for the mud. You might want to adjust these based on your game's physics.
-    const mudProperties = {
-        isStatic: false, // Mud can be non-static if you want it to move or static if it should stay in place.
-        render: {
-            fillStyle: '#70543E', // A brown color to represent mud.
-        },
-        friction: 1.0, // Higher friction to simulate the sticky nature of mud.
-        restitution: 0.1, // Low restitution, as mud isn't very bouncy.
-        density: 0.002, // Density of mud. Adjust as necessary.
-    };
-
-    // Create a new mud body at the collision point. Adjust the size as necessary.
-    const mudBody = Matter.Bodies.circle(collisionPoint.x, collisionPoint.y, 25, mudProperties);
-
-    // Add the mud body to the world.
-    Matter.World.add(engine.world, mudBody);
 }
 
 
@@ -626,10 +604,13 @@ function absorbWater(bodyA, bodyB) {
     woodBody.friction *= 0.8; // Reduce friction to simulate a waterlogged surface
 }
 
-function formGlassyStructures(engine, collisionPoint) {
+function formGlassyStructures(bodyA, bodyB, engine) {
     // Create glassy structures at the collision point to simulate formation of glass
     const numberOfParticles = 5;
     const glassColor = '#FFFFFF'; // Color representing glass
+
+    // Add debug statement
+    console.log('Creating glassy structures at collision point:', collisionPoint);
 
     for (let i = 0; i < numberOfParticles; i++) {
         const distance = Math.random() * 30 + 20;
@@ -645,6 +626,7 @@ function formGlassyStructures(engine, collisionPoint) {
         Matter.World.add(engine.world, particle);
     }
 }
+
 
 function createExplosionOrImplosion(engine, collisionPoint) {
     // Trigger an explosion or implosion effect by applying forces to nearby bodies
