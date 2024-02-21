@@ -1,7 +1,6 @@
 // Define new material interactions with advanced effects
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
-let auroraEffectApplied = false;
 
 export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
     if (bodyA.isStatic || bodyB.isStatic || bodyA.material === bodyB.material) {
@@ -15,58 +14,58 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
 
     switch (interactionKey) {
         case 'water+lava':
-            convertToSteamAndObsidian(bodyA, bodyB, engine);
+            convertToSteamAndObsidian(bodyA, bodyB, engine, collisionPoint);
             Matter.World.remove(engine.world, bodyA); 
             Matter.World.remove(engine.world, bodyB);
             break;
         case 'ice+lava':
-            convertLavaToRockRemoveIce(bodyA, bodyB, engine);
+            convertLavaToRockRemoveIce(bodyA, bodyB, engine, collisionPoint);
             Matter.World.remove(engine.world, bodyA); // Ice is removed
             Matter.World.remove(engine.world, bodyB); // Lava turns to rock
             break;
         case 'oil+lava':
-            simulateExplosion(bodyA, bodyB, engine.world, 150, 0.1);
+            simulateExplosion(bodyA, bodyB, engine.world, 150, 0.1, collisionPoint);
             Matter.World.remove(engine.world, bodyA); // Oil is consumed
             Matter.World.remove(engine.world, bodyB); // Lava is dispersed
             break;
         case 'glass+rock':
-            formGlassyStructures(bodyA, bodyB, engine);
+            formGlassyStructures(bodyA, bodyB, engine, collisionPoint);
             Matter.World.remove(engine.world, bodyA); // Glass shatters
             // Keeping the rock or removing it can be decided based on your logic.
             break;
         case 'antimatter+any':
-            handleAntimatterInteractions(bodyA, bodyB, engine);
+            handleAntimatterInteractions(bodyA, bodyB, engine, collisionPoint);
             // Specific logic in handleAntimatterInteractions decides removal.
             break;
         case 'lava+rubber':
-            createFireballs(bodyA, bodyB, engine);
+            createFireballs(bodyA, bodyB, engine, collisionPoint);
             Matter.World.remove(engine.world, bodyA); 
             Matter.World.remove(engine.world, bodyB);
             break;
         case 'ice+rock':
             // Determine which body is ice and then shatter it
             if (bodyA.material === 'ice') {
-                shatterIce(bodyA, engine);
+                shatterIce(bodyA, engine, collisionPoint);
                 Matter.World.remove(engine.world, bodyA); // Remove only the ice body
             } else if (bodyB.material === 'ice') {
-                shatterIce(bodyB, engine);
+                shatterIce(bodyB, engine, collisionPoint);
                 Matter.World.remove(engine.world, bodyB); // Remove only the ice body
             }
             break;
         case 'water+sand':
-            createQuicksandArea(bodyA, bodyB, engine);
+            createQuicksandArea(bodyA, bodyB, engine, collisionPoint);
             // No removal, visual effect only.
             break;
         case 'photonGel+darkMatter':
-            createIlluminatedFieldEffect(bodyA, bodyB, engine);
+            createIlluminatedFieldEffect(bodyA, bodyB, engine, collisionPoint);
             // No removal, visual effect only
             break;
         case 'neutronium+any':
-            createGravityWellEffect(bodyA, bodyB, engine);
+            createGravityWellEffect(bodyA, bodyB, engine, collisionPoint);
             // No removal, visual effect only.
             break;
         case 'voidEssence+cosmicDust':
-            createCosmicStorm(bodyA, bodyB, engine);
+            createCosmicStorm(bodyA, bodyB, engine, collisionPoint);
             // No removal, visual effect only.
             break;
     }
@@ -119,7 +118,7 @@ function createCosmicStorm(collisionPoint, engine) {
 }
 
 
-function createGravityWellEffect(neutroniumBody, engine) {
+function createGravityWellEffect(neutroniumBody, engine, collisionPoint) {
     const gravityWellRadius = 200; // Define the effective radius of the gravity well
 
     Matter.Events.on(engine, 'beforeUpdate', function() {
@@ -144,7 +143,7 @@ function createGravityWellEffect(neutroniumBody, engine) {
 }
 
 
-function createIlluminatedFieldEffect(bodyA, bodyB, engine) {
+function createIlluminatedFieldEffect(bodyA, bodyB, engine, collisionPoint) {
     const collisionPoint = { 
         x: (bodyA.position.x + bodyB.position.x) / 2, 
         y: (bodyA.position.y + bodyB.position.y) / 2 
@@ -180,7 +179,7 @@ function createIlluminatedFieldEffect(bodyA, bodyB, engine) {
 
 
 
-function createQuicksandArea(pair, engine) {
+function createQuicksandArea(pair, engine, collisionPoint) {
     const { bodyA, bodyB } = pair;
     const collisionPoint = { x: (bodyA.position.x + bodyB.position.x) / 2, y: (bodyA.position.y + bodyB.position.y) / 2 };
 
@@ -220,7 +219,7 @@ function createQuicksandArea(pair, engine) {
 
 
 
-function shatterIce(bodyA, bodyB, engine) {
+function shatterIce(bodyA, bodyB, engine, collisionPoint) {
     // Assuming bodyA is the ice body. Add logic to determine this if necessary.
     let iceBody;
     if (bodyA.material === 'ice') {
@@ -245,7 +244,7 @@ function shatterIce(bodyA, bodyB, engine) {
 }
 
 
-function createIceFragments(iceBody, engine) {
+function createIceFragments(iceBody, engine, collisionPoint) {
     const numberOfFragments = 5; // Example value
     
     // Add debug statement
@@ -276,7 +275,7 @@ function createIceFragments(iceBody, engine) {
 
 
 
-function createFireballs(bodyA, bodyB, engine) {
+function createFireballs(bodyA, bodyB, engine, collisionPoint) {
     if (!bodyA || !bodyB || !bodyA.position || !bodyB.position) {
         console.error('Invalid bodies for creating fireballs');
         return;
@@ -308,7 +307,7 @@ function createFireballs(bodyA, bodyB, engine) {
 
 
 
-function convertToSteamAndObsidian(bodyA, bodyB, engine) {
+function convertToSteamAndObsidian(bodyA, bodyB, engine, collisionPoint) {
     let waterBody = bodyA.material === 'water' ? bodyA : bodyB;
     let lavaBody = bodyA.material === 'lava' ? bodyA : bodyB;
 
@@ -321,7 +320,7 @@ function convertToSteamAndObsidian(bodyA, bodyB, engine) {
 }
 
 
-function createSteamParticles(engine, position) {
+function createSteamParticles(engine, position, collisionPoint) {
     const numberOfParticles = 10; // Number of steam particles to create
     const upwardForceMagnitude = -0.0005; // Negative force to simulate rising
 
@@ -341,7 +340,7 @@ function createSteamParticles(engine, position) {
 }
 
 
-function convertLavaToRockRemoveIce(bodyA, bodyB, engine) {
+function convertLavaToRockRemoveIce(bodyA, bodyB, engine, collisionPoint) {
     // Similar to the above, remove ice and convert lava to rock
     let iceBody = bodyA.material === 'ice' ? bodyA : bodyB;
     let lavaBody = bodyA.material === 'lava' ? bodyA : bodyB;
@@ -365,7 +364,7 @@ function simulateExplosion(bodyA, bodyB, world, explosionForce, explosionRadius,
 
 
 
-function createExplosionParticles(world, center, radius) {
+function createExplosionParticles(world, center, radius, collisionPoint) {
     const numberOfParticles = 5; // Adjust for the desired visual effect
     for (let i = 0; i < numberOfParticles; i++) {
         let angle = Math.random() * Math.PI * 2;
@@ -385,21 +384,21 @@ function createExplosionParticles(world, center, radius) {
 }
 
 
-function increaseRestitution(bodyA, bodyB) {
+function increaseRestitution(bodyA, bodyB, collisionPoint) {
     // Temporarily increase restitution for high bounce effects
     bodyA.restitution = 0.9;
     bodyB.restitution = 0.9;
     // Reset restitution after a short delay if needed
 }
 
-function makeSlippery(bodyA, bodyB) {
+function makeSlippery(bodyA, bodyB, collisionPoint) {
     // Reduce friction significantly to simulate a slippery surface
     bodyA.friction = 0.01;
     bodyB.friction = 0.01;
 }
 
 
-function gravitationalPull(bodyA, bodyB, engine) {
+function gravitationalPull(bodyA, bodyB, engine, collisionPoint) {
     const darkMatterBody = bodyA.material === 'darkMatter' ? bodyA : bodyB;
     Matter.Composite.allBodies(engine.world).forEach(body => {
         if (body !== darkMatterBody && !body.isStatic) {
@@ -416,7 +415,7 @@ function gravitationalPull(bodyA, bodyB, engine) {
 }
 
 
-function igniteWood(bodyA, bodyB, engine) {
+function igniteWood(bodyA, bodyB, engine, collisionPoint) {
     // Identify the wood body
     const woodBody = bodyA.material === 'wood' ? bodyA : bodyB;
 
@@ -451,7 +450,7 @@ function igniteWood(bodyA, bodyB, engine) {
 
     // Fade out and remove particles over time
     const fadeOutInterval = setInterval(() => {
-        particles.forEach((particle, index) => {
+        particles.forEach((particle, index, collisionPoint) => {
             // Reduce size and opacity
             if (particle.circleRadius > 0.2) {
                 particle.circleRadius *= 0.95; // Shrink
@@ -474,7 +473,7 @@ function igniteWood(bodyA, bodyB, engine) {
 }
 
 
-function handleAntimatterInteractions(pair, engine) {
+function handleAntimatterInteractions(pair, engine, collisionPoint) {
     const { bodyA, bodyB } = pair;
     let antimatterBody, otherBody;
 
@@ -497,7 +496,7 @@ function handleAntimatterInteractions(pair, engine) {
     }
 }
 
-function simulateDarkMatterAntimatterInteraction(antimatterBody, darkMatterBody, world) {
+function simulateDarkMatterAntimatterInteraction(antimatterBody, darkMatterBody, world, collisionPoint) {
     // Trigger a significant explosion effect with a larger radius and force for dramatic impact
     simulateExplosion(antimatterBody, darkMatterBody, world, 300, 0.5);
 
@@ -506,7 +505,7 @@ function simulateDarkMatterAntimatterInteraction(antimatterBody, darkMatterBody,
     Matter.World.remove(world, darkMatterBody);
 }
 
-function increaseIceSize(bodyA, bodyB) {
+function increaseIceSize(bodyA, bodyB, collisionPoint) {
     // Identify the ice body and increase its size
     const iceBody = bodyA.material === 'ice' ? bodyA : bodyB;
     iceBody.circleRadius += 5; // Adjust the size increment as needed
@@ -552,7 +551,7 @@ function createOilSlickAndDisappear(engine, collisionPoint) {
 }
 
 
-function fadeOutAndRemoveBody(engine, body, fadeDuration, startDelay = 0) {
+function fadeOutAndRemoveBody(engine, body, fadeDuration, startDelay = 0, collisionPoint) {
     setTimeout(() => {
         let opacity = 1; // Start with full opacity
         const intervalTime = 100; // Interval time in ms for opacity reduction
@@ -589,7 +588,7 @@ function createSplashOrWaves(engine, collisionPoint) {
     }
 }
 
-function absorbWater(bodyA, bodyB) {
+function absorbWater(bodyA, bodyB, collisionPoint) {
     // Simulate water absorption by changing the wood body's appearance and properties
     const woodBody = bodyA.material === 'wood' ? bodyA : bodyB;
     woodBody.render.fillStyle = '#8B4513'; // Darken color to represent wet wood
@@ -597,7 +596,7 @@ function absorbWater(bodyA, bodyB) {
     woodBody.friction *= 0.8; // Reduce friction to simulate a waterlogged surface
 }
 
-function formGlassyStructures(bodyA, bodyB, engine) {
+function formGlassyStructures(bodyA, bodyB, engine, collisionPoint) {
     // Create glassy structures at the collision point to simulate formation of glass
     const numberOfParticles = 5;
     const glassColor = '#FFFFFF'; // Color representing glass
