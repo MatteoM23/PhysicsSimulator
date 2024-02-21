@@ -13,7 +13,7 @@ export const initPhysics = () => {
     const adjustedHeight = window.innerHeight - uiBoxHeight;
     
     render = Matter.Render.create({
-        element: document.body,
+        canvas: document.createElement('canvas'), // Use a new canvas element instead of the document body
         engine: engine,
         options: {
             width: window.innerWidth,
@@ -22,6 +22,8 @@ export const initPhysics = () => {
             background: 'transparent' // Set to transparent to allow custom drawing below
         }
     });
+
+    document.body.appendChild(render.canvas); // Append the new canvas to the document body
 
     // Draw gradient background
     drawGradientBackground(render.canvas);
