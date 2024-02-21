@@ -20,7 +20,7 @@ body, html {
     padding: 0;
     width: 100%;
     height: 100%;
-    background: transparent !important; /* Transparent background */
+    background: linear-gradient(to bottom, #212121, #424242); /* Space gray gradient background */
     color: var(--text-color);
     font-family: var(--font-family);
     display: flex;
@@ -31,15 +31,16 @@ body, html {
 }
 
 #uiContainer {
+    position: relative; /* Ensure proper stacking context */
+    z-index: 2; /* Make sure UI elements are above canvas */
     padding: 20px;
     margin-top: 50px;
     border-radius: var(--border-radius);
-    background-color: var(--container-bg-color) !important;
+    background-color: var(--container-bg-color);
     box-shadow: 0 4px 8px var(--shadow-color);
     display: flex;
     flex-direction: column;
     align-items: center;
-    position: relative;
     width: 80%;
     max-width: 600px;
 }
@@ -50,7 +51,7 @@ body, html {
 }
 
 .dropbtn {
-    background-color: var(--button-bg-color) !important;
+    background-color: var(--button-bg-color);
     color: white;
     padding: 10px;
     font-size: 16px;
@@ -65,7 +66,7 @@ body, html {
 .dropdown-content {
     display: none;
     position: absolute;
-    background-color: var(--dropdown-bg-color) !important;
+    background-color: var(--dropdown-bg-color);
     min-width: 160px;
     box-shadow: 0 8px 16px 0 var(--shadow-color);
     z-index: 1;
@@ -94,7 +95,7 @@ body, html {
 }
 
 .feature-buttons button {
-    background-color: var(--button-bg-color) !important;
+    background-color: var(--button-bg-color);
     color: white;
     padding: 10px 15px;
     font-size: 16px;
