@@ -580,8 +580,6 @@ export function handleCollisions(event, engine) {
 
         // Pass collisionPoint to the interactionRules function
         interactionRules(bodyA, bodyB, engine, collisionPoint);
-        // Pass collisionPoint to the formGlassyStructures function
-        formGlassyStructures(collisionPoint);
 
         // Additional handling for antimatter interactions, including special cases with dark matter
         handleAntimatterInteractions(pair, engine, collisionPoint);
