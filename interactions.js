@@ -42,7 +42,9 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
             break;
         case 'voidEssence+cosmicDust':
             createCosmicStorm(collisionPoint, engine);
-            
+            break;
+        case 'lava+wood':
+            igniteWood(bodyA, engine. collisionPoint);
             break;
     }
 };
@@ -185,7 +187,7 @@ function createFireballs(bodyA, bodyB, engine, collisionPoint) {
         y: (bodyA.position.y + bodyB.position.y) / 2,
     };
 
-    for (let i = 0; i < 8; i++) { // Create 5 fireballs as an example
+    for (let i = 0; i < 3; i++) { // Create 5 fireballs as an example
         const angle = Math.random() * 2 * Math.PI; // Random angle for direction
         const speed = 0.01; // Speed of the fireballs
         const fireball = Matter.Bodies.circle(midpoint.x, midpoint.y, 3, {
