@@ -8,10 +8,14 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
         return;
     }
 
+
+    const explosionForce = 0.03; // A balanced value for significant yet manageable explosions.
+    const explosionRadius = 100; // A moderate radius to simulate the explosion's extensive impact.
+
     const typeA = bodyA.material;
     const typeB = bodyB.material;
     const interactionKey = [typeA, typeB].sort().join('+');
-
+    
     switch (interactionKey) {
         case 'water+lava':
             convertToSteamAndObsidian(bodyA, bodyB, engine, collisionPoint);
@@ -20,7 +24,7 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
             convertLavaToRockRemoveIce(bodyA, bodyB, engine, collisionPoint);
             break;
         case 'oil+lava':
-            simulateExplosion(bodyA, bodyB, engine.world, 150, 0.1, collisionPoint);
+            simulateExplosionAndParticles((engine.world, explosionForce, explosionRadius, collisionPoint);
             break;
         case 'glass+rock':
             formGlassyStructures(bodyA, bodyB, engine, collisionPoint);
@@ -329,38 +333,48 @@ function createBubbleParticles(position, world) {
 }
 
 
-function simulateExplosion(bodyA, bodyB, world, explosionForce, explosionRadius, collisionPoint) {
-    // Simulate an explosion effect at the collision point
-    Matter.Query.world(world, Matter.Bounds.create([collisionPoint], explosionRadius)).forEach(body => {
+function simulateExplosionAndParticles(world, explosionForce, explosionRadius, collisionPoint) {
+    // Define the region for the explosion effect
+    const explosionRegion = {
+        min: { x: collisionPoint.x - explosionRadius, y: collisionPoint.y - explosionRadius },
+        max: { x: collisionPoint.x + explosionRadius, y: collisionPoint.y + explosionRadius }
+    };
+
+    // Find all bodies within the explosion region
+    const affectedBodies = Matter.Query.region(world.bodies, explosionRegion);
+
+    // Apply an explosion force to each affected body
+    affectedBodies.forEach(body => {
         const forceVector = Matter.Vector.sub(body.position, collisionPoint);
         const distance = Matter.Vector.magnitude(forceVector);
-        const intensity = (explosionRadius - distance) / explosionRadius;
-        const forceMagnitude = explosionForce * intensity;
-        const force = Matter.Vector.mult(Matter.Vector.normalise(forceVector), forceMagnitude);
-        Matter.Body.applyForce(body, body.position, force);
+        if (distance > 0) { // Avoid division by zero
+            const intensity = Math.max(0, (explosionRadius - distance) / explosionRadius);
+            const forceMagnitude = explosionForce * intensity;
+            const force = Matter.Vector.mult(Matter.Vector.normalise(forceVector), forceMagnitude);
+            Matter.Body.applyForce(body, body.position, force);
+        }
     });
-}
 
-
-
-function createExplosionParticles(world, center, radius, collisionPoint) {
-    const numberOfParticles = 5; // Adjust for the desired visual effect
+    // Create explosion particles for visual effect
+    const numberOfParticles = 30; // Adjust for the desired visual effect
     for (let i = 0; i < numberOfParticles; i++) {
         let angle = Math.random() * Math.PI * 2;
-        let distance = Math.random() * radius;
-        let particle = Matter.Bodies.circle(center.x + Math.cos(angle) * distance, center.y + Math.sin(angle) * distance, 1, {
+        let distance = Math.random() * explosionRadius * 0.5; // Concentrate particles closer to the center
+        let particle = Matter.Bodies.circle(collisionPoint.x + Math.cos(angle) * distance, collisionPoint.y + Math.sin(angle) * distance, 1, {
             isStatic: false,
             render: { fillStyle: '#ff0' },
+            isSensor: true, // Make particles non-colliding
         });
-        // Apply an upward force to simulate the explosion force dispersing particles
-        const forceMagnitude = Math.random() * 0.0005 + 0.0001; // Randomized for variety
-        Matter.Body.applyForce(particle, { x: particle.position.x, y: particle.position.y }, {
+        // Apply a force to simulate the explosion dispersing particles
+        const forceMagnitude = Math.random() * 0.002 + 0.001; // Increased magnitude for better visual dispersion
+        Matter.Body.applyForce(particle, particle.position, {
             x: Math.cos(angle) * forceMagnitude,
             y: Math.sin(angle) * forceMagnitude,
         });
         Matter.World.add(world, particle);
     }
 }
+
 
 
 function increaseRestitution(bodyA, bodyB, collisionPoint) {
