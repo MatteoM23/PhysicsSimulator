@@ -45,6 +45,7 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
             break;
         case 'lava+wood':
             igniteWood(bodyA, bodyB, engine, collisionPoint);
+            Matter.World.remove(engine.world, bodyB);
             break;
     }
 };
