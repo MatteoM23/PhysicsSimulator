@@ -3,11 +3,12 @@ import Matter from 'https://cdn.skypack.dev/matter-js';
 
 
 export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
+    console.log('Interaction detected between:', bodyA.material, 'and', bodyB.material); // Debug
+
     if (bodyA.isStatic || bodyB.isStatic || bodyA.material === bodyB.material) {
-        // Skip interaction if any body is static or if both bodies share the same material.
+        console.log('Skipping interaction due to static bodies or identical materials.'); // Debug
         return;
     }
-
 
     const explosionForce = 0.03; // A balanced value for significant yet manageable explosions.
     const explosionRadius = 100; // A moderate radius to simulate the explosion's extensive impact.
@@ -15,40 +16,55 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
     const typeB = bodyB.material;
     const interactionKey = [typeA, typeB].sort().join('+');
     
+    console.log('Processing interaction for:', interactionKey); // Debug
+
     switch (interactionKey) {
         case 'water+lava':
+            console.log('Converting to steam and obsidian');
             convertToSteamAndObsidian(bodyA, bodyB, engine, collisionPoint);
             break;
         case 'ice+lava':
+            console.log('Converting lava to rock and removing ice');
             convertLavaToRockRemoveIce(bodyA, bodyB, engine, collisionPoint);
             break;
         case 'oil+lava':
+            console.log('Simulating explosion and particles for oil and lava interaction');
             simulateExplosionAndParticles(engine.world, explosionForce, explosionRadius, collisionPoint);
             break;
         case 'glass+rock':
+            console.log('Forming glassy structures');
             formGlassyStructures(bodyA, bodyB, engine, collisionPoint);
             break;
         case 'antimatter+any':
+            console.log('Handling antimatter interactions');
             handleAntimatterInteractions(bodyA, bodyB, engine, collisionPoint);
             break;
         case 'lava+rubber':
+            console.log('Creating fireballs and removing involved bodies');
             createFireballs(bodyA, bodyB, engine, collisionPoint);
             Matter.World.remove(engine.world, bodyA); 
             Matter.World.remove(engine.world, bodyB); 
             break;
         case 'ice+rock':
+            console.log('Shattering ice and removing rock');
             shatterIce(bodyA, bodyB, engine, collisionPoint);
             Matter.World.remove(engine.world, bodyB); 
             break;
         case 'neutronium+any':
+            console.log('Creating gravity well effect');
             createGravityWellEffect(bodyA, engine, collisionPoint);
             break;
         case 'voidEssence+cosmicDust':
+            console.log('Creating cosmic storm');
             createCosmicStorm(collisionPoint, engine);
             break;
         case 'lava+wood':
+            console.log('Igniting wood and removing it');
             igniteWood(bodyA, bodyB, engine, collisionPoint);
             Matter.World.remove(engine.world, bodyB);
+            break;
+        default:
+            console.log('No specific interaction for:', interactionKey);
             break;
     }
 };
@@ -333,6 +349,7 @@ function createBubbleParticles(position, world) {
 
 
 function simulateExplosionAndParticles(world, explosionForce, explosionRadius, collisionPoint) {
+    console.log(`simulateExplosionAndParticles called with explosionForce: ${explosionForce}, explosionRadius: ${explosionRadius}, collisionPoint:`, collisionPoint); // Debug
     // Find all bodies within the explosion radius
     Matter.Composite.allBodies(world).forEach(body => {
         const distance = Matter.Vector.magnitude(Matter.Vector.sub(body.position, collisionPoint));
