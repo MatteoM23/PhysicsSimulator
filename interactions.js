@@ -11,7 +11,6 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
 
     const explosionForce = 0.03; // A balanced value for significant yet manageable explosions.
     const explosionRadius = 100; // A moderate radius to simulate the explosion's extensive impact.
-
     const typeA = bodyA.material;
     const typeB = bodyB.material;
     const interactionKey = [typeA, typeB].sort().join('+');
@@ -334,46 +333,42 @@ function createBubbleParticles(position, world) {
 
 
 function simulateExplosionAndParticles(world, explosionForce, explosionRadius, collisionPoint) {
-    // Define the region for the explosion effect
-    const explosionRegion = {
-        min: { x: collisionPoint.x - explosionRadius, y: collisionPoint.y - explosionRadius },
-        max: { x: collisionPoint.x + explosionRadius, y: collisionPoint.y + explosionRadius }
-    };
-
-    // Find all bodies within the explosion region
-    const affectedBodies = Matter.Query.region(world.bodies, explosionRegion);
-
-    // Apply an explosion force to each affected body
-    affectedBodies.forEach(body => {
-        const forceVector = Matter.Vector.sub(body.position, collisionPoint);
-        const distance = Matter.Vector.magnitude(forceVector);
-        if (distance > 0) { // Avoid division by zero
+    // Find all bodies within the explosion radius
+    Matter.Composite.allBodies(world).forEach(body => {
+        const distance = Matter.Vector.magnitude(Matter.Vector.sub(body.position, collisionPoint));
+        if (distance > 0 && distance < explosionRadius) {
             const intensity = Math.max(0, (explosionRadius - distance) / explosionRadius);
             const forceMagnitude = explosionForce * intensity;
-            const force = Matter.Vector.mult(Matter.Vector.normalise(forceVector), forceMagnitude);
+            const forceDirection = Matter.Vector.normalise(Matter.Vector.sub(body.position, collisionPoint));
+            const force = Matter.Vector.mult(forceDirection, forceMagnitude);
             Matter.Body.applyForce(body, body.position, force);
         }
     });
 
-    // Create explosion particles for visual effect
-    const numberOfParticles = 30; // Adjust for the desired visual effect
+    // Create explosion particles
+    const numberOfParticles = 30;
     for (let i = 0; i < numberOfParticles; i++) {
-        let angle = Math.random() * Math.PI * 2;
-        let distance = Math.random() * explosionRadius * 0.5; // Concentrate particles closer to the center
-        let particle = Matter.Bodies.circle(collisionPoint.x + Math.cos(angle) * distance, collisionPoint.y + Math.sin(angle) * distance, 1, {
-            isStatic: false,
-            render: { fillStyle: '#ff0' },
-            isSensor: true, // Make particles non-colliding
-        });
-        // Apply a force to simulate the explosion dispersing particles
-        const forceMagnitude = Math.random() * 0.002 + 0.001; // Increased magnitude for better visual dispersion
+        let angle = Math.random() * 2 * Math.PI;
+        let distance = Math.random() * explosionRadius * 0.5;
+        let particle = Matter.Bodies.circle(
+            collisionPoint.x + Math.cos(angle) * distance, 
+            collisionPoint.y + Math.sin(angle) * distance, 
+            2, {
+                render: { fillStyle: '#ff0' },
+                isSensor: true,
+            }
+        );
+
+        const forceMagnitude = Math.random() * 0.005 + 0.002; // Slightly increased for visual effect
         Matter.Body.applyForce(particle, particle.position, {
             x: Math.cos(angle) * forceMagnitude,
             y: Math.sin(angle) * forceMagnitude,
         });
+
         Matter.World.add(world, particle);
     }
 }
+
 
 
 
