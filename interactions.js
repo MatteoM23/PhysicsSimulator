@@ -132,7 +132,6 @@ function createGravityWellEffect(neutroniumBody, engine, collisionPoint) {
 
 
 function shatterIce(bodyA, bodyB, engine, collisionPoint) {
-    // Assuming bodyA is the ice body. Add logic to determine this if necessary.
     let iceBody;
     if (bodyA.material === 'ice') {
         iceBody = bodyA;
@@ -142,49 +141,40 @@ function shatterIce(bodyA, bodyB, engine, collisionPoint) {
 
     // Verify iceBody is valid and exists in the world before attempting removal
     if (iceBody && Matter.Composite.get(engine.world, iceBody.id, 'body')) {
-        // Add debug statement
         console.log('Ice body shattered:', iceBody);
 
         // Remove the ice body safely
         Matter.Composite.remove(engine.world, iceBody, true); // The true flag for deep removal
 
-        // Optionally, simulate shattering by creating smaller ice fragments
-        createIceFragments(iceBody, engine);
+        // Simulate shattering by creating smaller ice fragments directly within this function
+        const numberOfFragments = 5; // Example value
+        console.log('Creating ice fragments for ice body:', iceBody);
+
+        for (let i = 0; i < numberOfFragments; i++) {
+            // Calculate position and size for each fragment
+            let fragment = Matter.Bodies.polygon(
+                iceBody.position.x + Math.random() * 10 - 5, // Random position near original ice body
+                iceBody.position.y + Math.random() * 10 - 5,
+                3, // Triangle fragments for example
+                5, // Size
+                {
+                    render: {
+                        // Set the fillStyle to the same color as the ice body
+                        fillStyle: iceBody.render.fillStyle
+                    },
+                    density: iceBody.density, // Optional: match the density of the ice
+                    friction: iceBody.friction, // Optional: match the friction of the ice
+                    restitution: iceBody.restitution // Optional: match the restitution of the ice
+                }
+            );
+
+            // Add each fragment to the world
+            Matter.World.add(engine.world, fragment);
+        }
     } else {
         console.error('Attempted to shatter an undefined or non-ice body.');
     }
 }
-
-
-function createIceFragments(iceBody, engine, collisionPoint) {
-    const numberOfFragments = 5; // Example value
-    
-    // Add debug statement
-    console.log('Creating ice fragments for ice body:', iceBody);
-
-    for (let i = 0; i < numberOfFragments; i++) {
-        // Calculate position and size for each fragment
-        let fragment = Matter.Bodies.polygon(
-            iceBody.position.x + Math.random() * 10 - 5, // Random position near original ice body
-            iceBody.position.y + Math.random() * 10 - 5,
-            3, // Triangle fragments for example
-            5, // Size
-            {
-                render: {
-                    // Set the fillStyle to the same color as the ice body
-                    fillStyle: iceBody.render.fillStyle
-                },
-                density: iceBody.density, // Optional: match the density of the ice
-                friction: iceBody.friction, // Optional: match the friction of the ice
-                restitution: iceBody.restitution // Optional: match the restitution of the ice
-            }
-        );
-
-        // Add each fragment to the world
-        Matter.World.add(engine.world, fragment);
-    }
-}
-
 
 
 function createFireballs(bodyA, bodyB, engine, collisionPoint) {
@@ -450,30 +440,6 @@ function igniteWood(bodyA, bodyB, engine, collisionPoint) {
         });
     }, 100); // Adjust interval timing as needed
 }
-
-    // Fade out and remove particles over time
-    const fadeOutInterval = setInterval(() => {
-        particles.forEach((particle, index, collisionPoint) => {
-            // Reduce size and opacity
-            if (particle.circleRadius > 0.2) {
-                particle.circleRadius *= 0.95; // Shrink
-                particle.render.opacity *= 0.95; // Fade
-
-                // Apply upward force to simulate rising
-                Matter.Body.applyForce(particle, particle.position, { x: 0, y: -0.0002 });
-            } else {
-                // Remove particle when it's too small
-                Matter.World.remove(engine.world, particle);
-                particles.splice(index, 1);
-
-                // Clear interval when all particles are removed
-                if (particles.length === 0) {
-                    clearInterval(fadeOutInterval);
-                }
-            }
-        });
-    }, 100); // Adjust interval timing as needed
-
 
 
 function handleAntimatterInteractions(pair, engine, collisionPoint) {
