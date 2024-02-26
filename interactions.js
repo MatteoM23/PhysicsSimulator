@@ -318,7 +318,7 @@ function igniteWood(bodyA, bodyB, engine, collisionPoint) {
     Matter.World.remove(engine.world, woodBody);
 
     // Create fire particles at the wood body's last position
-    const numberOfParticles = 20;
+    const numberOfParticles = 4;
     for (let i = 0; i < numberOfParticles; i++) {
         const angle = Math.random() * 2 * Math.PI;
         const speed = 0.01; // Speed of the fire particles
