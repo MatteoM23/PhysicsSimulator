@@ -44,9 +44,8 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
             createCosmicStorm(collisionPoint, engine);
             break;
         case 'lava+wood':
-            igniteWood(bodyA, engine. collisionPoint);
+            igniteWood(bodyA, bodyB, engine, collisionPoint);
             break;
-    }
 };
 
 function createCosmicStorm(collisionPoint, engine) {
