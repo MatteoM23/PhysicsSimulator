@@ -50,30 +50,27 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
 };
 
 function createCosmicStorm(collisionPoint, engine) {
-    const stormRadius = 200; // Define the radius of the cosmic storm effect
-    const particleCount = 50; // Number of particles to simulate the cosmic dust
+    // Implementation of the cosmic storm effect
+    const stormRadius = 200; // Radius of the cosmic storm effect
+    const particleCount = 50; // Number of particles for the cosmic dust
     const stormDuration = 3000; // Duration of the storm effect in milliseconds
 
     for (let i = 0; i < particleCount; i++) {
-        // Create particles around the collision point
         const angle = Math.random() * Math.PI * 2;
         const distance = Math.random() * stormRadius;
         const particle = Matter.Bodies.circle(
             collisionPoint.x + Math.cos(angle) * distance,
             collisionPoint.y + Math.sin(angle) * distance,
-            2, // Small size for dust particles
+            2, // Size of the dust particles
             {
                 render: {
-                    fillStyle: '#6c7b8b'
+                    fillStyle: '#6c7b8b' // Color of the dust particles
                 },
                 density: 0.001,
                 frictionAir: 0.05,
-                // Optional: Custom properties for unique behaviors
             }
         );
 
-        // Optionally, apply forces to create swirling motion
-        // This example applies a simple force, but you can adjust for more complex behaviors
         const forceMagnitude = 0.0001 * (Math.random() + 1);
         Matter.Body.applyForce(particle, {
             x: particle.position.x,
@@ -85,13 +82,10 @@ function createCosmicStorm(collisionPoint, engine) {
 
         Matter.World.add(engine.world, particle);
 
-        // Optionally, remove particles after the storm duration to clean up
         setTimeout(() => {
             Matter.World.remove(engine.world, particle);
         }, stormDuration);
     }
-
-    // Optional: Additional visual effects or behaviors to simulate the cosmic storm
 }
 
 
@@ -187,7 +181,7 @@ function createFireballs(bodyA, bodyB, engine, collisionPoint) {
         y: (bodyA.position.y + bodyB.position.y) / 2,
     };
 
-    for (let i = 0; i < 3; i++) { // Create 5 fireballs as an example
+    for (let i = 0; i < 1; i++) { // Create 5 fireballs as an example
         const angle = Math.random() * 2 * Math.PI; // Random angle for direction
         const speed = 0.01; // Speed of the fireballs
         const fireball = Matter.Bodies.circle(midpoint.x, midpoint.y, 3, {
@@ -317,38 +311,32 @@ function gravitationalPull(bodyA, bodyB, engine, collisionPoint) {
 
 
 function igniteWood(bodyA, bodyB, engine, collisionPoint) {
-    // Identify the wood body
+    // Determine which body is wood
     const woodBody = bodyA.material === 'wood' ? bodyA : bodyB;
 
     // Remove the wood body to simulate burning
     Matter.World.remove(engine.world, woodBody);
 
-    // Create fire particles at the wood body's position
-    const numberOfParticles = 20; // Number of fire particles
-    const particles = [];
-
+    // Create fire particles at the wood body's last position
+    const numberOfParticles = 20;
     for (let i = 0; i < numberOfParticles; i++) {
-        const angle = Math.random() * 2 * Math.PI; // Random direction
-        const speed = Math.random() * 0.5 + 0.5; // Random speed for more natural effect
-
-        const particleOptions = {
-            isStatic: false,
-            render: {
-                fillStyle: 'orange',
-                opacity: 1
-            },
-            friction: 0.02,
+        const angle = Math.random() * 2 * Math.PI;
+        const speed = 0.01; // Speed of the fire particles
+        const fireParticle = Matter.Bodies.circle(woodBody.position.x, woodBody.position.y, 3, {
+            render: { fillStyle: 'orange' }, // Fire particle color
+            density: 0.001,
+            frictionAir: 0.05,
             restitution: 0.5,
-            density: 0.0001,
-            force: { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed }
-        };
+        });
 
-        // Position particles slightly above the wood position for a starting effect
-        const particle = Matter.Bodies.circle(woodBody.position.x, woodBody.position.y - 5, 3, particleOptions);
-        particles.push(particle);
-        Matter.World.add(engine.world, particle);
+        Matter.Body.setVelocity(fireParticle, {
+            x: Math.cos(angle) * speed,
+            y: Math.sin(angle) * speed
+        });
+
+        Matter.World.add(engine.world, fireParticle);
     }
-
+}
     // Fade out and remove particles over time
     const fadeOutInterval = setInterval(() => {
         particles.forEach((particle, index, collisionPoint) => {
