@@ -56,8 +56,8 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
             console.log('Creating gravity well effect');
             createGravityWellEffect(bodyA, engine, collisionPoint);
             break;
-        case 'voidEssence+cosmicDust':
-            console.log('Creating cosmic storm');
+        case 'cosmicDust+voidEssence':
+            console.log('Creating cosmic storm from cosmicDust and voidEssence interaction');
             createCosmicStorm(collisionPoint, engine);
             break;
         case 'lava+wood':
