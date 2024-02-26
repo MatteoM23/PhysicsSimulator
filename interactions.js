@@ -59,6 +59,7 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
         case 'cosmicDust+voidEssence':
             console.log('Creating cosmic storm from cosmicDust and voidEssence interaction');
             createCosmicStorm(collisionPoint, engine);
+            Matter.World.remove(engine.world, bodyA);
             break;
         case 'lava+wood':
             console.log('Igniting wood and removing it');
