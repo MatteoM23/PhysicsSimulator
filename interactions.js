@@ -359,7 +359,7 @@ function igniteWood(bodyA, bodyB, engine, collisionPoint) {
             }
         });
     }, 100); // Adjust interval timing as needed
-}
+
 
 
 function handleAntimatterInteractions(pair, engine, collisionPoint) {
