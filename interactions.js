@@ -30,6 +30,8 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
         case 'lava+oil': // Updated to match the sorted key
             console.log('Simulating explosion and particles for oil and lava interaction');
             simulateExplosionAndParticles(engine.world, explosionForce, explosionRadius, collisionPoint);
+            Matter.World.remove(engine.world, bodyA);
+            Matter.World.remove(engine.world, bodyB);
             break;
         case 'glass+rock':
             console.log('Forming glassy structures');
@@ -350,15 +352,24 @@ function createBubbleParticles(position, world) {
 
 function simulateExplosionAndParticles(world, explosionForce, explosionRadius, collisionPoint) {
     console.log(`simulateExplosionAndParticles called with explosionForce: ${explosionForce}, explosionRadius: ${explosionRadius}, collisionPoint:`, collisionPoint); // Debug
-    // Find all bodies within the explosion radius
+
+    // Iterate over all bodies in the world
     Matter.Composite.allBodies(world).forEach(body => {
         const distance = Matter.Vector.magnitude(Matter.Vector.sub(body.position, collisionPoint));
+        // Check if the body is within the explosion radius
         if (distance > 0 && distance < explosionRadius) {
-            const intensity = Math.max(0, (explosionRadius - distance) / explosionRadius);
-            const forceMagnitude = explosionForce * intensity;
-            const forceDirection = Matter.Vector.normalise(Matter.Vector.sub(body.position, collisionPoint));
-            const force = Matter.Vector.mult(forceDirection, forceMagnitude);
-            Matter.Body.applyForce(body, body.position, force);
+            // 25% chance of instantly deleting the body from the explosion
+            if (Math.random() < 0.25) {
+                Matter.World.remove(world, body);
+                console.log("Particle removed by explosion effect.", body); // Debug
+            } else {
+                // Calculate the force to apply based on explosion parameters
+                const intensity = Math.max(0, (explosionRadius - distance) / explosionRadius);
+                const forceMagnitude = explosionForce * intensity * 0.0001 * body.mass; // Adjust force based on distance and body mass
+                const forceDirection = Matter.Vector.normalise(Matter.Vector.sub(collisionPoint, body.position)); // Reverse direction for outward force
+                const force = Matter.Vector.mult(forceDirection, -forceMagnitude); // Apply force away from the explosion center
+                Matter.Body.applyForce(body, body.position, force);
+            }
         }
     });
 
@@ -376,15 +387,17 @@ function simulateExplosionAndParticles(world, explosionForce, explosionRadius, c
             }
         );
 
-        const forceMagnitude = Math.random() * 0.005 + 0.002; // Slightly increased for visual effect
+        // Apply a force to disperse particles away from the explosion center
+        const particleForceMagnitude = Math.random() * 0.005 + 0.002; // Slightly increased for visual effect
         Matter.Body.applyForce(particle, particle.position, {
-            x: Math.cos(angle) * forceMagnitude,
-            y: Math.sin(angle) * forceMagnitude,
+            x: Math.cos(angle) * particleForceMagnitude,
+            y: Math.sin(angle) * particleForceMagnitude,
         });
 
         Matter.World.add(world, particle);
     }
 }
+
 
 
 
