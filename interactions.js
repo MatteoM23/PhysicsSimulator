@@ -15,7 +15,7 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
     const typeA = bodyA.material;
     const typeB = bodyB.material;
     const interactionKey = [typeA, typeB].sort().join('+');
-    
+
     console.log('Processing interaction for:', interactionKey); // Debug
 
     switch (interactionKey) {
@@ -27,7 +27,7 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
             console.log('Converting lava to rock and removing ice');
             convertLavaToRockRemoveIce(bodyA, bodyB, engine, collisionPoint);
             break;
-        case 'oil+lava':
+        case 'lava+oil': // Updated to match the sorted key
             console.log('Simulating explosion and particles for oil and lava interaction');
             simulateExplosionAndParticles(engine.world, explosionForce, explosionRadius, collisionPoint);
             break;
@@ -42,13 +42,13 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
         case 'lava+rubber':
             console.log('Creating fireballs and removing involved bodies');
             createFireballs(bodyA, bodyB, engine, collisionPoint);
-            Matter.World.remove(engine.world, bodyA); 
-            Matter.World.remove(engine.world, bodyB); 
+            Matter.World.remove(engine.world, bodyA);
+            Matter.World.remove(engine.world, bodyB);
             break;
         case 'ice+rock':
             console.log('Shattering ice and removing rock');
             shatterIce(bodyA, bodyB, engine, collisionPoint);
-            Matter.World.remove(engine.world, bodyB); 
+            Matter.World.remove(engine.world, bodyB);
             break;
         case 'neutronium+any':
             console.log('Creating gravity well effect');
