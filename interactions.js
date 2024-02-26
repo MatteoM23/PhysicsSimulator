@@ -319,14 +319,16 @@ function igniteWood(bodyA, bodyB, engine, collisionPoint) {
 
     // Create fire particles at the wood body's last position
     const numberOfParticles = 4;
+    const particles = []; // Store created fire particles for tracking
     for (let i = 0; i < numberOfParticles; i++) {
         const angle = Math.random() * 2 * Math.PI;
         const speed = 0.01; // Speed of the fire particles
         const fireParticle = Matter.Bodies.circle(woodBody.position.x, woodBody.position.y, 3, {
-            render: { fillStyle: 'orange' }, // Fire particle color
+            render: { fillStyle: 'orange', opacity: 1 }, // Initialize opacity for fade out
             density: 0.001,
             frictionAir: 0.05,
             restitution: 0.5,
+            circleRadius: 3, // Initial radius, needed for shrinking
         });
 
         Matter.Body.setVelocity(fireParticle, {
@@ -334,9 +336,34 @@ function igniteWood(bodyA, bodyB, engine, collisionPoint) {
             y: Math.sin(angle) * speed
         });
 
+        particles.push(fireParticle); // Add to tracking array
         Matter.World.add(engine.world, fireParticle);
     }
+
+    // Fade out and remove particles over time
+    const fadeOutInterval = setInterval(() => {
+        particles.forEach((particle, index) => {
+            // Reduce size and opacity
+            if (particle.circleRadius > 0.2) {
+                particle.circleRadius *= 0.95; // Shrink
+                particle.render.opacity *= 0.95; // Fade
+
+                // Apply upward force to simulate rising
+                Matter.Body.applyForce(particle, particle.position, { x: 0, y: -0.0002 });
+            } else {
+                // Remove particle when it's too small
+                Matter.World.remove(engine.world, particle);
+                particles.splice(index, 1);
+
+                // Clear interval when all particles are removed
+                if (particles.length === 0) {
+                    clearInterval(fadeOutInterval);
+                }
+            }
+        });
+    }, 100); // Adjust interval timing as needed
 }
+
     // Fade out and remove particles over time
     const fadeOutInterval = setInterval(() => {
         particles.forEach((particle, index, collisionPoint) => {
