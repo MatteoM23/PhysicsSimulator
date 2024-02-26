@@ -31,9 +31,9 @@ export const materials = {
 };
 
 export const createBody = (clientX, clientY) => {
-    const { x, y } = screenToWorld(clientX, clientY, render);
-    const materialKey = currentMaterial; // This should be the key of the material, like 'sand', 'water', etc.
-    const material = materials[materialKey]; // Access material properties using the materialKey
+    const { x, y } = screenToWorld(clientX, clientY, render); // Convert screen to world coordinates
+    const materialKey = currentMaterial; // This assumes currentMaterial is globally accessible
+    const material = materials[materialKey]; // Ensure materials object is accessible
 
     if (!material) {
         console.error(`Material '${materialKey}' not found.`);
@@ -46,11 +46,10 @@ export const createBody = (clientX, clientY) => {
         density: material.density,
         friction: material.friction,
         restitution: material.restitution,
-        material: materialKey // Assign the material key here
+        label: materialKey // It might be helpful to label the body with its material for future reference
     });
 
     Matter.World.add(engine.world, body);
 };
-
 
 
