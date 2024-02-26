@@ -1,24 +1,18 @@
-import { engine, world, render } from './physicsInit.js';
-import { createBody } from './materialManager.js';
-import Matter from 'https://cdn.skypack.dev/matter-js';
-
-let currentMaterial = 'sand'; // Default material
-let isMouseDown = false;
-let mousePosition = { x: 0, y: 0 };
-
 export const setupEventListeners = () => {
-    // Mouse down to start creating bodies or initiate other actions
     document.addEventListener('mousedown', (event) => {
-        isMouseDown = true;
-        mousePosition = { x: event.clientX, y: event.clientY };
-        createBodyAtMouse(); // Create body at mouse down for immediate feedback
+        // Check if the click was inside the UI container
+        if (!event.target.closest('#uiContainer')) {
+            isMouseDown = true;
+            // Convert screen position to world position
+            mousePosition = { x: event.clientX, y: event.clientY };
+            createBodyAtMouse();
+        }
     });
 
     // Mouse move to update position or draw with materials
     document.addEventListener('mousemove', (event) => {
         mousePosition = { x: event.clientX, y: event.clientY };
-        if (isMouseDown) {
-            // Example: create bodies continuously while mouse is pressed
+        if (isMouseDown && !event.target.closest('#uiContainer')) {
             createBodyAtMouse();
         }
     });
@@ -28,10 +22,8 @@ export const setupEventListeners = () => {
         isMouseDown = false;
     });
 
-    // Example: Key press events to change materials or trigger other features
+    // Key press events to change materials or trigger other features
     document.addEventListener('keydown', (event) => {
-        // Switch case or if-else to handle different key codes
-        // E.g., change currentMaterial based on pressed key
         switch (event.key) {
             case '1':
                 currentMaterial = 'sand';
@@ -43,19 +35,17 @@ export const setupEventListeners = () => {
         }
     });
 
-    // Add additional custom event listeners as needed for your application
-
-    // Collision event listener setup, if using teleportation or other collision-based features
+    // Add your collision event listener here
+    // Example: Handling custom material interactions on collisions
     Matter.Events.on(engine, 'collisionStart', (event) => {
         event.pairs.forEach(pair => {
-            // Example teleportation collision logic, or handle as needed
-            // handleTeleportationCollision(pair);
+            // Custom logic to handle collisions based on materials
         });
     });
 };
 
 const createBodyAtMouse = () => {
-    // Convert mouse screen position to world position and create a body with the current material
-    const { x, y } = mousePosition; // Assuming you have a function to convert these to world coordinates if necessary
+    const { x, y } = mousePosition;
+    // Ensure this function correctly maps screen to world coordinates if necessary
     createBody(x, y, currentMaterial);
 };
