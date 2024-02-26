@@ -19,7 +19,7 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
     console.log('Processing interaction for:', interactionKey); // Debug
 
     switch (interactionKey) {
-        case 'water+lava':
+        case 'lava+water':
             console.log('Converting to steam and obsidian');
             convertToSteamAndObsidian(bodyA, bodyB, engine, collisionPoint);
             break;
