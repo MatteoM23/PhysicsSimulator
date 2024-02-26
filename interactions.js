@@ -50,11 +50,20 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
     }
 };
 
+let activeStorms = 0; // Track the number of active storms
+const maxActiveStorms = 2; // Maximum number of simultaneous storms
+
 function createCosmicStorm(collisionPoint, engine) {
-    // Implementation of the cosmic storm effect
-    const stormRadius = 200; // Radius of the cosmic storm effect
-    const particleCount = 50; // Number of particles for the cosmic dust
-    const stormDuration = 3000; // Duration of the storm effect in milliseconds
+    // Check if the number of active storms is below the maximum allowed
+    if (activeStorms >= maxActiveStorms) {
+        console.log("Maximum number of cosmic storms reached.");
+        return; // Do not create a new storm if the maximum number is reached
+    }
+
+    activeStorms++; // Increment the count of active storms
+    const stormRadius = 200; 
+    const particleCount = 50; 
+    const stormDuration = 3000; 
 
     for (let i = 0; i < particleCount; i++) {
         const angle = Math.random() * Math.PI * 2;
@@ -62,32 +71,39 @@ function createCosmicStorm(collisionPoint, engine) {
         const particle = Matter.Bodies.circle(
             collisionPoint.x + Math.cos(angle) * distance,
             collisionPoint.y + Math.sin(angle) * distance,
-            2, // Size of the dust particles
+            2,
             {
                 render: {
-                    fillStyle: '#6c7b8b' // Color of the dust particles
+                    fillStyle: '#6c7b8b'
                 },
                 density: 0.001,
                 frictionAir: 0.05,
+                isSensor: true
             }
         );
 
         const forceMagnitude = 0.0001 * (Math.random() + 1);
-        Matter.Body.applyForce(particle, {
-            x: particle.position.x,
-            y: particle.position.y
-        }, {
+        Matter.Body.applyForce(particle, particle.position, {
             x: Math.cos(angle) * forceMagnitude,
             y: Math.sin(angle) * forceMagnitude
         });
 
         Matter.World.add(engine.world, particle);
 
-        setTimeout(() => {
-            Matter.World.remove(engine.world, particle);
-        }, stormDuration);
+        (function(particle) {
+            setTimeout(() => {
+                Matter.World.remove(engine.world, particle);
+
+                // Check if all particles of the current storm have been removed
+                if (--i === 0) {
+                    // Decrement the count of active storms when the last particle of a storm is removed
+                    activeStorms--;
+                }
+            }, stormDuration);
+        })(particle);
     }
 }
+
 
 
 function createGravityWellEffect(neutroniumBody, engine, collisionPoint) {
@@ -293,30 +309,6 @@ function createWaterParticles(position, world) {
         Matter.World.add(world, waterParticle);
     }
 }
-
-function createBubbleParticles(position, world) {
-    const numberOfBubbles = 5; // Adjust for desired amount of bubbles
-    for (let i = 0; i < numberOfBubbles; i++) {
-        const bubble = Matter.Bodies.circle(position.x, position.y, 3, {
-            render: {
-                sprite: {
-                    texture: 'path/to/your/bubble/texture.png', // Assuming you have a bubble texture with clear center
-                    xScale: 0.5,
-                    yScale: 0.5
-                }
-            },
-            isSensor: true, // Make bubbles non-collidable
-            frictionAir: 0.01,
-            density: 0.001,
-        });
-
-        // Apply a small upward force to simulate rising bubbles
-        Matter.Body.applyForce(bubble, bubble.position, { x: 0, y: -0.0002 });
-
-        Matter.World.add(world, bubble);
-    }
-}
-
 
 function createBubbleParticles(position, world) {
     const numberOfBubbles = 5; // Adjust for desired amount of bubbles
