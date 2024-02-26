@@ -133,46 +133,53 @@ function createGravityWellEffect(neutroniumBody, engine, collisionPoint) {
 
 function shatterIce(bodyA, bodyB, engine, collisionPoint) {
     let iceBody;
+    
+    // Check both bodies for the 'ice' material property
     if (bodyA.material === 'ice') {
         iceBody = bodyA;
     } else if (bodyB.material === 'ice') {
         iceBody = bodyB;
     }
 
-    // Verify iceBody is valid and exists in the world before attempting removal
-    if (iceBody && Matter.Composite.get(engine.world, iceBody.id, 'body')) {
-        console.log('Ice body shattered:', iceBody);
+    // Proceed only if an ice body has been identified
+    if (iceBody) {
+        // Verify iceBody is valid and exists in the world before attempting removal
+        if (Matter.Composite.get(engine.world, iceBody.id, 'body')) {
+            console.log('Ice body shattered:', iceBody);
 
-        // Remove the ice body safely
-        Matter.Composite.remove(engine.world, iceBody, true); // The true flag for deep removal
+            // Remove the ice body safely
+            Matter.Composite.remove(engine.world, iceBody, true); // The true flag for deep removal
 
-        // Simulate shattering by creating smaller ice fragments directly within this function
-        const numberOfFragments = 5; // Example value
-        console.log('Creating ice fragments for ice body:', iceBody);
+            // Simulate shattering by creating smaller ice fragments
+            const numberOfFragments = 5; // Example value
+            console.log('Creating ice fragments for ice body:', iceBody);
 
-        for (let i = 0; i < numberOfFragments; i++) {
-            // Calculate position and size for each fragment
-            let fragment = Matter.Bodies.polygon(
-                iceBody.position.x + Math.random() * 10 - 5, // Random position near original ice body
-                iceBody.position.y + Math.random() * 10 - 5,
-                3, // Triangle fragments for example
-                5, // Size
-                {
-                    render: {
-                        // Set the fillStyle to the same color as the ice body
-                        fillStyle: iceBody.render.fillStyle
-                    },
-                    density: iceBody.density, // Optional: match the density of the ice
-                    friction: iceBody.friction, // Optional: match the friction of the ice
-                    restitution: iceBody.restitution // Optional: match the restitution of the ice
-                }
-            );
+            for (let i = 0; i < numberOfFragments; i++) {
+                // Calculate position and size for each fragment
+                let fragment = Matter.Bodies.polygon(
+                    iceBody.position.x + Math.random() * 10 - 5, // Random position near original ice body
+                    iceBody.position.y + Math.random() * 10 - 5,
+                    3, // Triangle fragments for example
+                    5, // Size
+                    {
+                        render: {
+                            fillStyle: iceBody.render.fillStyle
+                        },
+                        density: iceBody.density,
+                        friction: iceBody.friction,
+                        restitution: iceBody.restitution
+                    }
+                );
 
-            // Add each fragment to the world
-            Matter.World.add(engine.world, fragment);
+                // Add each fragment to the world
+                Matter.World.add(engine.world, fragment);
+            }
+        } else {
+            console.error('Ice body not found in world:', iceBody);
         }
     } else {
-        console.error('Attempted to shatter an undefined or non-ice body.');
+        // Log a message or handle cases where no ice body is involved in the collision
+        console.log('No ice body involved in the collision.');
     }
 }
 
