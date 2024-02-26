@@ -237,14 +237,108 @@ function createSteamParticles(engine, position, collisionPoint) {
 
 
 function convertLavaToRockRemoveIce(bodyA, bodyB, engine, collisionPoint) {
-    // Similar to the above, remove ice and convert lava to rock
+    // Determine the ice and lava bodies
     let iceBody = bodyA.material === 'ice' ? bodyA : bodyB;
     let lavaBody = bodyA.material === 'lava' ? bodyA : bodyB;
 
+    // Remove ice body and convert lava to rock gradually
     Matter.World.remove(engine.world, iceBody);
-    lavaBody.render.fillStyle = '#7f8c8d';
+    lavaBody.render.fillStyle = '#7f8c8d'; // Initial color change to simulate cooling
     lavaBody.material = 'rock';
+
+    // Fade out effect for lava
+    let fadeOutInterval = setInterval(() => {
+        let currentColor = hexToRgb(lavaBody.render.fillStyle);
+        if (currentColor.g < 140) {
+            lavaBody.render.fillStyle = `rgb(${currentColor.r}, ${currentColor.g + 5}, ${currentColor.b + 5})`; // Gradually change color
+        } else {
+            clearInterval(fadeOutInterval); // Stop fading when color reaches a certain point
+        }
+    }, 100);
+
+    // Generate water particles for the ice melting
+    createWaterParticles(collisionPoint, engine.world);
+
+    // Create bubble particles to simulate evaporation
+    createBubbleParticles(collisionPoint, engine.world);
 }
+
+// Helper function to convert HEX color to RGB
+function hexToRgb(hex) {
+    let r = 0, g = 0, b = 0;
+    if (hex.length == 7) {
+        r = parseInt(hex.substring(1, 3), 16);
+        g = parseInt(hex.substring(3, 5), 16);
+        b = parseInt(hex.substring(5, 7), 16);
+    }
+    return { r, g, b };
+}
+
+function createWaterParticles(position, world) {
+    const numberOfParticles = 10; // Adjust based on desired effect
+    for (let i = 0; i < numberOfParticles; i++) {
+        const angle = Math.random() * 2 * Math.PI;
+        const speed = Math.random() * 0.05 + 0.05; // Randomize for more natural effect
+        const waterParticle = Matter.Bodies.circle(position.x, position.y, 2, {
+            render: { fillStyle: 'blue' },
+            frictionAir: 0.01,
+            restitution: 0.5,
+        });
+
+        Matter.Body.setVelocity(waterParticle, {
+            x: Math.cos(angle) * speed,
+            y: Math.sin(angle) * speed
+        });
+
+        Matter.World.add(world, waterParticle);
+    }
+}
+
+function createBubbleParticles(position, world) {
+    const numberOfBubbles = 5; // Adjust for desired amount of bubbles
+    for (let i = 0; i < numberOfBubbles; i++) {
+        const bubble = Matter.Bodies.circle(position.x, position.y, 3, {
+            render: {
+                sprite: {
+                    texture: 'path/to/your/bubble/texture.png', // Assuming you have a bubble texture with clear center
+                    xScale: 0.5,
+                    yScale: 0.5
+                }
+            },
+            isSensor: true, // Make bubbles non-collidable
+            frictionAir: 0.01,
+            density: 0.001,
+        });
+
+        // Apply a small upward force to simulate rising bubbles
+        Matter.Body.applyForce(bubble, bubble.position, { x: 0, y: -0.0002 });
+
+        Matter.World.add(world, bubble);
+    }
+}
+
+
+function createBubbleParticles(position, world) {
+    const numberOfBubbles = 5; // Adjust for desired amount of bubbles
+    for (let i = 0; i < numberOfBubbles; i++) {
+        const bubble = Matter.Bodies.circle(position.x, position.y, 3, {
+            render: {
+                strokeStyle: '#FFFFFF', // White outline for bubbles
+                lineWidth: 1, // Thin outline to simulate bubble's edge
+                fillStyle: 'transparent' // Clear center
+            },
+            isSensor: true, // Make bubbles non-collidable
+            frictionAir: 0.01,
+            density: 0.001,
+        });
+
+        // Apply a small upward force to simulate rising bubbles
+        Matter.Body.applyForce(bubble, bubble.position, { x: 0, y: -0.0002 });
+
+        Matter.World.add(world, bubble);
+    }
+}
+
 
 function simulateExplosion(bodyA, bodyB, world, explosionForce, explosionRadius, collisionPoint) {
     // Simulate an explosion effect at the collision point
