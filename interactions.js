@@ -24,7 +24,7 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
             convertLavaToRockRemoveIce(bodyA, bodyB, engine, collisionPoint);
             break;
         case 'oil+lava':
-            simulateExplosionAndParticles((engine.world, explosionForce, explosionRadius, collisionPoint);
+            simulateExplosionAndParticles(engine.world, explosionForce, explosionRadius, collisionPoint);
             break;
         case 'glass+rock':
             formGlassyStructures(bodyA, bodyB, engine, collisionPoint);
