@@ -57,7 +57,6 @@ export const setupEventListeners = () => {
 };
 
 const createBodyAtMouse = () => {
-    // Assuming createBody function exists and can create bodies based on currentMaterial
-    // This function needs to properly implement body creation
-    createBody(mousePosition.x, mousePosition.y, currentMaterial);
+    // Directly use clientX and clientY from the global mousePosition
+    createBody(mousePosition.x, mousePosition.y);
 };
