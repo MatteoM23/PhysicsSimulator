@@ -55,11 +55,13 @@ export const setupEventListeners = () => {
 };
 
 const createBodyAtMouse = () => {
+    console.log('Attempting to create body at:', mousePosition.x, mousePosition.y, 'with material:', 'currentMaterial');
     if (mousePosition && typeof mousePosition.x === 'number' && typeof mousePosition.y === 'number') {
         createBody(mousePosition.x + window.scrollX, mousePosition.y + window.scrollY, 'currentMaterial'); // Assuming 'currentMaterial' is handled correctly
     } else {
         console.error('Mouse position is not defined or incorrect.');
     }
 };
+
 
 setupEventListeners(); // Activates the event listeners when the script is loaded
