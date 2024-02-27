@@ -31,40 +31,26 @@ export const materials = {
 };
 
 
-export const createBody = (clientX, clientY, materialKey = currentMaterial) => {
-    console.log(`Creating body at: ${clientX}, ${clientY} with material: ${materialKey}`);
-
-    // Convert client (mouse) coordinates to world coordinates
-    const { x, y } = screenToWorld(clientX, clientY, render);
-    console.log(`World coordinates for body: ${x}, ${y}`);
-
-    // Retrieve the selected material's properties
-    const material = materials[materialKey];
+export const createBody = (x, y) => {
+    const material = materials[currentMaterial];
     if (!material) {
-        console.error(`Material '${materialKey}' not found.`);
+        console.error(`Material '${currentMaterial}' not found.`);
         return;
     }
 
-    // Prepare body options with material properties
-    const options = {
+    // Prepare body options based on material properties
+    const bodyOptions = {
         density: material.density,
         friction: material.friction,
         restitution: material.restitution,
-        render: { fillStyle: material.color }
+        render: {
+            fillStyle: material.color
+        }
     };
 
-    // Adjust the body creation based on the material type
-    let body;
-    if (materialKey === 'water' || materialKey === 'oil') {
-        // For fluid-like materials, use smaller, more numerous particles
-        body = Matter.Bodies.circle(x, y, 5, options);
-    } else {
-        // Default to a medium-sized particle for other materials
-        body = Matter.Bodies.circle(x, y, 20, options);
-    }
+    // Creating a circle body as an example; you might want to adjust shape or size
+    const body = Matter.Bodies.circle(x, y, 20, bodyOptions); // Adjust radius (20) as needed
 
-    // Add the created body to the Matter.js world
+    // Add the body to the Matter.js world
     Matter.World.add(engine.world, body);
-    return body;
 };
-
