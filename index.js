@@ -2,7 +2,7 @@ import Matter from 'https://cdn.skypack.dev/matter-js';
 import { initPhysics, engine } from './physicsInit.js';
 import { setupEventListeners } from './eventListeners.js';
 import { initFeatureButtons } from './featureButton.js';
-import { initDropdown } from './dropdown.js';
+import { initDropdown } from './dropdown.js'; // Ensure this is correctly imported
 import { interactionRules, handleCollisions } from './interactions.js';
 import { screenToWorld, invertColor, padZero } from './utils.js';
 
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initPhysics();
 
     // Setup UI interactions and feature buttons
-    initDropdown(); // Initializes the dropdown for material selection
+    initDropdown(); // This now dynamically creates the dropdown
     initFeatureButtons(); // Initializes feature buttons for user interactions
 
     // Setup event listeners for user actions and physics events
