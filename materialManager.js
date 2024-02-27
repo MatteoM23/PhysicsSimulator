@@ -31,15 +31,30 @@ export const materials = {
 };
 
 export const createBody = (clientX, clientY) => {
-    // Convert screen coordinates to world coordinates
-    const { x, y } = screenToWorld(clientX, clientY, render.canvas);
+    // Verify render object's availability
+    if (!render || !render.canvas) {
+        console.error("Render object or canvas not available in createBody function.");
+        return;
+    }
 
+    // Convert screen coordinates to world coordinates
+    const { x, y } = screenToWorld(clientX, clientY, render);
+
+    // Ensure material exists
     const material = materials[currentMaterial];
     if (!material) {
         console.error(`Material '${currentMaterial}' not found.`);
         return;
     }
 
+    // Debugging: log material being used
+    console.log(`Creating body with material: ${currentMaterial}`, material);
+
+    // Determine body size based on material density (example logic)
+    const baseSize = 20; // Base size for bodies
+    const size = material.density < 0.001 ? 10 : (material.density < 0.005 ? 15 : 20);
+
+    // Body options
     const bodyOptions = {
         density: material.density,
         friction: material.friction,
@@ -47,9 +62,12 @@ export const createBody = (clientX, clientY) => {
         render: { fillStyle: material.color },
     };
 
-    // Example: Create a circle body; you might want to adjust the shape or size based on the material
-    const body = Matter.Bodies.circle(x, y, 20, bodyOptions); // '20' is the radius; adjust as needed based on the material
+    // Create a circle body; could be extended to other shapes based on material
+    const body = Matter.Bodies.circle(x, y, size, bodyOptions);
 
     // Add the body to the Matter.js world
     Matter.World.add(engine.world, body);
+
+    // Debugging: Confirm body addition
+    console.log(`Body created and added to world:`, body);
 };
