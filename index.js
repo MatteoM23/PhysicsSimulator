@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     Matter.Events.on(engine, 'collisionStart', (event) => {
         event.pairs.forEach((pair) => {
             // Execute interaction rules based on the materials of the colliding bodies
-            handleCollisions(event, engine);
+            handleCollisions(pair, engine); // Ensuring the correct argument is passed
         });
     });
 
