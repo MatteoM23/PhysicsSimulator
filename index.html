@@ -9,13 +9,13 @@
 </head>
 <body>
     <div id="uiContainer" class="uiElement">
-        <!-- The dropdown content will be dynamically inserted into this div -->
+        <!-- Dynamic dropdown for material selection will be inserted here -->
         <div id="materialsContainer"></div>
         <div class="feature-buttons">
             <!-- Feature buttons will be dynamically inserted here -->
         </div>
     </div>
-    <canvas id="physicsCanvas"></canvas> <!-- This is where the physics simulation will be rendered -->
+    <canvas id="physicsCanvas"></canvas> <!-- Physics simulation render target -->
     <script type="module" src="https://cdn.skypack.dev/matter-js"></script>
     <script type="module" src="index.js"></script>
     <script type="module" src="interactions.js"></script>
@@ -23,11 +23,6 @@
     <script type="module" src="materialManager.js"></script>
     <script type="module" src="dropdown.js"></script>
     <script type="module" src="physicsInit.js"></script>
-    <script type="module">
-        import { initDropdown } from './dropdown.js';
-        window.addEventListener('DOMContentLoaded', (event) => {
-            initDropdown();
-        });
-    </script>
+    <script type="module" src="eventListeners.js"></script>
 </body>
 </html>
