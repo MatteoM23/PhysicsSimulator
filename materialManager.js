@@ -1,6 +1,5 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
-import { engine, render } from './physicsInit.js';
-import { screenToWorld } from './utils.js';
+import { engine } from './physicsInit.js';
 import { currentMaterial } from './dropdown.js'; // Ensure this import is correct
 
 // Expanded list of materials with detailed properties.
@@ -24,32 +23,30 @@ export const materials = {
     voidEssence: { color: '#000080', density: 0.0005, friction: 0.0, restitution: 1.0 },
     ether: { color: '#b19cd9', density: 0.0002, friction: 0.01, restitution: 0.95 },
     solarFlare: { color: '#ffae42', density: 0.001, friction: 0.1, restitution: 0.8 },
-    cosmicDust: { color: '#6c7b8b', density: 0.002, size: 20, friction: 0.7, restitution: 0.3 },
-    magneticField: { color: '#1e90ff', density: 0.0001, size: 40, friction: 0.0, restitution: 1.05 },
-    photonGel: { color: '#ffa07a', density: 0.0008, size: 25, friction: 0.05, restitution: 0.9 },
-    // Feel free to add or modify materials as you see fit for your simulation's requirements.
+    cosmicDust: { color: '#6c7b8b', density: 0.002, friction: 0.7, restitution: 0.3 },
+    magneticField: { color: '#1e90ff', density: 0.0001, friction: 0.0, restitution: 1.05 },
+    photonGel: { color: '#ffa07a', density: 0.0008, friction: 0.05, restitution: 0.9 },
 };
 
+export const createBody = (clientX, clientY) => {
+    // Convert screen coordinates to world coordinates
+    const { x, y } = screenToWorld(clientX, clientY, render.canvas);
 
-export const createBody = (x, y) => {
     const material = materials[currentMaterial];
     if (!material) {
         console.error(`Material '${currentMaterial}' not found.`);
         return;
     }
 
-    // Prepare body options based on material properties
     const bodyOptions = {
         density: material.density,
         friction: material.friction,
         restitution: material.restitution,
-        render: {
-            fillStyle: material.color
-        }
+        render: { fillStyle: material.color },
     };
 
-    // Creating a circle body as an example; you might want to adjust shape or size
-    const body = Matter.Bodies.circle(x, y, 20, bodyOptions); // Adjust radius (20) as needed
+    // Example: Create a circle body; you might want to adjust the shape or size based on the material
+    const body = Matter.Bodies.circle(x, y, 20, bodyOptions); // '20' is the radius; adjust as needed based on the material
 
     // Add the body to the Matter.js world
     Matter.World.add(engine.world, body);
