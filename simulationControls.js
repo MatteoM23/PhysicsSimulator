@@ -1,5 +1,6 @@
 import { engine, world } from './physicsInit.js';
 import Matter from 'https://cdn.skypack.dev/matter-js';
+import { createBody } from './materialManager.js';
 
 export const clearWorld = () => {
     // Get all bodies in the world
@@ -34,28 +35,22 @@ export const toggleGravity = () => {
 };
 
 
+
 export const materialRain = () => {
-    const materials = ['sand', 'water', 'oil', 'rock', 'lava', 'ice', 'rubber', 'steel', 'glass', 'wood', 'antimatter', 'darkMatter', 'neutronium', 'quantumFoam', 'exoticMatter', 'plasmaCrystal', 'voidEssence', 'ether', 'solarFlare', 'cosmicDust', 'magneticField', 'photonGel'];
+    console.log('Starting material rain...');
+    const materialNames = Object.keys(materials); // Assuming materials is imported or accessible
 
-    // Number of materials to rain
-    const numMaterials = 20;
-
-    // Get the canvas dimensions
-    const canvasWidth = engine.render.canvas.width;
-    const canvasHeight = engine.render.canvas.height;
-
-    // Create material rain
+    const numMaterials = 20; // Number of materials to rain
     for (let i = 0; i < numMaterials; i++) {
-        const material = materials[Math.floor(Math.random() * materials.length)];
+        const materialName = materialNames[Math.floor(Math.random() * materialNames.length)];
+        const x = Math.random() * window.innerWidth; // Use window width if canvas covers entire window
+        const y = -30; // Start off-screen for falling effect
 
-        // Generate random position within the canvas
-        const x = Math.random() * canvasWidth;
-        const y = Math.random() * canvasHeight;
-
-        // Create body at random position with selected material
-        createBody(x, y, material);
+        console.log(`Creating ${materialName} at x: ${x}, y: ${y}`);
+        createBody(x, y, materialName);
     }
 
-    console.log('Material rain started!');
+    console.log('Material rain executed.');
 };
+
 
