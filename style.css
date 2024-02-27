@@ -34,8 +34,8 @@ canvas#physicsCanvas {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1; /* Canvas is behind UI elements */
-    pointer-events: none; /* Allows interaction with UI elements */
+    z-index: 1;
+    pointer-events: none;
 }
 
 #uiContainer {
@@ -55,10 +55,6 @@ canvas#physicsCanvas {
     z-index: 100;
 }
 
-.dropdown, .dropbtn, .feature-buttons button {
-    transition: background-color var(--transition-speed), transform var(--transition-speed);
-}
-
 .dropbtn, .feature-buttons button {
     background-image: linear-gradient(to right, var(--gradient-start-color), var(--gradient-end-color));
     color: var(--text-color);
@@ -67,29 +63,31 @@ canvas#physicsCanvas {
     border: none;
     cursor: pointer;
     border-radius: var(--border-radius);
-    width: 100%;
+    width: auto; /* Changed from 100% to auto for better fit inside flex container */
     box-shadow: 0 2px 4px var(--shadow-color);
     text-align: center;
+    margin: 5px; /* Ensure buttons don't stick together */
 }
 
 .dropbtn:hover, .feature-buttons button:hover {
+    background-color: var(--button-hover-bg-color);
     transform: scale(var(--hover-scale));
 }
 
 .dropbtn:active, .feature-buttons button:active {
+    background-color: var(--button-active-bg-color);
     transform: var(--active-transform);
 }
 
 .dropdown-content {
     display: none;
     position: absolute;
-    background-image: linear-gradient(to right, var(--gradient-start-color), var(--gradient-end-color));
+    background-color: var(--dropdown-bg-color);
     box-shadow: 0 8px 16px var(--shadow-color);
     border-radius: var(--border-radius);
     padding: 12px 16px;
     top: 100%;
     left: 0;
-    margin-top: -5px; /* Adjust if necessary to reduce gap */
     z-index: 101;
 }
 
@@ -101,7 +99,7 @@ canvas#physicsCanvas {
 }
 
 .dropdown-content a:hover {
-    background-color: rgba(255, 255, 255, 0.2); /* Soft highlight for hover */
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 .dropdown:hover .dropdown-content {
@@ -110,8 +108,8 @@ canvas#physicsCanvas {
 
 .feature-buttons {
     display: flex;
-    justify-content: space-around;
-    width: 100%;
+    justify-content: center; /* Centering feature buttons for a neat appearance */
     flex-wrap: wrap;
     gap: 10px;
+    width: 100%;
 }
