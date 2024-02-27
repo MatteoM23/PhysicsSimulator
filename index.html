@@ -9,13 +9,8 @@
 </head>
 <body>
     <div id="uiContainer" class="uiElement">
-        <div class="dropdown">
-            <button class="dropbtn">Select Material</button>
-            <div class="dropdown-content" id="materialsContainer">
-                <!-- Material options will be dynamically inserted here -->
-            </div>
-        </div>
-
+        <!-- The dropdown content will be dynamically inserted into this div -->
+        <div id="materialsContainer"></div>
         <div class="feature-buttons">
             <!-- Feature buttons will be dynamically inserted here -->
         </div>
@@ -27,6 +22,12 @@
     <script type="module" src="utils.js"></script>
     <script type="module" src="materialManager.js"></script>
     <script type="module" src="dropdown.js"></script>
-    <script type="module" src="physicsInit.js"></script> <!-- Add this line to include the physics initialization script -->
+    <script type="module" src="physicsInit.js"></script>
+    <script type="module">
+        import { initDropdown } from './dropdown.js';
+        window.addEventListener('DOMContentLoaded', (event) => {
+            initDropdown();
+        });
+    </script>
 </body>
 </html>
