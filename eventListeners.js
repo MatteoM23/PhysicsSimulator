@@ -2,79 +2,64 @@ import { engine } from './physicsInit.js';
 import { createBody } from './materialManager.js';
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
-let currentMaterial = 'sand'; // Default material, ensure this is managed globally or provided here
 let isMouseDown = false;
 let mousePosition = { x: 0, y: 0 };
 
 export const setupEventListeners = () => {
     document.addEventListener('mousedown', (event) => {
-        console.log('Mousedown event detected');
         if (event.target.id === 'physicsCanvas') {
-            console.log('Mousedown on canvas');
             isMouseDown = true;
             const canvasBounds = event.target.getBoundingClientRect();
             mousePosition = {
                 x: event.clientX - canvasBounds.left,
                 y: event.clientY - canvasBounds.top
             };
-            console.log(`Mouse position set to: ${mousePosition.x}, ${mousePosition.y}`);
             createBodyAtMouse();
         }
     });
 
     document.addEventListener('mousemove', (event) => {
-        console.log('Mousemove event detected');
         if (event.target.id === 'physicsCanvas' && isMouseDown) {
-            console.log('Mousemove on canvas with mousedown');
             const canvasBounds = event.target.getBoundingClientRect();
             mousePosition = {
                 x: event.clientX - canvasBounds.left,
                 y: event.clientY - canvasBounds.top
             };
-            console.log(`Updated mouse position to: ${mousePosition.x}, ${mousePosition.y}`);
             createBodyAtMouse();
         }
     });
 
     document.addEventListener('mouseup', () => {
-        console.log('Mouseup event detected, stopping body creation');
         isMouseDown = false;
     });
 
     document.addEventListener('keydown', (event) => {
-        console.log(`Keydown event detected: ${event.key}`);
+        // Example of handling material change with keyboard
         switch (event.key) {
             case '1':
-                currentMaterial = 'sand';
-                console.log('Current material set to sand');
+                console.log('Material set to sand'); // Placeholder action
                 break;
             case '2':
-                currentMaterial = 'water';
-                console.log('Current material set to water');
+                console.log('Material set to water'); // Placeholder action
                 break;
-            // Add cases for other materials or actions
+            // Extend this switch to change materials as required
         }
     });
 
-    // Collision event listener setup
     Matter.Events.on(engine, 'collisionStart', (event) => {
-        console.log('Collision start event detected');
         event.pairs.forEach(pair => {
-            // Custom logic to handle collisions based on materials
             console.log(`Collision detected between: ${pair.bodyA.label} and ${pair.bodyB.label}`);
-            // Implement collision handling logic here
+            // Placeholder for collision handling logic
         });
     });
 };
 
 const createBodyAtMouse = () => {
-    console.log(`Attempting to create body at mouse position with material: ${currentMaterial}`);
-
-    // Ensure mousePosition is defined and has the necessary properties
     if (mousePosition && typeof mousePosition.x === 'number' && typeof mousePosition.y === 'number') {
-        // Adjust to pass screen coordinates directly, accounting for page scroll
-        createBody(mousePosition.x + window.scrollX, mousePosition.y + window.scrollY);
+        createBody(mousePosition.x + window.scrollX, mousePosition.y + window.scrollY, 'currentMaterial'); // Assuming 'currentMaterial' is handled correctly
     } else {
         console.error('Mouse position is not defined or incorrect.');
     }
 };
+
+setupEventListeners(); // Activates the event listeners when the script is loaded
