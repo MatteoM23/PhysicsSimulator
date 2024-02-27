@@ -7,7 +7,7 @@ import { interactionRules, handleCollisions } from './interactions.js';
 import { screenToWorld, invertColor, padZero } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize the physics engine
+    // Initialize the physics engine and rendering
     initPhysics();
 
     // Setup UI interactions and feature buttons
