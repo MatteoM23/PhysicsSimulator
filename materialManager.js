@@ -1,7 +1,8 @@
 import Matter from 'https://cdn.skypack.dev/matter-js';
 import { engine } from './physicsInit.js';
-import { currentMaterial } from './dropdown.js'; // Ensure this import is correct
-
+import { currentMaterial, materials } from './materialManager.js'; // Ensure these imports are correct
+import { screenToWorld } from './utils.js'; // Import screenToWorld function
+import { render } from './physicsInit.js'; // Import render object for canvas context
 // Expanded list of materials with detailed properties.
 export const materials = {
     sand: { color: '#f4e04d', density: 0.0025, friction: 0.5, restitution: 0.3 },
