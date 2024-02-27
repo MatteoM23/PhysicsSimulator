@@ -2,7 +2,7 @@ import { engine } from './physicsInit.js';
 import { createBody } from './materialManager.js';
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
-let currentMaterial = 'sand'; // Default material
+let currentMaterial = 'sand'; // Default material, ensure this is managed globally or provided here
 let isMouseDown = false;
 let mousePosition = { x: 0, y: 0 };
 
@@ -69,5 +69,6 @@ export const setupEventListeners = () => {
 
 const createBodyAtMouse = () => {
     console.log(`Attempting to create body at: ${mousePosition.x}, ${mousePosition.y} with material: ${currentMaterial}`);
-    createBody(mousePosition.x, mousePosition.y);
+    // Adjust to pass screen coordinates directly
+    createBody(mousePosition.x + window.scrollX, mousePosition.y + window.scrollY);
 };
