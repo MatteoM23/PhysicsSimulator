@@ -1,20 +1,17 @@
-// dropdown.js
 import { materials } from './materialManager.js';
 
 export let currentMaterial = 'sand'; // Default material selection
 
 export const initDropdown = () => {
-    const materialsDropdown = document.createElement('select');
-    materialsDropdown.id = 'materialsDropdown';
-
-    // Append dropdown to body or specific container
     const dropdownContainer = document.getElementById('materialsContainer');
-    if (dropdownContainer) {
-        dropdownContainer.appendChild(materialsDropdown);
-    } else {
+    if (!dropdownContainer) {
         console.error('Materials container not found');
         return;
     }
+
+    const materialsDropdown = document.createElement('select');
+    materialsDropdown.id = 'materialsDropdown';
+    dropdownContainer.appendChild(materialsDropdown);
 
     Object.keys(materials).forEach(materialKey => {
         const option = document.createElement('option');
@@ -28,4 +25,4 @@ export const initDropdown = () => {
     });
 };
 
-// Ensure to call initDropdown() in your main script or entry point.
+// Call initDropdown() where appropriate to ensure it executes.
