@@ -1,49 +1,50 @@
-import { engine, render } from './physicsInit.js';
+import { engine, render } from './physicsInit.js'; // Ensure render is correctly imported for debug
 import { createBody } from './materialManager.js';
+import Matter from 'https://cdn.skypack.dev/matter-js';
 
 let isMouseDown = false;
+let mousePosition = { x: 0, y: 0 };
 
 export const setupEventListeners = () => {
-    const canvas = render.canvas; // Utilizing the render.canvas directly ensures we are attaching to the correct element.
+    const canvas = document.getElementById('physicsCanvas');
 
     if (!canvas) {
-        console.error("physicsCanvas not found. Ensure your render object is correctly initialized.");
+        console.error("physicsCanvas not found.");
         return;
+    } else {
+        console.log("physicsCanvas found, attaching event listeners.");
     }
-    console.log("physicsCanvas found, attaching event listeners.");
 
-    // Adjusting to use clientX/Y directly for simplicity and adding checks to ensure coordinates are within canvas bounds.
-    const handleMouseDown = (event) => {
+    // Enhanced mouse down event listener with additional debug
+    canvas.addEventListener('mousedown', (event) => {
         isMouseDown = true;
-        const { x, y } = getCanvasRelativePosition(event);
-        console.log(`Mouse down at canvas position: x=${x}, y=${y}`);
-        createBody(x, y); // Directly using the canvas-relative positions.
-    };
-
-    const handleMouseMove = (event) => {
-        if (!isMouseDown) return;
-        const { x, y } = getCanvasRelativePosition(event);
-        console.log(`Mouse move (with button down) at canvas position: x=${x}, y=${y}`);
-        createBody(x, y);
-    };
-
-    const handleMouseUp = () => {
-        isMouseDown = false;
-        console.log("Mouse button released.");
-    };
-
-    // Convert screen coordinates to canvas-relative coordinates.
-    const getCanvasRelativePosition = (event) => {
         const rect = canvas.getBoundingClientRect();
-        return {
+        mousePosition = {
             x: event.clientX - rect.left,
-            y: event.clientY - rect.top,
+            y: event.clientY - rect.top
         };
-    };
+        console.log(`mousedown - Creating body at x: ${mousePosition.x}, y: ${mousePosition.y}`);
+        createBody(mousePosition.x, mousePosition.y); // Confirming call to createBody on mousedown
+    });
 
-    canvas.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('mousemove', handleMouseMove); // Listening to the document to track mouse moves even outside the canvas.
-    document.addEventListener('mouseup', handleMouseUp);
+    // Enhanced mouse move event listener to create body only when mouse is down
+    canvas.addEventListener('mousemove', (event) => {
+        if (isMouseDown) {
+            const rect = canvas.getBoundingClientRect();
+            mousePosition = {
+                x: event.clientX - rect.left,
+                y: event.clientY - rect.top
+            };
+            console.log(`mousemove - Creating body at x: ${mousePosition.x}, y: ${mousePosition.y}`);
+            createBody(mousePosition.x, mousePosition.y); // Confirming continuous body creation on mousemove
+        }
+    });
+
+    // Enhanced mouse up event listener with additional debug
+    window.addEventListener('mouseup', () => {
+        isMouseDown = false;
+        console.log(`mouseup - Mouse is now up. Stopping body creation.`);
+    });
 };
 
-console.log("Event listener script is set up and ready.");
+console.log("Event listener script enhanced and loaded. Ready for interaction.");
