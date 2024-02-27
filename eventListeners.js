@@ -1,36 +1,45 @@
 import { engine } from './physicsInit.js';
 import { createBody } from './materialManager.js';
-import { currentMaterial } from './dropdown.js'; // Ensure this is correctly imported and used
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
 let isMouseDown = false;
 let mousePosition = { x: 0, y: 0 };
 
 export const setupEventListeners = () => {
-    document.addEventListener('mousedown', (event) => {
-        if (event.target.id === 'physicsCanvas') {
-            isMouseDown = true;
-            mousePosition = {
-                x: event.clientX,
-                y: event.clientY
-            };
-            createBody(mousePosition.x, mousePosition.y, currentMaterial);
-        }
+    // Ensuring event listeners are attached to the canvas element
+    const canvas = document.getElementById('physicsCanvas');
+    
+    if (!canvas) {
+        console.error("physicsCanvas not found.");
+        return;
+    }
+
+    canvas.addEventListener('mousedown', (event) => {
+        isMouseDown = true;
+        // Adjusting to get mouse position relative to the canvas
+        const rect = canvas.getBoundingClientRect();
+        mousePosition = {
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top
+        };
+        createBody(mousePosition.x, mousePosition.y); // currentMaterial is handled within createBody
     });
 
-    document.addEventListener('mousemove', (event) => {
+    canvas.addEventListener('mousemove', (event) => {
         if (isMouseDown) {
+            const rect = canvas.getBoundingClientRect();
             mousePosition = {
-                x: event.clientX,
-                y: event.clientY
+                x: event.clientX - rect.left,
+                y: event.clientY - rect.top
             };
-            createBody(mousePosition.x, mousePosition.y, currentMaterial);
+            createBody(mousePosition.x, mousePosition.y); // currentMaterial is handled within createBody
         }
     });
 
-    document.addEventListener('mouseup', () => {
+    window.addEventListener('mouseup', () => {
         isMouseDown = false;
     });
 };
 
-setupEventListeners();
+// Call setupEventListeners() where appropriate, for example, after the DOM has fully loaded.
+// This might be done in your main script file where the rest of your initialization code resides.
