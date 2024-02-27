@@ -30,8 +30,15 @@ export const materials = {
     // Feel free to add or modify materials as you see fit for your simulation's requirements.
 };
 
+
 export const createBody = (clientX, clientY) => {
     console.log(`Creating body at: ${clientX}, ${clientY} with material: ${currentMaterial}`);
+
+    // Ensure render is defined for screenToWorld conversion
+    if (!render) {
+        console.error('Render object not found.');
+        return;
+    }
 
     // Convert client (mouse) coordinates to world coordinates
     const { x, y } = screenToWorld(clientX, clientY, render);
@@ -44,28 +51,31 @@ export const createBody = (clientX, clientY) => {
         return;
     }
 
-    // Create a body based on the material properties
-    // This example uses a circle, but you could easily extend it to other shapes
+    // Prepare body options with defaults and overrides from material
     const bodyOptions = {
-        isStatic: material.isStatic || false,
-        render: { fillStyle: material.color },
-        density: material.density,
-        friction: material.friction,
-        restitution: material.restitution,
+        isStatic: false,
+        render: { fillStyle: '#ffffff' }, // Default color
+        density: 0.001,
+        friction: 0.1,
+        restitution: 0.1,
+        ...material, // Overrides with material properties
         label: currentMaterial // Useful for debugging
     };
+
+    // Example for extending to other shapes, defaults to circle
     const bodySize = material.size || 20; // Default size or specific material size
-    const body = Matter.Bodies.circle(x, y, bodySize, bodyOptions);
+    let body;
+    if (material.shape === 'rectangle') {
+        const width = material.width || 50; // Default width
+        const height = material.height || 50; // Default height
+        body = Matter.Bodies.rectangle(x, y, width, height, bodyOptions);
+    } else { // Default to circle
+        body = Matter.Bodies.circle(x, y, bodySize, bodyOptions);
+    }
 
     // Add the created body to the Matter.js world
     Matter.World.add(engine.world, body);
     console.log(`Body created with material '${currentMaterial}' and added to world.`);
-};
-
-// Debug utility to ensure screenToWorld works as expected
-export const debugScreenToWorld = (clientX, clientY) => {
-    const { x, y } = screenToWorld(clientX, clientY, render);
-    console.log(`Screen to world: (${clientX}, ${clientY}) -> (${x}, ${y})`);
 };
 
 
