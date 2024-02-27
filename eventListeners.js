@@ -68,7 +68,13 @@ export const setupEventListeners = () => {
 };
 
 const createBodyAtMouse = () => {
-    console.log(`Attempting to create body at: ${mousePosition.x}, ${mousePosition.y} with material: ${currentMaterial}`);
-    // Adjust to pass screen coordinates directly
-    createBody(mousePosition.x + window.scrollX, mousePosition.y + window.scrollY);
+    console.log(`Attempting to create body at mouse position with material: ${currentMaterial}`);
+
+    // Ensure mousePosition is defined and has the necessary properties
+    if (mousePosition && typeof mousePosition.x === 'number' && typeof mousePosition.y === 'number') {
+        // Adjust to pass screen coordinates directly, accounting for page scroll
+        createBody(mousePosition.x + window.scrollX, mousePosition.y + window.scrollY);
+    } else {
+        console.error('Mouse position is not defined or incorrect.');
+    }
 };
