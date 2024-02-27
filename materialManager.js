@@ -30,44 +30,20 @@ export const materials = {
     photonGel: { color: '#ffa07a', density: 0.0008, friction: 0.05, restitution: 0.9 },
 };
 
-export const createBody = (clientX, clientY) => {
-    // Verify render object's availability
-    if (!render || !render.canvas) {
-        console.error("Render object or canvas not available in createBody function.");
-        return;
-    }
-
-    // Convert screen coordinates to world coordinates
-    const { x, y } = screenToWorld(clientX, clientY, render);
-
-    // Ensure material exists
-    const material = materials[currentMaterial];
+export const createBody = (x, y, materialName) => {
+    const material = materials[materialName];
     if (!material) {
-        console.error(`Material '${currentMaterial}' not found.`);
+        console.error(`Material '${materialName}' not found.`);
         return;
     }
 
-    // Debugging: log material being used
-    console.log(`Creating body with material: ${currentMaterial}`, material);
-
-    // Determine body size based on material density (example logic)
-    const baseSize = 20; // Base size for bodies
-    const size = material.density < 0.001 ? 10 : (material.density < 0.005 ? 15 : 20);
-
-    // Body options
-    const bodyOptions = {
+    // Example: Creating a circle body
+    const body = Matter.Bodies.circle(x, y, 10, {
         density: material.density,
         friction: material.friction,
         restitution: material.restitution,
         render: { fillStyle: material.color },
-    };
+    });
 
-    // Create a circle body; could be extended to other shapes based on material
-    const body = Matter.Bodies.circle(x, y, size, bodyOptions);
-
-    // Add the body to the Matter.js world
     Matter.World.add(engine.world, body);
-
-    // Debugging: Confirm body addition
-    console.log(`Body created and added to world:`, body);
 };
