@@ -31,25 +31,41 @@ export const materials = {
 };
 
 export const createBody = (clientX, clientY) => {
-    const { x, y } = screenToWorld(clientX, clientY, render); // Convert screen to world coordinates
-    const materialKey = currentMaterial; // This assumes currentMaterial is globally accessible
-    const material = materials[materialKey]; // Ensure materials object is accessible
+    console.log(`Creating body at: ${clientX}, ${clientY} with material: ${currentMaterial}`);
 
+    // Convert client (mouse) coordinates to world coordinates
+    const { x, y } = screenToWorld(clientX, clientY, render);
+    console.log(`World coordinates for body: ${x}, ${y}`);
+
+    // Retrieve the current material's properties
+    const material = materials[currentMaterial];
     if (!material) {
-        console.error(`Material '${materialKey}' not found.`);
+        console.error(`Material '${currentMaterial}' not found.`);
         return;
     }
 
-    const body = Matter.Bodies.circle(x, y, material.size || 20, {
+    // Create a body based on the material properties
+    // This example uses a circle, but you could easily extend it to other shapes
+    const bodyOptions = {
         isStatic: material.isStatic || false,
         render: { fillStyle: material.color },
         density: material.density,
         friction: material.friction,
         restitution: material.restitution,
-        label: materialKey // It might be helpful to label the body with its material for future reference
-    });
+        label: currentMaterial // Useful for debugging
+    };
+    const bodySize = material.size || 20; // Default size or specific material size
+    const body = Matter.Bodies.circle(x, y, bodySize, bodyOptions);
 
+    // Add the created body to the Matter.js world
     Matter.World.add(engine.world, body);
+    console.log(`Body created with material '${currentMaterial}' and added to world.`);
+};
+
+// Debug utility to ensure screenToWorld works as expected
+export const debugScreenToWorld = (clientX, clientY) => {
+    const { x, y } = screenToWorld(clientX, clientY, render);
+    console.log(`Screen to world: (${clientX}, ${clientY}) -> (${x}, ${y})`);
 };
 
 
