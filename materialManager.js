@@ -31,51 +31,40 @@ export const materials = {
 };
 
 
-export const createBody = (clientX, clientY) => {
-    console.log(`Creating body at: ${clientX}, ${clientY} with material: ${currentMaterial}`);
-
-    // Ensure render is defined for screenToWorld conversion
-    if (!render) {
-        console.error('Render object not found.');
-        return;
-    }
+export const createBody = (clientX, clientY, materialKey = currentMaterial) => {
+    console.log(`Creating body at: ${clientX}, ${clientY} with material: ${materialKey}`);
 
     // Convert client (mouse) coordinates to world coordinates
     const { x, y } = screenToWorld(clientX, clientY, render);
     console.log(`World coordinates for body: ${x}, ${y}`);
 
-    // Retrieve the current material's properties
-    const material = materials[currentMaterial];
+    // Retrieve the selected material's properties
+    const material = materials[materialKey];
     if (!material) {
-        console.error(`Material '${currentMaterial}' not found.`);
+        console.error(`Material '${materialKey}' not found.`);
         return;
     }
 
-    // Prepare body options with defaults and overrides from material
-    const bodyOptions = {
-        isStatic: false,
-        render: { fillStyle: '#ffffff' }, // Default color
-        density: 0.001,
-        friction: 0.1,
-        restitution: 0.1,
-        ...material, // Overrides with material properties
-        label: currentMaterial // Useful for debugging
+    // Prepare body options with material properties
+    const options = {
+        density: material.density,
+        friction: material.friction,
+        restitution: material.restitution,
+        render: { fillStyle: material.color }
     };
 
-    // Example for extending to other shapes, defaults to circle
-    const bodySize = material.size || 20; // Default size or specific material size
+    // Adjust the body creation based on the material type
     let body;
-    if (material.shape === 'rectangle') {
-        const width = material.width || 50; // Default width
-        const height = material.height || 50; // Default height
-        body = Matter.Bodies.rectangle(x, y, width, height, bodyOptions);
-    } else { // Default to circle
-        body = Matter.Bodies.circle(x, y, bodySize, bodyOptions);
+    if (materialKey === 'water' || materialKey === 'oil') {
+        // For fluid-like materials, use smaller, more numerous particles
+        body = Matter.Bodies.circle(x, y, 5, options);
+    } else {
+        // Default to a medium-sized particle for other materials
+        body = Matter.Bodies.circle(x, y, 20, options);
     }
 
     // Add the created body to the Matter.js world
     Matter.World.add(engine.world, body);
-    console.log(`Body created with material '${currentMaterial}' and added to world.`);
+    return body;
 };
-
 
