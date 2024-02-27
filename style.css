@@ -9,10 +9,10 @@
     --font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif; /* Professional font */
     --font-family-title: 'Poppins', sans-serif; /* Sophisticated font for titles */
     --transition-speed: 0.3s; /* Smooth transitions */
-    --border-radius: 10px; /* Slightly rounded corners */
-    --shadow-color: rgba(0, 0, 0, 0.3); /* Subtle shadow */
-    --hover-scale: 1.05; /* Scale effect on hover */
-    --active-transform: translateY(2px); /* Move down slightly when active */
+    --border-radius: 10px; /* Slightly rounded corners for a modern look */
+    --shadow-color: rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
+    --hover-scale: 1.05; /* Scale effect on hover for interaction feedback */
+    --active-transform: translateY(2px); /* Move down slightly when active for a tactile feel */
 }
 
 body, html {
@@ -20,15 +20,10 @@ body, html {
     padding: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to bottom, #000000, #131722); /* Space-like background */
+    background: linear-gradient(to bottom, #000000, #131722); /* Space-like gradient background */
     color: var(--text-color);
     font-family: var(--font-family);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
     overflow-x: hidden;
-    position: relative; /* Ensure canvas positioning works properly */
 }
 
 canvas#physicsCanvas {
@@ -37,50 +32,52 @@ canvas#physicsCanvas {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1; /* Ensure canvas is behind UI elements */
-    pointer-events: none; /* Allow mouse events to pass through to elements behind the canvas */
+    z-index: 1; /* Canvas is behind UI elements */
+    pointer-events: none; /* Allows interaction with UI elements */
 }
 
 #uiContainer {
+    position: fixed; /* Stays in place when scrolling */
+    top: 10px; /* Adjusted to appear at the top */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Center align */
+    width: 80%;
+    max-width: 600px;
     padding: 20px;
-    margin-top: 50px;
-    border-radius: var(--border-radius);
     background-color: var(--container-bg-color);
+    border-radius: var(--border-radius);
     box-shadow: 0 4px 8px var(--shadow-color);
     display: flex;
     flex-direction: column;
     align-items: center;
-    position: relative;
-    width: 80%;
-    max-width: 600px;
-    z-index: 2; /* Ensure UI container is above canvas */
+    z-index: 100; /* Above everything else */
 }
 
 .dropdown {
-    position: relative;
-    display: inline-block;
+    width: 100%; /* Ensures the dropdown fills the container */
+    margin: 10px 0; /* Adds some spacing around the dropdown */
 }
 
-.dropbtn {
+.dropbtn, .feature-buttons button {
     background-color: var(--button-bg-color);
-    color: white;
-    padding: 10px;
+    color: var(--text-color);
+    padding: 10px 15px;
     font-size: 16px;
     border: none;
     cursor: pointer;
     border-radius: var(--border-radius);
-    width: 100%;
+    transition: background-color var(--transition-speed), transform var(--transition-speed);
+    width: 100%; /* Ensures button width matches the dropdown */
     box-shadow: 0 2px 4px var(--shadow-color);
-    text-align: left;
-    transition: background-color var(--transition-speed) ease, transform var(--transition-speed) ease;
+    text-align: center; /* Centers the text for better readability */
 }
 
-.dropbtn:hover {
+.dropbtn:hover, .feature-buttons button:hover {
     background-color: var(--button-hover-bg-color);
     transform: scale(var(--hover-scale));
 }
 
-.dropbtn:active {
+.dropbtn:active, .feature-buttons button:active {
     background-color: var(--button-active-bg-color);
     transform: var(--active-transform);
 }
@@ -89,18 +86,21 @@ canvas#physicsCanvas {
     display: none;
     position: absolute;
     background-color: var(--dropdown-bg-color);
-    min-width: 160px;
-    box-shadow: 0 8px 16px 0 var(--shadow-color);
-    z-index: 3; /* Ensure dropdown is above other elements */
+    box-shadow: 0 8px 16px var(--shadow-color);
     border-radius: var(--border-radius);
     padding: 12px 16px;
+    width: calc(100% - 24px); /* Adjust width to match dropdown */
+    top: 100%; /* Position directly below the dropdown button */
+    left: 0;
+    z-index: 101; /* Above the dropdown button */
 }
 
 .dropdown-content a {
-    color: white;
-    padding: 12px 16px;
+    color: var(--text-color);
+    padding: 10px;
     text-decoration: none;
     display: block;
+    transition: background-color var(--transition-speed);
 }
 
 .dropdown-content a:hover {
@@ -111,35 +111,10 @@ canvas#physicsCanvas {
     display: block;
 }
 
-.dropdown:hover .dropbtn {
-    background-color: var(--button-hover-bg-color);
-}
-
 .feature-buttons {
     display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.feature-buttons button {
-    background-color: var(--button-bg-color);
-    color: white;
-    padding: 10px 15px;
-    font-size: 16px;
-    border: none;
-    cursor: pointer;
-    border-radius: var(--border-radius);
-    transition: background-color var(--transition-speed) ease, transform var(--transition-speed) ease;
-    box-shadow: 0 2px 4px var(--shadow-color);
-}
-
-.feature-buttons button:hover {
-    background-color: var(--button-hover-bg-color);
-    transform: scale(var(--hover-scale));
-}
-
-.feature-buttons button:active {
-    background-color: var(--button-active-bg-color);
-    transform: var(--active-transform);
+    justify-content: space-around;
+    width: 100%; /* Allows buttons to fill the container */
+    flex-wrap: wrap; /* Wraps buttons to the next line on small screens */
+    gap: 10px; /* Adds spacing between buttons */
 }
