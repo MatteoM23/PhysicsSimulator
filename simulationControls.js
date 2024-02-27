@@ -2,6 +2,10 @@ import { engine, world } from './physicsInit.js';
 import Matter from 'https://cdn.skypack.dev/matter-js';
 import { createBody } from './materialManager.js';
 
+let gravityReversed = false; // Variable to track gravity state
+
+
+
 export const clearWorld = () => {
     // Get all bodies in the world
     const bodies = Matter.Composite.allBodies(world);
@@ -18,8 +22,6 @@ export const clearWorld = () => {
     console.log('Material bodies cleared!');
 };
 
-
-let gravityReversed = false; // Variable to track gravity state
 
 export const toggleGravity = () => {
     if (gravityReversed) {
