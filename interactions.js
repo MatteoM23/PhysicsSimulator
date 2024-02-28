@@ -534,50 +534,25 @@ function formGlassyStructures(bodyA, bodyB, engine, collisionPoint) {
 }
 
 
-const debugMode = true;
-
-function debugLog(message, ...data) {
-    if (debugMode) {
-        const timestamp = new Date().toISOString();
-        console.log(`[${timestamp}] ${message}`, ...data);
-    }
-}
-
-
 export function handleCollisions(event, engine) {
-    const pairs = event.pairs;
-
-    // Early exit if no pairs found
-    if (!pairs || pairs.length === 0) {
-        debugLog("No collision pairs found or pairs array is empty.");
-        return;
-    }
-
-    pairs.forEach(pair => {
+    event.pairs.forEach(pair => {
         const { bodyA, bodyB } = pair;
-        // Check for undefined materials or labels
-        if (bodyA.material === undefined || bodyB.material === undefined) {
-            debugLog("One or both bodies have undefined materials.", {bodyA, bodyB});
-            return;
-        }
 
-        // Log interaction with more context
-        debugLog(`Interaction detected between: ${bodyA.material} and ${bodyB.material}`, {bodyA, bodyB});
-
-        if (bodyA.isStatic && bodyB.isStatic) {
-            debugLog(`Skipping static interaction: ${bodyA.material} with ${bodyB.material}`, {bodyA, bodyB});
-            return;
+        // Validate materials exist before processing
+        if (!bodyA.material || !bodyB.material) {
+            console.warn(`Missing material for collision: bodyA=${bodyA.id}, bodyB=${bodyB.id}`);
+            return; // Skip processing this pair
         }
 
         const collisionPoint = {
             x: (bodyA.position.x + bodyB.position.x) / 2,
-            y: (bodyA.position.y + bodyB.position.y) / 2
+            y: (bodyA.position.y + bodyB.position.y) / 2,
         };
 
-        // Proceed with interaction rules
         interactionRules(bodyA, bodyB, engine, collisionPoint);
     });
 }
+
 
 // Ensure the collisionStart event is correctly registered to the Matter.js engine
 Matter.Events.on(engine, 'collisionStart', handleCollisions);
