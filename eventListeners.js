@@ -49,7 +49,7 @@ const createBodyAtMouse = () => {
     createBody(x, y, currentMaterial);
 };
 
-const createBody = (x, y, materialName) => {
+export const createBody = (x, y, materialName) => {
     const material = materials[materialName];
     if (!material) {
         console.error(`Material '${materialName}' not found.`);
