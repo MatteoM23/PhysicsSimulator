@@ -26,7 +26,7 @@ export const setupEventListeners = () => {
     });
 };
 
-function createBodyAtMouse(event) {
+export function createBodyAtMouse(event) {
     const { clientX, clientY } = event;
     const radius = 20; // Adjust as needed
     const materialName = currentMaterial; // Use currentMaterial directly if it's a variable
