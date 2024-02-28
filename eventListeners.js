@@ -2,38 +2,36 @@ import { createBody } from './materialManager.js';
 
 let isMouseDown = false;
 
-export const setupEventListeners = () => {
-    document.addEventListener('DOMContentLoaded', () => {
-        const canvas = document.getElementById('physicsCanvas');
-        
-        if (!canvas) {
-            console.error("Canvas not found. Ensure your canvas ID is correct.");
-            return;
-        }
+function setupEventListeners() {
+    const canvas = document.getElementById('physicsCanvas');
 
-        console.log("Canvas found, attaching event listeners.");
+    if (!canvas) {
+        console.error("Canvas not found. Ensure your canvas ID is correct.");
+        return;
+    }
 
-        canvas.addEventListener('mousedown', event => {
-            isMouseDown = true;
-            console.log("Mouse down detected.");
-            createBodyAtMousePosition(event);
-        });
+    console.log("Canvas found, attaching event listeners.");
 
-        canvas.addEventListener('mousemove', event => {
-            if (isMouseDown) {
-                console.log("Mouse move detected with button down.");
-                createBodyAtMousePosition(event);
-            }
-        });
-
-        window.addEventListener('mouseup', () => {
-            if (isMouseDown) {
-                console.log("Mouse up detected. Stopping body creation.");
-                isMouseDown = false;
-            }
-        });
+    canvas.addEventListener('mousedown', (event) => {
+        isMouseDown = true;
+        console.log("Mouse down detected.");
+        createBodyAtMousePosition(event);
     });
-};
+
+    canvas.addEventListener('mousemove', (event) => {
+        if (isMouseDown) {
+            console.log("Mouse move detected with button down.");
+            createBodyAtMousePosition(event);
+        }
+    });
+
+    window.addEventListener('mouseup', () => {
+        if (isMouseDown) {
+            console.log("Mouse up detected. Stopping body creation.");
+            isMouseDown = false;
+        }
+    });
+}
 
 function createBodyAtMousePosition(event) {
     const rect = event.target.getBoundingClientRect();
@@ -45,5 +43,5 @@ function createBodyAtMousePosition(event) {
     createBody(clientX, clientY);
 }
 
-// Ensuring setupEventListeners is called after DOM content has fully loaded.
-setupEventListeners();
+// Attach event listeners after the DOM has fully loaded
+document.addEventListener('DOMContentLoaded', setupEventListeners);
