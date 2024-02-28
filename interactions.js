@@ -1,6 +1,9 @@
 // Define new material interactions with advanced effects
 import Matter from 'https://cdn.skypack.dev/matter-js';
 
+const { Events, World } = Matter;
+
+
 
 export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
     console.log('Interaction detected between:', bodyA.material, 'and', bodyB.material); // Debug
@@ -529,31 +532,43 @@ function formGlassyStructures(bodyA, bodyB, engine, collisionPoint) {
     }
 }
 
-export function handleCollisions(event, engine) {
-    // Debugging: Log the event object to inspect its structure
-    console.log("Received collision event:", event);
 
-    // More robust check for the existence and structure of event.pairs
-    if (!event.pairs || !Array.isArray(event.pairs) || event.pairs.length === 0) {
-        console.error("No collision pairs found, or pairs is not an array or is empty", event);
-        return; // Exit the function early if no valid pairs are present
+class CollisionHandler {
+    constructor(engine) {
+        this.engine = engine;
+        this.setupCollisionEvents();
     }
 
-    // Proceed if event.pairs is valid and not empty
-    event.pairs.forEach(pair => {
-        const { bodyA, bodyB } = pair;
-        
-        // Debugging: Log bodies involved in the collision
-        console.log(`Collision detected between: ${bodyA.label} and ${bodyB.label}`);
+    setupCollisionEvents() {
+        Events.on(this.engine, 'collisionStart', (event) => this.handleCollisions(event));
+    }
 
-        // Calculate the collision point as the midpoint between the positions of bodyA and bodyB
-        const collisionPoint = {
-            x: (bodyA.position.x + bodyB.position.x) / 2,
-            y: (bodyA.position.y + bodyB.position.y) / 2,
-        };
+    handleCollisions(event) {
+        const { pairs } = event;
 
-        // Invoke the interaction rules logic with calculated collision point
-        interactionRules(bodyA, bodyB, engine, collisionPoint);
-    });
+        if (!pairs || pairs.length === 0) {
+            console.error("No collision pairs found or pairs array is empty.");
+            return;
+        }
+
+        pairs.forEach((pair) => {
+            const { bodyA, bodyB } = pair;
+
+            // Calculate collision point, assuming midpoint for simplicity
+            const collisionPoint = {
+                x: (bodyA.position.x + bodyB.position.x) / 2,
+                y: (bodyA.position.y + bodyB.position.y) / 2,
+            };
+
+            // Here, we assume bodyA and bodyB have a `material` property.
+            // If not, you'll need to adjust how you retrieve material information.
+            this.processInteraction(bodyA, bodyB, collisionPoint);
+        });
+    }
+
+    processInteraction(bodyA, bodyB, collisionPoint) {
+        // Directly use the provided interactionRules function
+        interactionRules(bodyA, bodyB, this.engine, collisionPoint);
+    }
 }
 
