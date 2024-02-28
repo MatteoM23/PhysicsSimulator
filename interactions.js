@@ -406,7 +406,7 @@ function simulateExplosionAndParticles(engine, explosionForce, explosionRadius, 
             Matter.World.remove(world, particle);
         }, 2000); // 2000 milliseconds = 2 seconds
     }
-}
+
 
 
 function igniteWood(bodyA, bodyB, engine, collisionPoint) {
