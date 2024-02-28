@@ -29,7 +29,7 @@ export const setupEventListeners = () => {
 };
 
 // Adjusted createBody function to accept radius as a parameter
-function createBody(x, y, radius, options, material) {
+export function createBody(x, y, radius, options, material) {
     let body = Matter.Bodies.circle(x, y, radius, options);
     body.material = material;
     Matter.World.add(engine.world, body);
