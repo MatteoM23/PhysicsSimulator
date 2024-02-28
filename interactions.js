@@ -14,8 +14,7 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
         return;
     }
 
-    const explosionForce = 0.03; // A balanced value for significant yet manageable explosions.
-    const explosionRadius = 100; // A moderate radius to simulate the explosion's extensive impact.
+   
     const typeA = bodyA.material;
     const typeB = bodyB.material;
     const interactionKey = [typeA, typeB].sort().join('+');
@@ -351,7 +350,8 @@ function createBubbleParticles(position, world) {
     }
 }
 
-
+const explosionForce = 0.03; // A balanced value for significant yet manageable explosions.
+const explosionRadius = 100; // A moderate radius to simulate the explosion's extensive impact.
 
 function simulateExplosionAndParticles(engine, explosionForce, explosionRadius, collisionPoint) {
     // Ensure that 'engine' is the current instance of Matter.Engine where your bodies exist
