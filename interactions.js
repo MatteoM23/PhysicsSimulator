@@ -534,6 +534,16 @@ function formGlassyStructures(bodyA, bodyB, engine, collisionPoint) {
 }
 
 
+const debugMode = true;
+
+function debugLog(message, ...data) {
+    if (debugMode) {
+        const timestamp = new Date().toISOString();
+        console.log(`[${timestamp}] ${message}`, ...data);
+    }
+}
+
+
 export function handleCollisions(event, engine) {
     const pairs = event.pairs;
 
