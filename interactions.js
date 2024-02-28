@@ -530,23 +530,14 @@ function formGlassyStructures(bodyA, bodyB, engine, collisionPoint) {
 }
 
 export function handleCollisions(event, engine) {
-    // Debugging: Log the event to ensure it's being received correctly
-    console.log('Handling collisions', event);
-
-    const pairs = event.pairs;
-
-    // Safeguard: Check if pairs is defined and is an array
-    if (!pairs || !Array.isArray(pairs)) {
-        console.error('No collision pairs found or pairs is not an array', pairs);
-        return; // Exit the function if there are no pairs to process
+    // Ensure the event has a 'pairs' property that is an array
+    if (!event.pairs || !Array.isArray(event.pairs)) {
+        console.error('No collision pairs found or pairs is not an array', event.pairs);
+        return; // Exit the function if no pairs or pairs is not an array
     }
 
-    pairs.forEach(pair => {
-        const bodyA = pair.bodyA;
-        const bodyB = pair.bodyB;
-
-        // Debugging: Log bodies involved in the collision
-        console.log(`Collision detected between: ${bodyA.label} and ${bodyB.label}`);
+    event.pairs.forEach(pair => {
+        const { bodyA, bodyB } = pair;
 
         // Calculate collision point as the midpoint between the positions of bodyA and bodyB
         const collisionPoint = {
@@ -554,15 +545,10 @@ export function handleCollisions(event, engine) {
             y: (bodyA.position.y + bodyB.position.y) / 2
         };
 
-        // Debugging: Log the calculated collision point
-        console.log(`Collision point: x=${collisionPoint.x}, y=${collisionPoint.y}`);
-
-        // Assuming interactionRules and handleAntimatterInteractions are defined correctly
-        // Pass collisionPoint to the interactionRules function
+        // Assuming interactionRules and handleAntimatterInteractions are defined elsewhere
         interactionRules(bodyA, bodyB, engine, collisionPoint);
-
-        // Additional handling for antimatter interactions, including special cases with dark matter
         handleAntimatterInteractions(pair, engine, collisionPoint);
     });
 }
+
 
