@@ -530,15 +530,13 @@ function formGlassyStructures(bodyA, bodyB, engine, collisionPoint) {
 }
 
 export function handleCollisions(event, engine) {
-    // Check if event.pairs exists and is an array
+    // Ensure event.pairs exists and is an array
     if (!Array.isArray(event.pairs)) {
         console.error("No collision pairs found or pairs is not an array", event);
         return; // Exit the function early if the condition is met
     }
 
-    const pairs = event.pairs;
-
-    pairs.forEach(pair => {
+    event.pairs.forEach(pair => {
         const bodyA = pair.bodyA;
         const bodyB = pair.bodyB;
 
@@ -548,13 +546,8 @@ export function handleCollisions(event, engine) {
             y: (bodyA.position.y + bodyB.position.y) / 2
         };
 
-        // Pass collisionPoint to the interactionRules function
+        // Pass collisionPoint to the interactionRules function for processing interactions
         interactionRules(bodyA, bodyB, engine, collisionPoint);
-
-        // Additional handling for antimatter interactions, including special cases with dark matter
-        handleAntimatterInteractions(pair, engine, collisionPoint);
     });
 }
-
-
 
