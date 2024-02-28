@@ -1,9 +1,9 @@
-// Assuming physicsInit.js exports 'engine' and 'world', and these are correctly set up
-import { engine, world } from './physicsInit.js';
-// Assuming materials is an exported object from materialManager.js that contains material properties
+// Assuming this is eventListeners.js
+import { engine } from './physicsInit.js';
+import { currentMaterial } from './dropdown.js'; // Import the shared currentMaterial variable
 import { materials } from './materialManager.js';
+import Matter from 'https://cdn.skypack.dev/matter-js'; // Import Matter.js directly if not already globally available
 
-let currentMaterial = 'sand'; // Default material
 let isMouseDown = false;
 let mousePosition = { x: 0, y: 0 };
 
@@ -25,6 +25,7 @@ export const setupEventListeners = () => {
         isMouseDown = false;
     });
 
+    // Optional: Add event listener for keydown if you want to change materials using keyboard shortcuts
     document.addEventListener('keydown', (event) => {
         switch (event.key) {
             case '1':
@@ -36,12 +37,6 @@ export const setupEventListeners = () => {
             // Add more cases as needed
         }
     });
-
-    Matter.Events.on(engine, 'collisionStart', (event) => {
-        event.pairs.forEach(pair => {
-            // Handle collisions if necessary
-        });
-    });
 };
 
 const createBodyAtMouse = () => {
@@ -49,21 +44,26 @@ const createBodyAtMouse = () => {
     createBody(x, y, currentMaterial);
 };
 
-export const createBody = (x, y, materialName) => {
+const createBody = (x, y, materialName) => {
     const material = materials[materialName];
     if (!material) {
         console.error(`Material '${materialName}' not found.`);
         return;
     }
 
-    const body = Matter.Bodies.circle(x, y, material.radius || 10, {
+    // Assuming a function to convert screen coordinates to world coordinates exists
+    // Let's say it's called screenToWorld and defined in utils.js
+    // const { x: worldX, y: worldY } = screenToWorld(x, y);
+
+    const body = Matter.Bodies.circle(x, y, 10, {
         density: material.density,
         friction: material.friction,
         restitution: material.restitution,
-        render: {
-            fillStyle: material.color,
-        },
+        render: { fillStyle: material.color },
     });
 
-    Matter.World.add(world, body);
+    Matter.World.add(world, body); // Ensure 'world' is imported or defined within this script or imported from 'physicsInit.js'
 };
+
+// Initial setup call
+setupEventListeners();
