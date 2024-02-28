@@ -4,7 +4,7 @@ import { setupEventListeners } from './eventListeners.js';
 import { initFeatureButtons } from './featureButton.js';
 import { initDropdown } from './dropdown.js'; // Ensure this is correctly imported
 import { interactionRules, handleCollisions } from './interactions.js';
-import { screenToWorld, invertColor, padZero } from './utils.js';
+import { screenToWorld, padZero } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize the physics engine and rendering
