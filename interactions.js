@@ -534,14 +534,14 @@ function formGlassyStructures(bodyA, bodyB, engine, collisionPoint) {
 
 
 export function handleCollisions(event) {
-    const { pairs } = event;
-
-    if (!pairs || pairs.length === 0) {
+    // Ensure there are collision pairs to process
+    if (!event.pairs || event.pairs.length === 0) {
         console.error("No collision pairs found or pairs array is empty.");
         return;
     }
 
-    pairs.forEach((pair) => {
+    // Process each collision pair
+    event.pairs.forEach((pair) => {
         const { bodyA, bodyB } = pair;
 
         // Calculate the collision point as the midpoint between the positions of bodyA and bodyB
@@ -550,12 +550,11 @@ export function handleCollisions(event) {
             y: (bodyA.position.y + bodyB.position.y) / 2,
         };
 
-        // Directly invoke the interaction rules function
+        // Invoke the interaction rules function for custom material interactions
         interactionRules(bodyA, bodyB, engine, collisionPoint);
-
-        // Here you can include the logic for handleAntimatterInteractions if needed
-        // For simplicity, it's assumed to be part of interactionRules or handled separately
     });
 }
 
+// Ensure the collisionStart event is correctly registered to the Matter.js engine
+Matter.Events.on(engine, 'collisionStart', handleCollisions);
 
