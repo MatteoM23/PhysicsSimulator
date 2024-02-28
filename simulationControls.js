@@ -36,21 +36,18 @@ export const toggleGravity = () => {
     console.log('Gravity toggled!');
 };
 
-
-
 export const materialRain = () => {
     console.log('Starting material rain...');
-    // Assuming materials is a list of keys from your materials object
     const materialsKeys = Object.keys(materials);
-    const numMaterials = 20; // Number of materials to rain
+    const numMaterials = 20;
 
     for (let i = 0; i < numMaterials; i++) {
         const materialType = materialsKeys[Math.floor(Math.random() * materialsKeys.length)];
-        const x = Math.random() * engine.render.options.width; // Use render's width for positioning
-        const y = Math.random() * -100; // Starting above the canvas for a "rain" effect
+        const x = Math.random() * window.innerWidth; // Use window dimensions
+        const y = Math.random() * -100; // Start above the viewport
 
         console.log(`Raining ${materialType} at x: ${x}, y: ${y}`);
-        createBody(x, y, materialType); // Now passing materialType
+        createBody(x, y, materialType);
     }
 
     console.log('Material rain executed.');
