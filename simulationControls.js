@@ -1,7 +1,7 @@
 import { engine, world } from './physicsInit.js';
 import Matter from 'https://cdn.skypack.dev/matter-js';
 import { materials } from './materialManager.js'; // Import materials here
-import { createBody } from './eventListeners.js'; // Import materials here
+import { createBodyAtMouse } from './eventListeners.js'; // Import materials here
 
 let gravityReversed = false; // Variable to track gravity state
 
