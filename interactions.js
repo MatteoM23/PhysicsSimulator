@@ -376,37 +376,6 @@ function simulateExplosionAndParticles(engine, collisionPoint) {
 }
 
 
-
-    // Create and schedule removal of explosion particles
-    const numberOfParticles = 30;
-    for (let i = 0; i < numberOfParticles; i++) {
-        let angle = Math.random() * 2 * Math.PI;
-        let distance = Math.random() * explosionRadius * 0.5;
-        let particle = Matter.Bodies.circle(
-            collisionPoint.x + Math.cos(angle) * distance, 
-            collisionPoint.y + Math.sin(angle) * distance, 
-            2, {
-                render: { fillStyle: '#ff0' },
-                isSensor: true,
-            }
-        );
-
-        const particleForceMagnitude = Math.random() * 0.005 + 0.002;
-        Matter.Body.applyForce(particle, particle.position, {
-            x: Math.cos(angle) * particleForceMagnitude,
-            y: Math.sin(angle) * particleForceMagnitude,
-        });
-
-        Matter.World.add(world, particle);
-
-        // Schedule particle removal after 2 seconds
-        setTimeout(() => {
-            Matter.World.remove(world, particle);
-        }, 2000); // 2000 milliseconds = 2 seconds
-    }
-
-
-
 function igniteWood(bodyA, bodyB, engine, collisionPoint) {
     // Determine which body is wood
     const woodBody = bodyA.material === 'wood' ? bodyA : bodyB;
