@@ -530,15 +530,22 @@ function formGlassyStructures(bodyA, bodyB, engine, collisionPoint) {
 }
 
 export function handleCollisions(event, engine) {
+    // Debugging: Log the event object to inspect its structure
+    console.log("Received collision event:", event);
+
     // Ensure event.pairs exists and is an array. If not, log an error.
     if (!event.pairs || !Array.isArray(event.pairs)) {
         console.error("No collision pairs found or pairs is not an array", event);
         return; // Exit the function early if no valid pairs are present
     }
 
+    // Proceed if event.pairs is valid
     event.pairs.forEach(pair => {
         const bodyA = pair.bodyA;
         const bodyB = pair.bodyB;
+
+        // Debugging: Log bodies involved in the collision
+        console.log(`Collision detected between: ${bodyA.label} and ${bodyB.label}`);
 
         // Calculate the collision point as the midpoint between the positions of bodyA and bodyB
         const collisionPoint = {
@@ -546,7 +553,7 @@ export function handleCollisions(event, engine) {
             y: (bodyA.position.y + bodyB.position.y) / 2,
         };
 
-        // Process interactions based on the collision point and involved bodies
+        // Invoke the interaction rules logic with calculated collision point
         interactionRules(bodyA, bodyB, engine, collisionPoint);
     });
 }
