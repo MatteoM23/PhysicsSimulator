@@ -1,7 +1,8 @@
+// Assuming createBody function is correctly defined in materialManager.js
 import { createBody } from './materialManager.js';
-import { screenToWorld } from './utils.js'; // Assuming this function is correctly set up to convert coordinates
+import { screenToWorld } from './utils.js'; // Make sure this utility is correctly defined to convert screen to world coordinates
 
-document.addEventListener('DOMContentLoaded', () => {
+export const setupEventListeners = () => {
     const canvas = document.getElementById('physicsCanvas');
     
     if (!canvas) {
@@ -11,20 +12,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     console.log("Canvas found, attaching event listeners.");
 
-    function handleMouseDown(event) {
+    canvas.addEventListener('mousedown', event => {
         console.log("Mouse down detected.");
-        const { x, y } = screenToWorld(event.clientX, event.clientY, canvas);
-        console.log(`Creating body at world coordinates: x=${x}, y=${y}`);
-        createBody(x, y);
-    }
-
-    canvas.addEventListener('mousedown', handleMouseDown);
+        handleMouseEvent(event);
+    });
 
     canvas.addEventListener('mousemove', event => {
-        // Only create bodies if the mouse is down (isMouseDown is true)
+        if (isMouseDown) {
+            handleMouseEvent(event);
+        }
     });
 
     window.addEventListener('mouseup', () => {
-        // Set isMouseDown to false when the mouse is released
+        console.log("Mouse up detected. Stopping body creation.");
+        isMouseDown = false;
     });
-});
+};
+
+let isMouseDown = false; // Track the mouse button state
+
+function handleMouseEvent(event) {
+    isMouseDown = true;
+    const { x, y } = screenToWorld(event.clientX, event.clientY); // Convert to world coordinates if necessary
+    console.log(`Creating body at: x=${x}, y=${y}`);
+    createBody(x, y); // Call createBody with world coordinates
+}
