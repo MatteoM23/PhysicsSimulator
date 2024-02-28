@@ -534,24 +534,37 @@ function formGlassyStructures(bodyA, bodyB, engine, collisionPoint) {
 }
 
 
-export function handleCollisions(event) {
-    // Ensure there are collision pairs to process
-    if (!event.pairs || event.pairs.length === 0) {
-        console.error("No collision pairs found or pairs array is empty.");
+export function handleCollisions(event, engine) {
+    const pairs = event.pairs;
+
+    // Early exit if no pairs found
+    if (!pairs || pairs.length === 0) {
+        debugLog("No collision pairs found or pairs array is empty.");
         return;
     }
 
-    // Process each collision pair
-    event.pairs.forEach((pair) => {
+    pairs.forEach(pair => {
         const { bodyA, bodyB } = pair;
+        // Check for undefined materials or labels
+        if (bodyA.material === undefined || bodyB.material === undefined) {
+            debugLog("One or both bodies have undefined materials.", {bodyA, bodyB});
+            return;
+        }
 
-        // Calculate the collision point as the midpoint between the positions of bodyA and bodyB
+        // Log interaction with more context
+        debugLog(`Interaction detected between: ${bodyA.material} and ${bodyB.material}`, {bodyA, bodyB});
+
+        if (bodyA.isStatic && bodyB.isStatic) {
+            debugLog(`Skipping static interaction: ${bodyA.material} with ${bodyB.material}`, {bodyA, bodyB});
+            return;
+        }
+
         const collisionPoint = {
             x: (bodyA.position.x + bodyB.position.x) / 2,
-            y: (bodyA.position.y + bodyB.position.y) / 2,
+            y: (bodyA.position.y + bodyB.position.y) / 2
         };
 
-        // Invoke the interaction rules function for custom material interactions
+        // Proceed with interaction rules
         interactionRules(bodyA, bodyB, engine, collisionPoint);
     });
 }
