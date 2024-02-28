@@ -28,22 +28,22 @@ export const setupEventListeners = () => {
     // Additional event listeners as needed
 };
 
-const createBodyAtMouse = () => {
-    const { x, y } = mousePosition; // Convert these to world coordinates if necessary
-    createBody(x, y, currentMaterial);
-};
-
-export function createBody(x, y, options, material) {
+// Adjusted createBody function to accept radius as a parameter
+function createBody(x, y, radius, options, material) {
     let body = Matter.Bodies.circle(x, y, radius, options);
     body.material = material;
-
-    // Debugging: Verify material assignment
-    if (!body.material) {
-        console.error("Material assignment failed for body", body);
-    }
-
     Matter.World.add(engine.world, body);
     return body;
+}
+
+// When calling createBody, ensure radius is provided
+function createBodyAtMouse(event) {
+    const mouseX = event.clientX;
+    const mouseY = event.clientY;
+    const material = getCurrentMaterial(); // Assuming a function that gets the current material
+    const radius = 20; // Example fixed radius, or you could calculate this dynamically
+
+    createBody(mouseX, mouseY, radius, { isStatic: false }, material);
 }
 
 
