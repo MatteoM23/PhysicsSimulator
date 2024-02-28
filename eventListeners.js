@@ -2,7 +2,7 @@
 import { materials  } from './materialManager.js';
 import { screenToWorld } from './utils.js'; // Make sure this utility is correctly defined to convert screen to world coordinates
 
-const createBody = (x, y, materialName = 'steel') => {
+export const createBody = (x, y, materialName = 'steel') => {
     const material = materials[materialName];
     if (!material) {
         console.error(`Material '${materialName}' not found.`);
