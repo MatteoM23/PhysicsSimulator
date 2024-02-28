@@ -530,14 +530,17 @@ function formGlassyStructures(bodyA, bodyB, engine, collisionPoint) {
 }
 
 export function handleCollisions(event, engine) {
-    // Ensure the event has a 'pairs' property that is an array
-    if (!event.pairs || !Array.isArray(event.pairs)) {
-        console.error('No collision pairs found or pairs is not an array', event.pairs);
-        return; // Exit the function if no pairs or pairs is not an array
+    // Check if event.pairs exists and is an array
+    if (!Array.isArray(event.pairs)) {
+        console.error("No collision pairs found or pairs is not an array", event);
+        return; // Exit the function early if the condition is met
     }
 
-    event.pairs.forEach(pair => {
-        const { bodyA, bodyB } = pair;
+    const pairs = event.pairs;
+
+    pairs.forEach(pair => {
+        const bodyA = pair.bodyA;
+        const bodyB = pair.bodyB;
 
         // Calculate collision point as the midpoint between the positions of bodyA and bodyB
         const collisionPoint = {
@@ -545,10 +548,13 @@ export function handleCollisions(event, engine) {
             y: (bodyA.position.y + bodyB.position.y) / 2
         };
 
-        // Assuming interactionRules and handleAntimatterInteractions are defined elsewhere
+        // Pass collisionPoint to the interactionRules function
         interactionRules(bodyA, bodyB, engine, collisionPoint);
+
+        // Additional handling for antimatter interactions, including special cases with dark matter
         handleAntimatterInteractions(pair, engine, collisionPoint);
     });
 }
+
 
 
