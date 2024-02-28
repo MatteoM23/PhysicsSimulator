@@ -508,11 +508,7 @@ function formGlassyStructures(bodyA, bodyB, engine, collisionPoint) {
 }
 
 
-/**
- * Handles collision events by processing each pair of colliding bodies.
- * @param {Matter.IEventCollision<Matter.Engine>} event - The collision event object from Matter.js.
- */
-export function handleCollisions(event) {
+export function handleCollisions(event, engine) {
     // Destructure pairs from the event, ensuring a fallback empty array if undefined
     const { pairs = [] } = event;
 
@@ -524,13 +520,14 @@ export function handleCollisions(event) {
             y: (bodyA.position.y + bodyB.position.y) / 2,
         };
 
-        // Invoke the interaction rules with the colliding bodies, the engine, and the collision point
-        interactionRules(bodyA, bodyB, Matter.Engine, collisionPoint);
+        // Invoke the interaction rules with the colliding bodies, the engine instance, and the collision point
+        interactionRules(bodyA, bodyB, engine, collisionPoint);
     });
 }
 
 
-// Assuming 'engine' is your Matter.Engine instance
-Matter.Events.on(engine, 'collisionStart', handleCollisions);
+
+// Assuming 'engine' is correctly initialized elsewhere in your code
+Matter.Events.on(engine, 'collisionStart', event => handleCollisions(event, engine));
 
 
