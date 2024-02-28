@@ -33,22 +33,19 @@ const createBodyAtMouse = () => {
     createBody(x, y, currentMaterial);
 };
 
-export const createBody = (x, y, materialName) => {
-    const material = materials[materialName];
-    if (!material) {
-        console.error(`Material '${materialName}' not found.`);
-        return;
+function createBody(x, y, options, material) {
+    let body = Matter.Bodies.circle(x, y, radius, options);
+    body.material = material;
+
+    // Debugging: Verify material assignment
+    if (!body.material) {
+        console.error("Material assignment failed for body", body);
     }
 
-    const body = Matter.Bodies.circle(x, y, 10, {
-        density: material.density,
-        friction: material.friction,
-        restitution: material.restitution,
-        render: { fillStyle: material.color },
-    });
+    Matter.World.add(engine.world, body);
+    return body;
+}
 
-    Matter.World.add(world, body); // Add body to the world
-};
 
 // Initial setup call
 setupEventListeners();
