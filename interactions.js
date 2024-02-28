@@ -533,17 +533,16 @@ export function handleCollisions(event, engine) {
     // Debugging: Log the event object to inspect its structure
     console.log("Received collision event:", event);
 
-    // Ensure event.pairs exists and is an array. If not, log an error.
-    if (!event.pairs || !Array.isArray(event.pairs)) {
-        console.error("No collision pairs found or pairs is not an array", event);
+    // More robust check for the existence and structure of event.pairs
+    if (!event.pairs || !Array.isArray(event.pairs) || event.pairs.length === 0) {
+        console.error("No collision pairs found, or pairs is not an array or is empty", event);
         return; // Exit the function early if no valid pairs are present
     }
 
-    // Proceed if event.pairs is valid
+    // Proceed if event.pairs is valid and not empty
     event.pairs.forEach(pair => {
-        const bodyA = pair.bodyA;
-        const bodyB = pair.bodyB;
-
+        const { bodyA, bodyB } = pair;
+        
         // Debugging: Log bodies involved in the collision
         console.log(`Collision detected between: ${bodyA.label} and ${bodyB.label}`);
 
@@ -557,3 +556,4 @@ export function handleCollisions(event, engine) {
         interactionRules(bodyA, bodyB, engine, collisionPoint);
     });
 }
+
