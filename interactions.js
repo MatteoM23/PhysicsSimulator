@@ -1,5 +1,6 @@
 // Define new material interactions with advanced effects
 import Matter from 'https://cdn.skypack.dev/matter-js';
+import { engine } from './physicsInit.js'; // Adjust the path as necessary
 
 const { Events, World } = Matter;
 
