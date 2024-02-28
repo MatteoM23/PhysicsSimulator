@@ -353,24 +353,31 @@ function createBubbleParticles(position, world) {
 
 
 
-function simulateExplosionAndParticles(world, explosionForce, explosionRadius, collisionPoint) {
-    console.log(`simulateExplosionAndParticles called with explosionForce: ${explosionForce}, explosionRadius: ${explosionRadius}, collisionPoint:`, collisionPoint);
+function simulateExplosionAndParticles(engine, explosionForce, explosionRadius, collisionPoint) {
+    // Ensure that 'engine' is the current instance of Matter.Engine where your bodies exist
+    const allBodies = Matter.Composite.allBodies(engine.world);
 
-    // Apply explosion force to bodies and remove some instantly
-    Matter.Composite.allBodies(world).forEach(body => {
-        const distance = Matter.Vector.magnitude(Matter.Vector.sub(body.position, collisionPoint));
-        if (distance > 0 && distance < explosionRadius) {
-            if (Math.random() < 0.25) {
-                Matter.World.remove(world, body);
-            } else {
-                const intensity = Math.max(0, (explosionRadius - distance) / explosionRadius);
-                const forceMagnitude = explosionForce * intensity * 0.0001 * body.mass;
-                const forceDirection = Matter.Vector.normalise(Matter.Vector.sub(collisionPoint, body.position));
-                const force = Matter.Vector.mult(forceDirection, -forceMagnitude);
-                Matter.Body.applyForce(body, body.position, force);
-            }
+    allBodies.forEach(body => {
+        // Calculate distance between the body and the collision point
+        const dx = body.position.x - collisionPoint.x;
+        const dy = body.position.y - collisionPoint.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < explosionRadius && !body.isStatic) {
+            // Calculate the direction of the force
+            const forceDirection = Matter.Vector.normalise({ x: dx, y: dy });
+            const forceMagnitude = explosionForce / (distance || 1);
+            const force = Matter.Vector.mult(forceDirection, forceMagnitude);
+
+            // Apply the force to the body
+            Matter.Body.applyForce(body, body.position, force);
         }
     });
+
+    // Debug: Log the action
+    console.log('Explosion simulated at', collisionPoint, 'with force', explosionForce, 'affecting', allBodies.length, 'bodies');
+}
+
 
     // Create and schedule removal of explosion particles
     const numberOfParticles = 30;
