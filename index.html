@@ -9,30 +9,24 @@
 </head>
 <body>
     <div id="uiContainer" class="uiElement">
-        <!-- The materialsContainer is where the dynamic dropdown for material selection will be inserted -->
         <div id="materialsContainer"></div>
-        <div class="feature-buttons">
-            <!-- Feature buttons will be dynamically inserted here -->
-        </div>
+        <div class="feature-buttons"></div>
     </div>
-    <canvas id="physicsCanvas"></canvas> <!-- This canvas is where the physics simulation will be rendered -->
+    <canvas id="physicsCanvas"></canvas>
 
-    <!-- Ensure Matter.js is loaded first -->
-    <script type="module" src="https://cdn.skypack.dev/matter-js"></script>
+    <!-- Loading Matter.js directly in the HTML to ensure it's available globally -->
+    <script type="module">
+        import Matter from 'https://cdn.skypack.dev/matter-js';
 
-    <!-- Load utility scripts next -->
-    <script type="module" src="utils.js"></script>
+        window.Matter = Matter; // Make Matter globally accessible
 
-    <!-- Load core simulation scripts -->
-    <script type="module" src="physicsInit.js"></script>
-    <script type="module" src="materialManager.js"></script>
-
-    <!-- Load scripts that depend on the above -->
-    <script type="module" src="dropdown.js"></script>
-    <script type="module" src="eventListeners.js"></script>
-
-    <!-- Load the main entry script last -->
-    <script type="module" src="index.js"></script>
-    <script type="module" src="interactions.js"></script>
+        import './utils.js';
+        import './physicsInit.js';
+        import './materialManager.js';
+        import './dropdown.js';
+        import './eventListeners.js';
+        import './index.js';
+        import './interactions.js';
+    </script>
 </body>
 </html>
