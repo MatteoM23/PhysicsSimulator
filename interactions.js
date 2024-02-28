@@ -533,42 +533,29 @@ function formGlassyStructures(bodyA, bodyB, engine, collisionPoint) {
 }
 
 
-class CollisionHandler {
-    constructor(engine) {
-        this.engine = engine;
-        this.setupCollisionEvents();
+export function handleCollisions(event) {
+    const { pairs } = event;
+
+    if (!pairs || pairs.length === 0) {
+        console.error("No collision pairs found or pairs array is empty.");
+        return;
     }
 
-    setupCollisionEvents() {
-        Events.on(this.engine, 'collisionStart', (event) => this.handleCollisions(event));
-    }
+    pairs.forEach((pair) => {
+        const { bodyA, bodyB } = pair;
 
-    export handleCollisions(event) {
-        const { pairs } = event;
+        // Calculate the collision point as the midpoint between the positions of bodyA and bodyB
+        const collisionPoint = {
+            x: (bodyA.position.x + bodyB.position.x) / 2,
+            y: (bodyA.position.y + bodyB.position.y) / 2,
+        };
 
-        if (!pairs || pairs.length === 0) {
-            console.error("No collision pairs found or pairs array is empty.");
-            return;
-        }
+        // Directly invoke the interaction rules function
+        interactionRules(bodyA, bodyB, engine, collisionPoint);
 
-        pairs.forEach((pair) => {
-            const { bodyA, bodyB } = pair;
-
-            // Calculate collision point, assuming midpoint for simplicity
-            const collisionPoint = {
-                x: (bodyA.position.x + bodyB.position.x) / 2,
-                y: (bodyA.position.y + bodyB.position.y) / 2,
-            };
-
-            // Here, we assume bodyA and bodyB have a `material` property.
-            // If not, you'll need to adjust how you retrieve material information.
-            this.processInteraction(bodyA, bodyB, collisionPoint);
-        });
-    }
-
-    processInteraction(bodyA, bodyB, collisionPoint) {
-        // Directly use the provided interactionRules function
-        interactionRules(bodyA, bodyB, this.engine, collisionPoint);
-    }
+        // Here you can include the logic for handleAntimatterInteractions if needed
+        // For simplicity, it's assumed to be part of interactionRules or handled separately
+    });
 }
+
 
