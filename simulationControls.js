@@ -43,8 +43,8 @@ export const materialRain = () => {
 
     for (let i = 0; i < numMaterials; i++) {
         const materialType = materialsKeys[Math.floor(Math.random() * materialsKeys.length)];
-        const x = Math.random() * window.innerWidth; // Use window dimensions
-        const y = Math.random() * -100; // Start above the viewport
+        const x = Math.random() * window.innerWidth; // Directly using window dimensions
+        const y = Math.random() * -100; // Starting above the viewport
 
         console.log(`Raining ${materialType} at x: ${x}, y: ${y}`);
         createBody(x, y, materialType);
