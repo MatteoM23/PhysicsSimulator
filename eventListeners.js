@@ -1,57 +1,69 @@
-// Assuming createBody function is correctly defined in materialManager.js
-import { materials  } from './materialManager.js';
-import { screenToWorld } from './utils.js'; // Make sure this utility is correctly defined to convert screen to world coordinates
+// Assuming physicsInit.js exports 'engine' and 'world', and these are correctly set up
+import { engine, world } from './physicsInit.js';
+// Assuming materials is an exported object from materialManager.js that contains material properties
+import { materials } from './materialManager.js';
 
-export const createBody = (x, y, materialName = 'steel') => {
+let currentMaterial = 'sand'; // Default material
+let isMouseDown = false;
+let mousePosition = { x: 0, y: 0 };
+
+export const setupEventListeners = () => {
+    document.addEventListener('mousedown', (event) => {
+        isMouseDown = true;
+        mousePosition = { x: event.clientX, y: event.clientY };
+        createBodyAtMouse();
+    });
+
+    document.addEventListener('mousemove', (event) => {
+        mousePosition = { x: event.clientX, y: event.clientY };
+        if (isMouseDown) {
+            createBodyAtMouse();
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isMouseDown = false;
+    });
+
+    document.addEventListener('keydown', (event) => {
+        switch (event.key) {
+            case '1':
+                currentMaterial = 'sand';
+                break;
+            case '2':
+                currentMaterial = 'water';
+                break;
+            // Add more cases as needed
+        }
+    });
+
+    Matter.Events.on(engine, 'collisionStart', (event) => {
+        event.pairs.forEach(pair => {
+            // Handle collisions if necessary
+        });
+    });
+};
+
+const createBodyAtMouse = () => {
+    const { x, y } = mousePosition; // Convert these to world coordinates if necessary
+    createBody(x, y, currentMaterial);
+};
+
+const createBody = (x, y, materialName) => {
     const material = materials[materialName];
     if (!material) {
         console.error(`Material '${materialName}' not found.`);
         return;
     }
 
-    // Example: Creating a circle body with properties from the specified material
-    const body = Matter.Bodies.circle(x, y, 10, {
+    const body = Matter.Bodies.circle(x, y, material.radius || 10, {
         density: material.density,
         friction: material.friction,
         restitution: material.restitution,
-        render: { fillStyle: material.color },
+        render: {
+            fillStyle: material.color,
+        },
     });
 
-    Matter.World.add(engine.world, body);
+    Matter.World.add(world, body);
 };
-
-export const setupEventListeners = () => {
-    const canvas = document.getElementById('physicsCanvas');
-    
-    if (!canvas) {
-        console.error("Canvas not found. Ensure your canvas ID is correct.");
-        return;
-    }
-
-    console.log("Canvas found, attaching event listeners.");
-
-    canvas.addEventListener('mousedown', event => {
-        console.log("Mouse down detected.");
-        handleMouseEvent(event, 'steel'); // Example material name passed
-    });
-
-    canvas.addEventListener('mousemove', event => {
-        if (isMouseDown) {
-            handleMouseEvent(event, 'wood'); // Different example material name passed for demonstration
-        }
-    });
-
-    window.addEventListener('mouseup', () => {
-        console.log("Mouse up detected. Stopping body creation.");
-        isMouseDown = false;
-    });
-};
-
-let isMouseDown = false; // Track the mouse button state
-
-function handleMouseEvent(event, materialName) {
-    isMouseDown = true;
-    const { x, y } = screenToWorld(event.clientX, event.clientY); // Convert to world coordinates if necessary
-    console.log(`Creating body at: x=${x}, y=${y} with material: ${materialName}`);
-    createBody(x, y, materialName); // Call createBody with world coordinates and material name
-}
