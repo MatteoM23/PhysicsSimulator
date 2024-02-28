@@ -1,23 +1,18 @@
 // Assuming this is eventListeners.js
-import { engine, world } from './physicsInit.js'; // Import both engine and world
-import { currentMaterial } from './dropdown.js'; // Import the shared currentMaterial variable
-import { materials } from './materialManager.js';
-import Matter from 'https://cdn.skypack.dev/matter-js'; // Import Matter.js directly if not already globally available
+import Matter from 'https://cdn.skypack.dev/matter-js'; // Import Matter.js
+import { engine } from './physicsInit.js'; // Ensure engine is correctly imported
+import { materials } from './materialManager.js'; // Import materials definition
+import { currentMaterial } from './dropdown.js'; // Import currentMaterial selection mechanism
 
-let isMouseDown = false;
-let mousePosition = { x: 0, y: 0 };
-
+// Setup event listeners for mouse interactions
 export const setupEventListeners = () => {
     document.addEventListener('mousedown', (event) => {
-        isMouseDown = true;
-        mousePosition = { x: event.clientX, y: event.clientY };
-        createBodyAtMouse();
+        createBodyAtMouse(event);
     });
 
     document.addEventListener('mousemove', (event) => {
-        mousePosition = { x: event.clientX, y: event.clientY };
         if (isMouseDown) {
-            createBodyAtMouse();
+            createBodyAtMouse(event);
         }
     });
 
@@ -28,24 +23,29 @@ export const setupEventListeners = () => {
     // Additional event listeners as needed
 };
 
-// Adjusted createBody function to accept radius as a parameter
-export function createBody(x, y, radius, options, material) {
-    let body = Matter.Bodies.circle(x, y, radius, options);
-    body.material = material;
+// Track mouse state
+let isMouseDown = false;
+
+// Create a body at the mouse position with the currently selected material
+export function createBodyAtMouse(event) {
+    const { clientX, clientY } = event; // Destructure clientX and clientY from the event
+    const radius = 20; // Example: fixed value or dynamically determined based on the use case
+    const materialName = currentMaterial; // Assume currentMaterial is a string that matches key in materials object
+    const materialProperties = materials[materialName]; // Retrieve material properties from the materials object
+
+    const options = {
+        density: materialProperties.density,
+        friction: materialProperties.friction,
+        restitution: materialProperties.restitution,
+        render: {
+            fillStyle: materialProperties.color
+        }
+    };
+
+    let body = Matter.Bodies.circle(clientX, clientY, radius, options);
+    body.material = materialName; // Assign material name for interaction handling
     Matter.World.add(engine.world, body);
-    return body;
 }
 
-// When calling createBody, ensure radius is provided
-function createBodyAtMouse(event) {
-    const mouseX = event.clientX;
-    const mouseY = event.clientY;
-    const material = getCurrentMaterial(); // Assuming a function that gets the current material
-    const radius = 20; // Example fixed radius, or you could calculate this dynamically
-
-    createBody(mouseX, mouseY, radius, { isStatic: false }, material);
-}
-
-
-// Initial setup call
+// Initial setup call to activate event listeners
 setupEventListeners();
