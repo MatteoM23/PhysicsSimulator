@@ -30,20 +30,3 @@ export const materials = {
     photonGel: { color: '#ffa07a', density: 0.0008, friction: 0.05, restitution: 0.9 },
 };
 
-export const createBody = (x, y, materialName) => {
-    const material = materials[materialName];
-    if (!material) {
-        console.error(`Material '${materialName}' not found.`);
-        return;
-    }
-
-    // Example: Creating a circle body
-    const body = Matter.Bodies.circle(x, y, 10, {
-        density: material.density,
-        friction: material.friction,
-        restitution: material.restitution,
-        render: { fillStyle: material.color },
-    });
-
-    Matter.World.add(engine.world, body);
-};
