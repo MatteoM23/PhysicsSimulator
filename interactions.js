@@ -543,7 +543,7 @@ class CollisionHandler {
         Events.on(this.engine, 'collisionStart', (event) => this.handleCollisions(event));
     }
 
-    handleCollisions(event) {
+    export handleCollisions(event) {
         const { pairs } = event;
 
         if (!pairs || pairs.length === 0) {
