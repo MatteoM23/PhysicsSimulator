@@ -33,7 +33,7 @@ const createBodyAtMouse = () => {
     createBody(x, y, currentMaterial);
 };
 
-function createBody(x, y, options, material) {
+export function createBody(x, y, options, material) {
     let body = Matter.Bodies.circle(x, y, radius, options);
     body.material = material;
 
