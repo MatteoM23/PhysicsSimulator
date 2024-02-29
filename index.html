@@ -20,13 +20,10 @@
         window.Matter = Matter; // Optionally make Matter globally accessible
 
         // Import your local modules
-        import './utils.js';
-        import './physicsInit.js';
-        import './materialManager.js';
-        import './dropdown.js';
-        import './eventListeners.js';
-        import './interactions.js';
-        import './index.js'; // Ensure index.js does not contain initializations that should happen after all other imports
+        import { init } from './index.js'; // Assume this initializes your simulation
+
+        // Execute the initialization function
+        init();
     </script>
 </body>
 </html>
