@@ -3,6 +3,7 @@ import Matter from 'https://cdn.skypack.dev/matter-js';
 import { engine } from './physicsInit.js'; // Adjust the path as necessary
 
 const { Events, World } = Matter;
+let particles = [];
 
 
 export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
@@ -326,29 +327,58 @@ function createBubbleParticles(position, world) {
     }
 }
 
-function simulateExplosionAndParticles(engine, collisionPoint) {
-    // Define explosionRadius and explosionForce within the function scope or ensure they are passed as parameters
-    const explosionRadius = 100; // example radius, adjust as needed
-    const explosionForce = 0.05; // example force, adjust as needed
+function simulateExplosionAndParticles(world, explosionForce, explosionRadius, collisionPoint) {
+    console.log("Simulating explosion with force:", explosionForce, "and radius:", explosionRadius);
 
-    // Your logic to simulate the explosion and particles using Matter.js
-    console.log(`Simulating explosion at point (${collisionPoint.x}, ${collisionPoint.y}) with radius ${explosionRadius} and force ${explosionForce}.`);
+    // Assuming world is a valid Composite object (like engine.world)
+    const allBodies = Matter.Composite.allBodies(world);
 
-    // Example: applying force to bodies within explosionRadius (this is just illustrative, actual implementation may vary)
-    Matter.Composite.allBodies(engine.world).forEach(body => {
-        const dx = body.position.x - collisionPoint.x;
-        const dy = body.position.y - collisionPoint.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+    // Apply force to all bodies within explosionRadius from collisionPoint
+    allBodies.forEach(body => {
+        const distance = Matter.Vector.magnitude(Matter.Vector.sub(body.position, collisionPoint));
         if (distance < explosionRadius) {
-            // Apply force proportional to distance from explosion center
             const forceMagnitude = explosionForce * (1 - distance / explosionRadius);
-            const forceDirection = Matter.Vector.normalise({ x: dx, y: dy });
+            const forceDirection = Matter.Vector.normalise(Matter.Vector.sub(body.position, collisionPoint));
             const force = Matter.Vector.mult(forceDirection, forceMagnitude);
+
             Matter.Body.applyForce(body, body.position, force);
         }
     });
 
-    // Additional logic as required for your simulation
+    // Simulate particles for visual effect
+    for (let i = 0; i < 20; i++) { // Create 20 particles for visual effect
+        const angle = Math.random() * 2 * Math.PI;
+        const radius = 5; // Smaller radius for particles
+        const position = {
+            x: collisionPoint.x + Math.cos(angle) * explosionRadius * Math.random(),
+            y: collisionPoint.y + Math.sin(angle) * explosionRadius * Math.random()
+        };
+        const particle = Matter.Bodies.circle(position.x, position.y, radius, {
+            render: { fillStyle: '#ff5722', opacity: 1 }, // Particle color and initial opacity
+            isSensor: true // Make particles non-collidable
+        });
+        particles.push(particle);
+        Matter.World.add(world, particle);
+    }
+
+    // Fade out and remove particles over time
+    const fadeOutInterval = setInterval(() => {
+        particles.forEach((particle, index) => {
+            if (particle.circleRadius > 0.2 && particle.render.opacity > 0.05) {
+                particle.circleRadius *= 0.95; // Shrink
+                particle.render.opacity *= 0.95; // Fade
+
+                Matter.Body.applyForce(particle, particle.position, { x: 0, y: -0.0002 }); // Apply upward force
+            } else {
+                Matter.World.remove(world, particle); // Remove particle when too small or faded
+                particles.splice(index, 1);
+            }
+        });
+
+        if (particles.length === 0) {
+            clearInterval(fadeOutInterval); // Clear interval when all particles are gone
+        }
+    }, 100); // Adjust interval timing as needed
 }
 
 
