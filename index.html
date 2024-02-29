@@ -14,18 +14,19 @@
     </div>
     <canvas id="physicsCanvas"></canvas>
 
-    <!-- Loading Matter.js directly in the HTML to ensure it's available globally -->
+    <!-- Loading Matter.js and other scripts as modules -->
     <script type="module">
         import Matter from 'https://cdn.skypack.dev/matter-js';
+        window.Matter = Matter; // Optionally make Matter globally accessible
 
-        window.Matter = Matter; // Make Matter globally accessible
+        // Import your local modules
+        import './utils.js';
+        import './physicsInit.js';
+        import './materialManager.js';
+        import './dropdown.js';
+        import './eventListeners.js';
+        import './interactions.js';
+        import './index.js'; // Ensure index.js does not contain initializations that should happen after all other imports
     </script>
-    <script type="module" src="./utils.js'"></script>
-    <script type="module" src="./physicsInit.js"></script>
-    <script type="module" src="./materialManager.js"></script>
-    <script type="module" src="./dropdown.js"></script>
-    <script type="module" src="./eventListeners.js"></script>
-    <script type="module" src="./index.js"></script>
-    <script type="module" src="./interactions.js"></script>
 </body>
 </html>
