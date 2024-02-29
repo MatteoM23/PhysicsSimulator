@@ -41,13 +41,14 @@ export function createBodyAtMouse(event) {
         density: materialProperties.density,
         friction: materialProperties.friction,
         restitution: materialProperties.restitution,
-        render: { fillStyle: materialProperties.color }
+        render: { fillStyle: materialProperties.color },
+        label: materialName // Storing material name in the label property
     };
 
     const body = Matter.Bodies.circle(clientX, clientY, radius, bodyOptions);
-    body.materialName = materialName; // Assigning the material name to the body for later reference
     Matter.World.add(engine.world, body);
 }
+
 
 // Call setupEventListeners to activate the event listeners
 setupEventListeners();
