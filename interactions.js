@@ -330,56 +330,67 @@ function createBubbleParticles(position, world) {
 function simulateExplosionAndParticles(world, explosionForce, explosionRadius, collisionPoint) {
     console.log("Simulating explosion with force:", explosionForce, "and radius:", explosionRadius);
 
-    // Assuming world is a valid Composite object (like engine.world)
+    // Fetch all bodies in the world
     const allBodies = Matter.Composite.allBodies(world);
 
-    // Apply force to all bodies within explosionRadius from collisionPoint
+    // Apply force to bodies within explosionRadius from collisionPoint
     allBodies.forEach(body => {
         const distance = Matter.Vector.magnitude(Matter.Vector.sub(body.position, collisionPoint));
         if (distance < explosionRadius) {
             const forceMagnitude = explosionForce * (1 - distance / explosionRadius);
             const forceDirection = Matter.Vector.normalise(Matter.Vector.sub(body.position, collisionPoint));
             const force = Matter.Vector.mult(forceDirection, forceMagnitude);
-
             Matter.Body.applyForce(body, body.position, force);
         }
     });
 
-    // Simulate particles for visual effect
-    for (let i = 0; i < 20; i++) { // Create 20 particles for visual effect
-        const angle = Math.random() * 2 * Math.PI;
-        const radius = 5; // Smaller radius for particles
+    // Generate particles for visual effect
+    for (let i = 0; i < 20; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = 5; // smaller radius for visual effect
         const position = {
             x: collisionPoint.x + Math.cos(angle) * explosionRadius * Math.random(),
             y: collisionPoint.y + Math.sin(angle) * explosionRadius * Math.random()
         };
-        const particle = Matter.Bodies.circle(position.x, position.y, radius, {
-            render: { fillStyle: '#ff5722', opacity: 1 }, // Particle color and initial opacity
-            isSensor: true // Make particles non-collidable
-        });
+
+        const particleOptions = {
+            render: { fillStyle: '#ff5722', opacity: 1 },
+            isSensor: true, // ensures particles don't cause physical collisions
+            isStatic: false // ensures particles can move and be affected by forces
+        };
+        const particle = Matter.Bodies.circle(position.x, position.y, radius, particleOptions);
         particles.push(particle);
         Matter.World.add(world, particle);
     }
 
-    // Fade out and remove particles over time
-    const fadeOutInterval = setInterval(() => {
+
+const fadeOutParticles = () => {
+    // Use requestAnimationFrame for timing to ensure updates are in sync with the rendering loop
+    requestAnimationFrame(() => {
         particles.forEach((particle, index) => {
             if (particle.circleRadius > 0.2 && particle.render.opacity > 0.05) {
                 particle.circleRadius *= 0.95; // Shrink
                 particle.render.opacity *= 0.95; // Fade
 
-                Matter.Body.applyForce(particle, particle.position, { x: 0, y: -0.0002 }); // Apply upward force
+                // Apply a mild upward force to simulate rising, ensuring the particle still exists in the world
+                if (Matter.Composite.get(engine.world, particle.id, 'body')) {
+                    Matter.Body.applyForce(particle, particle.position, { x: 0, y: -0.0002 });
+                }
             } else {
-                Matter.World.remove(world, particle); // Remove particle when too small or faded
+                // Safely remove particle
+                if (Matter.Composite.get(engine.world, particle.id, 'body')) {
+                    Matter.Composite.remove(engine.world, particle);
+                }
                 particles.splice(index, 1);
             }
         });
 
-        if (particles.length === 0) {
-            clearInterval(fadeOutInterval); // Clear interval when all particles are gone
+        // Continue fading out remaining particles
+        if (particles.length > 0) {
+            fadeOutParticles();
         }
-    }, 100); // Adjust interval timing as needed
-}
+    });
+};
 
 
 function igniteWood(bodyA, bodyB, engine, collisionPoint) {
