@@ -8,22 +8,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="uiContainer" class="uiElement">
-        <div id="materialsContainer"></div>
-        <div class="feature-buttons"></div>
+    <div id="uiContainer" class="ui-container">
+        <!-- Placeholder for the UI elements like material dropdown and feature buttons -->
+        <div id="materialsContainer" class="materials-container"></div>
+        <div class="feature-buttons-container"></div>
     </div>
     <canvas id="physicsCanvas"></canvas>
 
-    <!-- Loading Matter.js and other scripts as modules -->
-    <script type="module">
-        import Matter from 'https://cdn.skypack.dev/matter-js';
-        window.Matter = Matter; // Optionally make Matter globally accessible
-
-        // Import your local modules
-        import { init } from './index.js'; // Assume this initializes your simulation
-
-        // Execute the initialization function
-        init();
-    </script>
+    <!-- Import index.js as a module -->
+    <script type="module" src="./index.js"></script>
 </body>
 </html>
