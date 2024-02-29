@@ -524,7 +524,6 @@ function formGlassyStructures(bodyA, bodyB, engine, collisionPoint) {
     }
 }
 
-
 export function handleCollisions(event, engine) {
     const { pairs = [] } = event;
 
