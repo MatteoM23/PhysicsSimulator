@@ -5,21 +5,19 @@ import { engine } from './physicsInit.js'; // Adjust the path as necessary
 const { Events, World } = Matter;
 
 
-
 export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
-    console.log('Interaction detected between:', bodyA.material, 'and', bodyB.material); // Debug
+    const materialA = bodyA.label;
+    const materialB = bodyB.label;
 
-    if (bodyA.isStatic || bodyB.isStatic || bodyA.material === bodyB.material) {
-        console.log('Skipping interaction due to static bodies or identical materials.'); // Debug
+    console.log(`Interaction detected between: ${materialA} and ${materialB}`);
+
+    if (bodyA.isStatic || bodyB.isStatic || materialA === materialB) {
+        console.log('Skipping interaction due to static bodies or identical materials.');
         return;
     }
 
-   
-    const typeA = bodyA.material;
-    const typeB = bodyB.material;
-    const interactionKey = [typeA, typeB].sort().join('+');
-
-    console.log('Processing interaction for:', interactionKey); // Debug
+    const interactionKey = [materialA, materialB].sort().join('+');
+    console.log(`Processing interaction for: ${interactionKey}`);
 
     switch (interactionKey) {
         case 'lava+water':
@@ -30,11 +28,9 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
             console.log('Converting lava to rock and removing ice');
             convertLavaToRockRemoveIce(bodyA, bodyB, engine, collisionPoint);
             break;
-        case 'lava+oil': // Updated to match the sorted key
+        case 'lava+oil':
             console.log('Simulating explosion and particles for oil and lava interaction');
-            simulateExplosionAndParticles(engine.world, explosionForce, explosionRadius, collisionPoint);
-            Matter.World.remove(engine.world, bodyA);
-            Matter.World.remove(engine.world, bodyB);
+            simulateExplosionAndParticles(engine.world, bodyA, bodyB, collisionPoint);
             break;
         case 'glass+rock':
             console.log('Forming glassy structures');
@@ -46,31 +42,11 @@ export const interactionRules = (bodyA, bodyB, engine, collisionPoint) => {
             break;
         case 'lava+rubber':
             console.log('Creating fireballs and removing involved bodies');
-            createFireballs(bodyA, bodyB, engine, collisionPoint);
-            Matter.World.remove(engine.world, bodyA);
-            Matter.World.remove(engine.world, bodyB);
+            createFireballsAndRemoveBodies(bodyA, bodyB, engine, collisionPoint);
             break;
-        case 'ice+rock':
-            console.log('Shattering ice and removing rock');
-            shatterIce(bodyA, bodyB, engine, collisionPoint);
-            Matter.World.remove(engine.world, bodyB);
-            break;
-        case 'neutronium+any':
-            console.log('Creating gravity well effect');
-            createGravityWellEffect(bodyA, engine, collisionPoint);
-            break;
-        case 'cosmicDust+voidEssence':
-            console.log('Creating cosmic storm from cosmicDust and voidEssence interaction');
-            createCosmicStorm(collisionPoint, engine);
-            Matter.World.remove(engine.world, bodyA);
-            break;
-        case 'lava+wood':
-            console.log('Igniting wood and removing it');
-            igniteWood(bodyA, bodyB, engine, collisionPoint);
-            Matter.World.remove(engine.world, bodyB);
-            break;
+        // Add additional cases as needed.
         default:
-            console.log('No specific interaction for:', interactionKey);
+            console.log(`No specific interaction implemented for: ${interactionKey}`);
             break;
     }
 };
