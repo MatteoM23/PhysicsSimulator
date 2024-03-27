@@ -523,3 +523,28 @@ function formGlassyStructures(bodyA, bodyB, engine, collisionPoint) {
         Matter.World.add(engine.world, particle);
     }
 }
+
+
+function handleCollisions(event, engine) {
+    const pairs = event.pairs;
+
+    pairs.forEach(pair => {
+        const bodyA = pair.bodyA;
+        const bodyB = pair.bodyB;
+
+        // Calculate collision point as the midpoint between the positions of bodyA and bodyB
+        const collisionPoint = {
+            x: (bodyA.position.x + bodyB.position.x) / 2,
+            y: (bodyA.position.y + bodyB.position.y) / 2
+        };
+
+        // Pass collisionPoint to the interactionRules function
+        interactionRules(bodyA, bodyB, engine, collisionPoint);
+
+        // Additional handling for antimatter interactions, including special cases with dark matter
+        handleAntimatterInteractions(pair, engine, collisionPoint);
+    });
+}
+
+// Make sure to register the collision event listener correctly with the engine
+Matter.Events.on(engine, 'collisionStart', event => handleCollisions(event, engine));
