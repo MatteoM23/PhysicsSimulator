@@ -542,7 +542,7 @@ function handleCollisions(event, engine) {
         interactionRules(bodyA, bodyB, engine, collisionPoint);
 
         // Additional handling for antimatter interactions, including special cases with dark matter
-        handleAntimatterInteractions(pair, engine, collisionPoint);
+        handleAntimatterInteractions(bodyA, bodyB, engine, collisionPoint);
     });
 }
 
